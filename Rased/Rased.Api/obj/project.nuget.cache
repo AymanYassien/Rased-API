@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "ODYIU+gAtnE=",
+  "success": true,
+  "projectFilePath": "D:\\FCI\\Grad-Project\\Coding\\Rased-API\\Rased\\Rased.Api\\Rased.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\BnAdel\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.0\\microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
+    "C:\\Users\\BnAdel\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

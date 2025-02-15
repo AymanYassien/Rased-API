@@ -1,0 +1,15 @@
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\bin\Debug\net9.0\Rased.Business.deps.json
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\bin\Debug\net9.0\Rased.Business.dll
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\bin\Debug\net9.0\Rased.Business.pdb
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\bin\Debug\net9.0\Rased.Infrastructure.dll
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\bin\Debug\net9.0\Rased.Infrastructure.pdb
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.csproj.AssemblyReference.cache
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.GeneratedMSBuildEditorConfig.editorconfig
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.AssemblyInfoInputs.cache
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.AssemblyInfo.cs
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.csproj.CoreCompileInputs.cache
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Bu.88784E40.Up2Date
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.dll
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\refint\Rased.Business.dll
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\Rased.Business.pdb
+D:\FCI\Grad-Project\Coding\Rased-API\Rased\Rased.Business\obj\Debug\net9.0\ref\Rased.Business.dll
