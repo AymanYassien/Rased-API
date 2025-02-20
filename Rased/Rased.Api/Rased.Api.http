@@ -1,6 +1,0 @@
-@Rased.Api_HostAddress = http://localhost:5124
-
-GET {{Rased.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
