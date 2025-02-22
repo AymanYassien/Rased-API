@@ -10,9 +10,4 @@
     <ProjectReference Include="..\Rased.Infrastructure\Rased.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Config\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>
