@@ -1,4 +1,4 @@
-﻿namespace Rased.Infrastructure.Models.Subscription
+﻿namespace Rased.Infrastructure.Models.Subscriptions
 {
     public class Subscription
     {

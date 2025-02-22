@@ -1,4 +1,4 @@
-﻿namespace Rased.Infrastructure.Models.Saving
+﻿namespace Rased.Infrastructure.Models.Savings
 {
     public class SavingCategory
     {

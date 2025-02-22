@@ -1,4 +1,4 @@
-﻿namespace Rased.Infrastructure.Models.Goal
+﻿namespace Rased.Infrastructure.Models.Goals
 {
     public class GoalTransaction
     {
