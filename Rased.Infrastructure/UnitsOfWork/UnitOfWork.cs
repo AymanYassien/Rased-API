@@ -1,7 +1,7 @@
-﻿using Rased.Business.Data;
-using Rased.Infrastructure;
+﻿using Rased.Infrastructure.Data;
+using Rased.Infrastructure.UnitsOfWork;
 
-namespace Rased.Business
+namespace Rased.Infrastructure.UnitsOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {

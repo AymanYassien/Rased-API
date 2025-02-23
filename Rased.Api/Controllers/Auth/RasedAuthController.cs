@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Rased.Infrastructure;
+using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Api.Controllers.Auth
 {

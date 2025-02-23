@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Rased.Infrastructure.Models.Savings;
 
-namespace Rased.Business.Data.Config.Savings
+namespace Rased.Infrastructure.Data.Config.Savings
 {
     public class SavingConfiguration : IEntityTypeConfiguration<Saving>
     {

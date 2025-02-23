@@ -1,6 +1,6 @@
-﻿namespace Rased.Infrastructure
+﻿namespace Rased.Infrastructure.UnitsOfWork
 {
-    public interface IUnitOfWork: IDisposable
+    public interface IUnitOfWork : IDisposable
     {
         // All System IServices ..
         // IAuthService RasedAuth { get; }

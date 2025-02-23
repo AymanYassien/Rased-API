@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Rased.Business;
 using Rased.Business.Data;
-using Rased.Infrastructure;
 using Rased.Infrastructure.Models.User;
+using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Api
 {

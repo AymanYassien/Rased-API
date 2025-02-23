@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Rased.Business.Data.Config.Savings;
 using Rased.Infrastructure.Models.User;
 
-namespace Rased.Business.Data
+namespace Rased.Infrastructure.Data
 {
     public class RasedDbContext: IdentityDbContext<RasedUser>
     {
