@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure.Models.Subscriptions
+﻿using Rased.Infrastructure.Models.User;
+
+namespace Rased.Infrastructure.Models.Subscriptions
 {
     public class Subscription
     {
@@ -14,7 +16,7 @@
         public int PlanId { get; set; }
 
         // Navigation Properties
-        //public IdentityUser User { get; set; } = new IdentityUser();
+        public RasedUser User { get; set; } = new RasedUser();
         public Plan Plan { get; set; } = new Plan();
     }
 }

@@ -31,11 +31,19 @@ namespace Rased.Infrastructure.Data.Config.Savings
                    .HasColumnType("DATETIME2")
                    .IsRequired(false);
 
-            // Relationships (Ex)
-            //builder.HasOne(x => x.Wallet)
-            //       .WithMany(x => x.Savings)
-            //       .HasForeignKey(x => x.WalletId)
-            //       .IsRequired();
+            // Relationships
+            builder.HasOne(x => x.Wallet)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.WalletId)
+                   .IsRequired();
+            builder.HasOne(x => x.SharedWallet)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.SharedWalletId)
+                   .IsRequired();
+            builder.HasOne(x => x.SubCategory)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.WalletId)
+                   .IsRequired();
         }
     }
 }

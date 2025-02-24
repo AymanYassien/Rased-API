@@ -1,4 +1,4 @@
-﻿namespace Rased.Infrastructure.Models.Preference
+﻿namespace Rased.Infrastructure.Models.Preferences
 {
     public class Currency
     {
@@ -9,6 +9,6 @@
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation Properties
-        public IEnumerable<UserPreference> UserPreferences { get; set; } = new List<UserPreference>();
+        public IEnumerable<UserPreference> Preferences { get; set; } = new List<UserPreference>();
     }
 }
