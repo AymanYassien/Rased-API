@@ -1,8 +1,7 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Rased.Business;
-using Rased.Business.Data;
+using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.UnitsOfWork;
 

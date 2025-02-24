@@ -1,9 +1,9 @@
-﻿namespace Rased.Infrastructure.Models.Preference
+﻿namespace Rased.Infrastructure.Models.Preferences
 {
     public class NotificationSetting
     {
         public int Id { get; set; }
-        public string Language { set; get; } = null!; 
+        public string Language { set; get; } = null!;
         public bool EnableEmails { get; set; }
         public bool EnableAll { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -13,6 +13,6 @@
         public int UserPrefId { get; set; }
 
         // Navigation Properties
-        public UserPreference UserPreference { get; set; } = new UserPreference();
+        public UserPreference Preference { get; set; } = new UserPreference();
     }
 }

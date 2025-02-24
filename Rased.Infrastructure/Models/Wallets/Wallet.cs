@@ -1,10 +1,10 @@
-﻿using Rased.Infrastructure.Models.Incomes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using Rased.Infrastructure.Models.Budgets;
+using Rased.Infrastructure.Models.Debts;
+using Rased.Infrastructure.Models.Expenses;
+using Rased.Infrastructure.Models.Goals;
+using Rased.Infrastructure.Models.Incomes;
+using Rased.Infrastructure.Models.Savings;
+using Rased.Infrastructure.Models.User;
 
 namespace Rased.Infrastructure.Models.Wallets
 {
@@ -24,39 +24,13 @@ namespace Rased.Infrastructure.Models.Wallets
         public string ColorType { get; set; }
         public string CurrencyType { get; set; }
 
-
+        public virtual RasedUser User { get; set; } = new RasedUser();
         public virtual ICollection<Income> Incomes { get; set; } = new HashSet<Income>();
-        //public virtual ICollection<Expense> Expenses { get; set; } = new HashSet<Expense>();
-        //public virtual ICollection<Budget> Budgets { get; set; } = new HashSet<Budget>();
-        //public virtual ICollection<Loan> Loans { get; set; } = new HashSet<Loan>();
-        //public virtual ICollection<Goal> Goals { get; set; } = new HashSet<Goal>();
-        //public virtual ICollection<Saving> Savings { get; set; } = new HashSet<Saving>();
-
-
-
+        public virtual ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+        public virtual ICollection<ExpenseTemplate> ExpenseTemplates { get; set; } = new List<ExpenseTemplate>();
+        public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
+        public virtual ICollection<Loan> Loans { get; set; } = new List<Loan>();
+        public virtual ICollection<Goal> Goals { get; set; } = new List<Goal>();
+        public virtual ICollection<Saving> Savings { get; set; } = new List<Saving>();
     }
-    public enum WalletStatus
-    {
-        ACTIVE,
-        ARCHIVED,
-        DELETED
-    }
-    public enum ColorType
-    {
-        Black,
-        White,
-        Custom
-    }
-    //public enum CurrencyType
-    //{
-    //    Dollar,
-    //    SAR,       // Saudi Riyal
-    //    EGP,       // Egyptian Pound
-    //    QAR,       // Qatari Riyal
-    //    KWD,       // Kuwaiti Dinar
-    //    AED        // UAE Dirham
-    //}
-
-
-
 }

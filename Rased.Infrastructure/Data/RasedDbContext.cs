@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Rased.Business.Data.Config.Savings;
+using Rased.Infrastructure.Data.Config.Savings;
 using Rased.Infrastructure.Models.User;
 
 namespace Rased.Infrastructure.Data

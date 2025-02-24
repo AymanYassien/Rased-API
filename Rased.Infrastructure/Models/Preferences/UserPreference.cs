@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure.Models.Preference
+﻿using Rased.Infrastructure.Models.User;
+
+namespace Rased.Infrastructure.Models.Preferences
 {
     public class UserPreference
     {
@@ -16,7 +18,7 @@
         public int CurrencyId { get; set; }
 
         // Navigation Properties
-        //public IdentityUser User { get; set; } = new IdentityUser();
+        public RasedUser User { get; set; } = new RasedUser();
         public Currency Currency { get; set; } = new Currency();
         public NotificationSetting NotificationSetting { get; set; } = new NotificationSetting();
     }
