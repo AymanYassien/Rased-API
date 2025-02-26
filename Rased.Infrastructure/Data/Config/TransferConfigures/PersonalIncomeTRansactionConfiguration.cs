@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Transfers;
+using Rased.Infrastructure;
 
-namespace Rased.Infrastructure.Data.Config.TransferConfigures
+namespace Rased.Business
 {
     public class PersonalIncomeTransactionRecordConfiguration : IEntityTypeConfiguration<PersonalIncomeTrasactionRecord>
     {

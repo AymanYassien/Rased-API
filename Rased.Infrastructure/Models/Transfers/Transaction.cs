@@ -1,5 +1,4 @@
 using Rased.Infrastructure.Helpers.Utilities;
-using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.User;
 
 namespace Rased.Infrastructure.Models.Transfers

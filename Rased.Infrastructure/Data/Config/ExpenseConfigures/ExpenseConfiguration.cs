@@ -1,10 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Expenses;
+using Rased.Infrastructure;
 
 
-namespace Rased.Infrastructure.Data.Config.ExpenseConfigures
+namespace Rased.Business
 {
     public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
     {
@@ -25,6 +25,9 @@ namespace Rased.Infrastructure.Data.Config.ExpenseConfigures
             builder.Property(e => e.Date)
                 .IsRequired();
 
+            builder.Property(e => e.CategoryId)
+                .IsRequired();
+
             builder.Property(e => e.Description)
                 .HasMaxLength(200)
                 .IsUnicode(true)
@@ -33,6 +36,8 @@ namespace Rased.Infrastructure.Data.Config.ExpenseConfigures
 
             builder.Property(e => e.IsAutomated)
                 .HasDefaultValue(false);
+
+
 
             builder.HasCheckConstraint(
                 "CK_Expense_WalletOrSharedWallet",
@@ -50,15 +55,20 @@ namespace Rased.Infrastructure.Data.Config.ExpenseConfigures
                 .HasForeignKey(e => e.SharedWalletId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(e => e.Category)
+                .WithMany()
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(e => e.SubCategory)
-                .WithMany(x => x.Expenses)
+                .WithMany()
                 .HasForeignKey(e => e.SubCategoryId)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(e => e.RelatedBudget)
-                .WithMany(x => x.Expenses)
+                .WithMany()
                 .HasForeignKey(e => e.RelatedBudgetId)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(e => e.Template)
                 .WithMany()
@@ -69,6 +79,12 @@ namespace Rased.Infrastructure.Data.Config.ExpenseConfigures
                 .WithOne(attachment => attachment.Expense)
                 .HasForeignKey("ExpenseId")
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(e => e.StaticPaymentMethodsData)
+                .WithMany()
+                .HasForeignKey(e => e.PaymentMethodId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
         }
     }
 }

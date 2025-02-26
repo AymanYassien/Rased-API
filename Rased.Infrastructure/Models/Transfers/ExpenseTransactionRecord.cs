@@ -1,4 +1,3 @@
-using Rased.Infrastructure.Models.Expenses;
 
 namespace Rased.Infrastructure.Models.Transfers
 {

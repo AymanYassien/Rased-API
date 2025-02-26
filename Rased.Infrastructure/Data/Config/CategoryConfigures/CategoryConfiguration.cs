@@ -1,11 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Categories;
+using Rased.Infrastructure;
 
 
-
-namespace Rased.Infrastructure.Data.Config.CategoryConfigures
+namespace Rased.Business
 {
     public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
@@ -29,11 +28,21 @@ namespace Rased.Infrastructure.Data.Config.CategoryConfigures
                 .IsUnicode(true)
                 .IsRequired(false);
 
-            builder.Property(c => c.Type)
+            builder.Property(c => c.CategoryTypeId)
                 .IsRequired();
 
             builder.Property(c => c.IsActive)
                 .HasDefaultValue(true);
+
+            builder.HasMany(c => c.SubCategories)
+                .WithOne(SubCategory => SubCategory.ParentCategory)
+                .HasForeignKey("CategoryId")
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(c => c.StaticCategoryTypesData)
+                .WithMany()
+                .HasForeignKey(c => c.CategoryTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

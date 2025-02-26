@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.SharedWallets;
+using Rased.Infrastructure;
 
 
-namespace Rased.Infrastructure.Data.Config.SharedWalletConfigures
+namespace Rased.Business
 {
     public class SharedWalletMembersConfiguration : IEntityTypeConfiguration<SharedWalletMembers>
     {
@@ -17,7 +17,7 @@ namespace Rased.Infrastructure.Data.Config.SharedWalletConfigures
             builder.Property(swm => swm.UserId)
                 .IsRequired();
 
-            builder.Property(swm => swm.AccessLevel)
+            builder.Property(swm => swm.AccessLevelId)
                 .IsRequired();
 
             builder.Property(swm => swm.JoinedAt)
@@ -33,7 +33,12 @@ namespace Rased.Infrastructure.Data.Config.SharedWalletConfigures
                 .WithMany()
                 .HasForeignKey(swm => swm.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
+            
+            builder.HasOne(swm => swm.StaticSharedWalletAccessLevelData)
+                .WithMany()
+                .HasForeignKey(swm => swm.SharedWalletId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
 
             builder.HasIndex(swm => swm.SharedWalletId)
                 .HasDatabaseName("IX_SharedWalletMembers_SharedWalletId");

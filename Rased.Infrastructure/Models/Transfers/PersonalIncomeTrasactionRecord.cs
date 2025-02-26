@@ -1,4 +1,4 @@
-using Rased.Infrastructure.Models.Incomes;
+
 
 namespace Rased.Infrastructure.Models.Transfers
 {

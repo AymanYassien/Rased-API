@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Friends;
+using Rased.Infrastructure;
 
 
-namespace Rased.Infrastructure.Data.Config.FriendConfigures
+namespace Rased.Business
 {
     public class FriendshipConfiguration : IEntityTypeConfiguration<Friendship>
     {
@@ -31,12 +31,17 @@ namespace Rased.Infrastructure.Data.Config.FriendConfigures
                 .HasMaxLength(50)
                 .HasColumnType("nvarchar(50)");
 
-            builder.Property(f => f.Status)
+            builder.Property(f => f.FriendshipStatusId)
                 .IsRequired();
 
             builder.HasOne(f => f.User1Profile)
                 .WithMany()
                 .HasForeignKey(f => f.UserId1)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(f => f.StaticFriendshipStatusData)
+                .WithMany()
+                .HasForeignKey(f => f.FriendshipStatusId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(f => f.User2Profile)
