@@ -18,6 +18,10 @@ namespace Rased.Infrastructure.Models.Debts
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        // From class Diagram added
+        public DateTime? NextInstallmentDate { get; set; }
+
+        
         //public char Frequency { get; set; }   // N(Normal) - D(Daily) - M(Monthly) - Y(Yearly)
 
         // Parents Ids
