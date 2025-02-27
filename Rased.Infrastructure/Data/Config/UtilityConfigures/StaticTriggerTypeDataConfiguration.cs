@@ -15,7 +15,7 @@ public class StaticTriggerTypeDataConfiguration : IEntityTypeConfiguration<Stati
             .HasMaxLength(50)
             .HasColumnType("nvarchar(50)");;
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticTriggerTypeData
             {
                 Id = 1,
@@ -51,6 +51,6 @@ public class StaticTriggerTypeDataConfiguration : IEntityTypeConfiguration<Stati
                 Id = 7,
                 Name = "CUSTOM_INTERVAL"
             }
-        );
+        );*/
     }
 }

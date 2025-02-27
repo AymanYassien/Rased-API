@@ -15,13 +15,16 @@ namespace Rased.Infrastructure.Data.Config.Goals
             builder.Property(x => x.Name)
                    .HasColumnType("NVARCHAR(255)")
                    .IsRequired();
+            builder.Property(x => x.CategoryName)
+                   .HasColumnType("NVARCHAR(255)")
+                   .IsRequired(false);
             builder.Property(x => x.Description)
                    .HasColumnType("NVARCHAR(MAX)")
                    .IsRequired(false);
             builder.Property(x => x.Status)
                    .HasColumnType("NVARCHAR(50)")
                    .IsRequired(false);
-            builder.Property(x => x.StartedDate)
+            builder.Property(x => x.StartedAmount)
                    .HasColumnType("DECIMAL(12, 9)")
                    .IsRequired();
             builder.Property(x => x.CurrentAmount)
@@ -56,19 +59,19 @@ namespace Rased.Infrastructure.Data.Config.Goals
             builder.HasOne(x => x.Wallet)
                    .WithMany(x => x.Goals)
                    .HasForeignKey(x => x.WalletId)
-                   .IsRequired();
+                   .IsRequired(false);
             builder.HasOne(x => x.SharedWallet)
                    .WithMany(x => x.Goals)
                    .HasForeignKey(x => x.SharedWalletId)
-                   .IsRequired();
+                   .IsRequired(false);
             builder.HasOne(x => x.SubCategory)
                    .WithMany(x => x.Goals)
-                   .HasForeignKey(x => x.WalletId)
-                   .IsRequired();
+                   .HasForeignKey(x => x.SubCatId)
+                   .IsRequired(false);
             builder.HasMany(x => x.GoalTransactions)
                    .WithOne(x => x.Goal)
-                    .HasForeignKey(x => x.GoalId)
-                    .IsRequired();
+                   .HasForeignKey(x => x.GoalId)
+                   .IsRequired();
         }
     }
 }

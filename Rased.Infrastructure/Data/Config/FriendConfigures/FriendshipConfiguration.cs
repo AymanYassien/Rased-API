@@ -37,7 +37,7 @@ namespace Rased.Business
             builder.HasOne(f => f.User1Profile)
                 .WithMany()
                 .HasForeignKey(f => f.UserId1)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
             
             builder.HasOne(f => f.StaticFriendshipStatusData)
                 .WithMany()
@@ -47,7 +47,7 @@ namespace Rased.Business
             builder.HasOne(f => f.User2Profile)
                 .WithMany()
                 .HasForeignKey(f => f.UserId2)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
 
             builder.HasIndex(f => f.UserId1)

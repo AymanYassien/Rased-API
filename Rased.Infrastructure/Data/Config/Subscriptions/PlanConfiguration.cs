@@ -25,7 +25,7 @@ namespace Rased.Infrastructure.Data.Config.Subscriptions
                    .IsRequired(false);
             builder.Property(x => x.Price)
                    .HasColumnType("DECIMAL(9, 6)")
-                   .IsRequired(false);
+                   .IsRequired();
             builder.Property(x => x.DurationInDays)
                    .HasColumnType("INT")
                    .IsRequired();

@@ -39,10 +39,10 @@ namespace Rased.Business
                 .HasForeignKey("CategoryId")
                 .OnDelete(DeleteBehavior.Cascade);
             
-            builder.HasOne(c => c.StaticCategoryTypesData)
-                .WithMany()
-                .HasForeignKey(c => c.CategoryTypeId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.StaticCategoryTypesData)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.CategoryTypeId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

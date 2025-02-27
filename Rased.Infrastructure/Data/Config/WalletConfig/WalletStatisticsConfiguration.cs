@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Wallets;
+using Rased.Infrastructure;
 
 namespace Rased.Business;
 
@@ -28,9 +28,9 @@ public class WalletStatisticsConfiguration : IEntityTypeConfiguration<WalletStat
             .IsRequired(false); 
         
         entity.HasOne(e => e.Wallet)
-            .WithOne()
+            .WithOne(x => x.WalletStatistics)
             .HasForeignKey<WalletStatistics>(e => e.WalletId)
-            .IsRequired();
+            .IsRequired(false);
         
     }
 }

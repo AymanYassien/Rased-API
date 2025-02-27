@@ -14,7 +14,7 @@ public class StaticTransactionStatusDataConfiguration : IEntityTypeConfiguration
             .IsRequired()
             .HasMaxLength(20); 
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticTransactionStatusData
             {
                 Id = 1,
@@ -40,6 +40,6 @@ public class StaticTransactionStatusDataConfiguration : IEntityTypeConfiguration
                 Id = 5,
                 Name = "CANCELED"
             }
-        );
+        );*/
     }
 }

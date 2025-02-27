@@ -14,7 +14,7 @@ public class StaticFriendshipStatusDataConfiguration : IEntityTypeConfiguration<
             .IsRequired()
             .HasMaxLength(20); 
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticFriendshipStatusData
             {
                 Id = 1,
@@ -30,6 +30,6 @@ public class StaticFriendshipStatusDataConfiguration : IEntityTypeConfiguration<
                 Id = 3,
                 Name = "BLOCKED_BY_USER2"
             }
-        );
+        );*/
     }
 }

@@ -7,8 +7,8 @@ namespace Rased.Infrastructure
     public class Friendship
     {
         public int FriendshipId { get; set; }
-        public int UserId1 { get; set; }
-        public int UserId2 { get; set; }
+        public string UserId1 { get; set; }
+        public string UserId2 { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? Nickname1 { get; set; }
 

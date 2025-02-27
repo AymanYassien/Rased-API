@@ -14,7 +14,7 @@ public class StaticIncomeSourceTypeDataConfiguration : IEntityTypeConfiguration<
             .IsRequired()
             .HasMaxLength(20);
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticIncomeSourceTypeData
             {
                 Id = 1,
@@ -45,6 +45,6 @@ public class StaticIncomeSourceTypeDataConfiguration : IEntityTypeConfiguration<
                 Id = 6,
                 Name = "OTHER"
             }
-        );
+        );*/
     }
 }

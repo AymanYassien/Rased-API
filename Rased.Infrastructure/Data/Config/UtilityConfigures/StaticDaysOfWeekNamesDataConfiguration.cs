@@ -14,7 +14,7 @@ public class StaticDaysOfWeekNamesDataConfiguration : IEntityTypeConfiguration<S
             .IsRequired()
             .HasMaxLength(20); 
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticDaysOfWeekNamesData
             {
                 Id = 1,
@@ -50,6 +50,6 @@ public class StaticDaysOfWeekNamesDataConfiguration : IEntityTypeConfiguration<S
                 Id = 7,
                 Name = "FRIDAY"
             }
-        );
+        );*/
     }
 }

@@ -1,8 +1,4 @@
-﻿using Rased.Infrastructure.Models.Categories;
-using Rased.Infrastructure.Models.SharedWallets;
-using Rased.Infrastructure.Models.Wallets;
-
-namespace Rased.Infrastructure.Models.Savings
+﻿namespace Rased.Infrastructure.Models.Savings
 {
     public class Saving
     {
@@ -15,13 +11,13 @@ namespace Rased.Infrastructure.Models.Savings
         public DateTime? UpdatedAt { get; set; }
 
         // Parents Ids
-        public int WalletId { get; set; }
-        public int SharedWalletId { get; set; }
-        public int SubCatId { get; set; }
+        public int? WalletId { get; set; }
+        public int? SharedWalletId { get; set; }
+        public int? SubCatId { get; set; }
 
         // Navigation Properties
-        public Wallet Wallet { get; set; } = new Wallet();
-        public SharedWallet SharedWallet { get; set; } = new SharedWallet();
-        public SubCategory SubCategory { get; set; } = new SubCategory();
+        public Wallet? Wallet { get; set; }
+        public SharedWallet? SharedWallet { get; set; }
+        public SubCategory? SubCategory { get; set; }
     }
 }

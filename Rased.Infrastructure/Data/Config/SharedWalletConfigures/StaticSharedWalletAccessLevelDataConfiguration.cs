@@ -15,7 +15,7 @@ public class StaticSharedWalletAccessLevelDataConfiguration : IEntityTypeConfigu
             .IsRequired()
             .HasMaxLength(20); 
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticSharedWalletAccessLevelData
             {
                 Id = 1,
@@ -31,6 +31,6 @@ public class StaticSharedWalletAccessLevelDataConfiguration : IEntityTypeConfigu
                 Id = 3,
                 Name = "FULL_ACCESS"
             }
-        );
+        );*/
     }
 }

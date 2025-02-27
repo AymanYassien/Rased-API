@@ -7,8 +7,8 @@ namespace Rased.Infrastructure
     public class FriendRequest
     {
         public int RequestId { get; set; }
-        public int SenderId { get; set; }
-        public int ReceiverId { get; set; }
+        public string SenderId { get; set; }
+        public string ReceiverId { get; set; }
         public DateTime SentAt { get; set; }
         public int FriendRequestStatusId { get; set; }
         public DateTime? UpdatedAt { get; set; }

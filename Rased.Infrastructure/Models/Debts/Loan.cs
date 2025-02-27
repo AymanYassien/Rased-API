@@ -1,6 +1,4 @@
-﻿using Rased.Infrastructure.Models.Wallets;
-
-namespace Rased.Infrastructure.Models.Debts
+﻿namespace Rased.Infrastructure.Models.Debts
 {
     public class Loan
     {
@@ -19,16 +17,18 @@ namespace Rased.Infrastructure.Models.Debts
         public DateTime? UpdatedAt { get; set; }
 
         // From class Diagram added
-        public DateTime? NextInstallmentDate { get; set; }
+        //public DateTime? NextInstallmentDate { get; set; }
 
         
         //public char Frequency { get; set; }   // N(Normal) - D(Daily) - M(Monthly) - Y(Yearly)
 
         // Parents Ids
-        public int WalletId { get; set; }
+        public int? WalletId { get; set; }
+        public int? SharedWalletId { get; set; }
 
         // Navigation Properties
-        public Wallet Wallet { get; set; } = new Wallet();
-        public IEnumerable<LoanInstallment>? LoanInstallments { get; set; }
+        public Wallet? Wallet { get; set; }
+        public SharedWallet? SharedWallet { get; set; }
+        public IEnumerable<LoanInstallment>? LoanInstallments { get; set; } = new List<LoanInstallment>();
     }
 }

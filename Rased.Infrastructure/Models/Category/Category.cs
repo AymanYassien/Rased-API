@@ -13,6 +13,6 @@ namespace Rased.Infrastructure
 
         // Navigation property
         public virtual ICollection<SubCategory> SubCategories { get; set; }
-        public virtual StaticCategoryTypesData StaticCategoryTypesData { get; set; }
+        //public virtual StaticCategoryTypesData StaticCategoryTypesData { get; set; }
     }
 }

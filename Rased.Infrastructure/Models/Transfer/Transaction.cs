@@ -7,9 +7,9 @@ namespace Rased.Infrastructure
     public class Transaction
     {
         public int TransactionId { get; set; }
-        public int SenderId { get; set; }
+        public string SenderId { get; set; }
         public int SenderWalletId { get; set; }
-        public int? ReceiverId { get; set; }
+        public string? ReceiverId { get; set; }
         public int? ReceiverWalletId { get; set; }
         public int ReceiverTypeId { get; set; }
         public decimal Amount { get; set; }
