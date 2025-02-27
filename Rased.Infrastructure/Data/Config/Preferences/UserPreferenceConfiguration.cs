@@ -39,10 +39,6 @@ namespace Rased.Infrastructure.Data.Config.Preferences
                    .WithOne(x => x.Preference)
                    .HasForeignKey<UserPreference>(x => x.UserId)
                    .IsRequired();
-            builder.HasOne(x => x.Currency)
-                    .WithMany(x => x.Preferences)
-                    .HasForeignKey(x => x.CurrencyId)
-                    .IsRequired();
             builder.HasOne(x => x.NotificationSetting)
                    .WithOne(x => x.Preference)
                    .HasForeignKey<NotificationSetting>(x => x.UserPrefId)

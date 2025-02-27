@@ -59,7 +59,7 @@ namespace Rased.Business
             builder.HasOne(t => t.Sender)
                 .WithMany()
                 .HasForeignKey(t => t.SenderId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(t => t.StaticReceiverTypeData)
                 .WithMany()
@@ -74,18 +74,18 @@ namespace Rased.Business
             builder.HasOne(t => t.SenderWallet)
                 .WithMany(sw => sw.SentTransactions)
                 .HasForeignKey(t => t.SenderWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(t => t.Receiver)
                 .WithMany()
                 .HasForeignKey(t => t.ReceiverId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(false);
 
             builder.HasOne(t => t.ReceiverWallet)
                 .WithMany(sw => sw.ReceivedTransactions)
                 .HasForeignKey(t => t.ReceiverWalletId)
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.NoAction)
                 .IsRequired(false);
 
 

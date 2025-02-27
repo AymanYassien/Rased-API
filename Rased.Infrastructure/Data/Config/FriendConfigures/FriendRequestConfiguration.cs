@@ -30,7 +30,7 @@ namespace Rased.Business
             builder.HasOne(fr => fr.Sender)
                 .WithMany()
                 .HasForeignKey(fr => fr.SenderId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
             
             builder.HasOne(fr => fr.StaticFriendRequestStatusData)
                 .WithMany()
@@ -40,7 +40,7 @@ namespace Rased.Business
             builder.HasOne(fr => fr.Receiver)
                 .WithMany()
                 .HasForeignKey(fr => fr.ReceiverId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
 
             builder.HasIndex(fr => fr.SenderId)

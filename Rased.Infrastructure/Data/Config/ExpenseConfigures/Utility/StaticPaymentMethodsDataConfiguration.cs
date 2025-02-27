@@ -14,7 +14,7 @@ public class StaticPaymentMethodsDataConfiguration : IEntityTypeConfiguration<St
             .IsRequired()
             .HasMaxLength(20); 
         
-        entity.HasData(
+        /*entity.HasData(
             new StaticPaymentMethodsData
             {
                 Id = 1,
@@ -50,6 +50,6 @@ public class StaticPaymentMethodsDataConfiguration : IEntityTypeConfiguration<St
                 Id = 7,
                 Name = "OTHER"
             }
-        );
+        );*/
     }
 }

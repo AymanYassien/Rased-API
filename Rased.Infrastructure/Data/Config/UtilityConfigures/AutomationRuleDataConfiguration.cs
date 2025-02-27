@@ -32,32 +32,23 @@ public class AutomationRuleConfiguration : IEntityTypeConfiguration<AutomationRu
             .IsRequired();
 
         entity.Property(e => e.DayOfMonth)
-            .IsRequired(false) 
-            .HasAnnotation("Range", new { Min = 1, Max = 28 }); 
+            .IsRequired(false);
 
         entity.Property(e => e.DayOfWeek)
-            .IsRequired(false) 
-            .HasAnnotation("Range", new { Min = 1, Max = 7 }); 
+            .IsRequired(false);
+        //entity.HasOne(e => e.Wallet)
+        //    .WithMany()
+        //    .HasForeignKey(e => e.WalletId)
+        //    .IsRequired(false); 
 
-        entity.HasOne(e => e.Wallet)
-            .WithMany()
-            .HasForeignKey(e => e.WalletId)
-            .IsRequired(false); 
-
-        entity.HasOne(e => e.SharedWallet)
-            .WithMany() 
-            .HasForeignKey(e => e.SharedWalletId)
-            .IsRequired(false); 
+        //entity.HasOne(e => e.SharedWallet)
+        //    .WithMany() 
+        //    .HasForeignKey(e => e.SharedWalletId)
+        //    .IsRequired(false); 
         
         entity.HasOne(e => e.StaticTriggerTypeData)
             .WithMany() 
             .HasForeignKey(e => e.TriggerTypeId)
             .IsRequired();
-        
-        entity.HasCheckConstraint("CK_AutomationRule_WalletOrSharedWallet",
-            "((WalletId IS NULL AND SharedWalletId IS NOT NULL) OR (WalletId IS NOT NULL AND SharedWalletId IS NULL))");
-        
-        entity.HasCheckConstraint("CK_AutomationRule_EndDateGreaterThanStartDate",
-            "EndDate > StartDate");
     }
 }

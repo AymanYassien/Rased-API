@@ -24,15 +24,15 @@ namespace Rased.Business
                 .IsRequired();
 
 
-            builder.HasOne(swm => swm.Wallet)
+            builder.HasOne(swm => swm.SharedWallet)
                 .WithMany(sw => sw.Members)
                 .HasForeignKey(swm => swm.SharedWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(swm => swm.UserProfile)
                 .WithMany()
                 .HasForeignKey(swm => swm.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
             
             builder.HasOne(swm => swm.StaticSharedWalletAccessLevelData)
                 .WithMany()

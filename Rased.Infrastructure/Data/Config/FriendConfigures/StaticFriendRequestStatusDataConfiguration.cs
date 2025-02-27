@@ -14,7 +14,7 @@ public class StaticFriendRequestStatusDataConfiguration : IEntityTypeConfigurati
             .IsRequired()
             .HasMaxLength(20); 
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticFriendRequestStatusData
             {
                 Id = 1,
@@ -30,6 +30,6 @@ public class StaticFriendRequestStatusDataConfiguration : IEntityTypeConfigurati
                 Id = 3,
                 Name = "REJECTED"
             }
-        );
+        );*/
     }
 }

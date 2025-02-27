@@ -19,8 +19,10 @@ namespace Rased.Business
             builder.Property(e => e.AutomationRuleId)
                 .IsRequired();
 
-            builder.Property(e => e.CategoryId)
-                .IsRequired();
+            builder.Property(e => e.CategoryName)
+                .IsRequired(false)
+                .HasMaxLength(50)
+                .IsUnicode(true);
 
             builder.Property(e => e.Amount)
                 .HasColumnType("decimal(8,2)")
@@ -50,19 +52,15 @@ namespace Rased.Business
             builder.HasOne(e => e.Wallet)
                 .WithMany(wallet => wallet.ExpensesTemplate)
                 .HasForeignKey(e => e.WalletId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
 
             builder.HasOne(e => e.SharedWallet)
                 .WithMany(sharedWallet => sharedWallet.ExpensesTemplates)
                 .HasForeignKey(e => e.SharedWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(e => e.Category)
-                .WithMany()
-                .HasForeignKey(e => e.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
 
             builder.HasOne(e => e.SubCategory)
-                .WithMany()
+                .WithMany(x => x.ExpenseTemplates)
                 .HasForeignKey(e => e.SubCategoryId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
@@ -74,8 +72,8 @@ namespace Rased.Business
                 .IsRequired(false);
 
             builder.HasOne(e => e.AutomationRule)
-                .WithMany()
-                .HasForeignKey(e => e.AutomationRuleId)
+                .WithOne(x => x.ExpenseTemplate)
+                .HasForeignKey<ExpenseTemplate>(e => e.AutomationRuleId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Indexes 

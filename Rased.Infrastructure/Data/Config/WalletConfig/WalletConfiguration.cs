@@ -26,8 +26,7 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
             .HasPrecision(8,2);
 
         entity.Property(e => e.ExpenseLimit)
-            .HasColumnType("decimal(8,2)")
-            .HasAnnotation("MinValue", 0);
+            .HasColumnType("decimal(8,2)");
 
         entity.HasOne(e => e.StaticWalletStatusData)
             .WithMany()
@@ -36,9 +35,5 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
         entity.HasOne(e => e.StaticColorTypeData)
             .WithMany()
             .HasForeignKey(e => e.ColorTypeId);
-
-        entity.HasOne(e => e.StaticCurrencyTypeData)
-            .WithMany()
-            .HasForeignKey(e => e.CurrencyTypeID);
     }
 }

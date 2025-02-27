@@ -53,7 +53,11 @@ namespace Rased.Infrastructure.Data.Config.Debts
             builder.HasOne(x => x.Wallet)
                    .WithMany(x => x.Loans)
                    .HasForeignKey(x => x.WalletId)
-                   .IsRequired();
+                   .IsRequired(false);
+            builder.HasOne(x => x.SharedWallet)
+                   .WithMany(x => x.Loans)
+                   .HasForeignKey(x => x.SharedWalletId)
+                   .IsRequired(false);
             builder.HasMany(x => x.LoanInstallments)
                    .WithOne(x => x.Loan)
                    .HasForeignKey(x => x.LoanId)

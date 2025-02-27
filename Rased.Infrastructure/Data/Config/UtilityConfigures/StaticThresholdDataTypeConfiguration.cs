@@ -16,7 +16,7 @@ public class StaticThresholdTypeDataConfiguration : IEntityTypeConfiguration<Sta
             .HasMaxLength(50)
             .HasColumnType("nvarchar(50)");
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticThresholdTypeData
             {
                 Id = 1,
@@ -27,6 +27,6 @@ public class StaticThresholdTypeDataConfiguration : IEntityTypeConfiguration<Sta
                 Id = 2,
                 Name = "FIXED_AMOUNT"
             }
-        );
+        );*/
     }
 }

@@ -17,15 +17,17 @@ namespace Rased.Business
                 .HasMaxLength(50)
                 .IsUnicode(true);
 
+            builder.Property(e => e.CategoryName)
+                .IsRequired(false)
+                .HasMaxLength(50)
+                .IsUnicode(true);
+
             builder.Property(e => e.Amount)
                 .HasColumnType("decimal(8,2)")
                 .IsRequired();
             builder.HasCheckConstraint("CK_Expense_Amount_GreaterThanZero", "Amount > 0");
 
             builder.Property(e => e.Date)
-                .IsRequired();
-
-            builder.Property(e => e.CategoryId)
                 .IsRequired();
 
             builder.Property(e => e.Description)
@@ -48,32 +50,27 @@ namespace Rased.Business
             builder.HasOne(e => e.Wallet)
                 .WithMany(wallet => wallet.Expenses)
                 .HasForeignKey(e => e.WalletId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
 
             builder.HasOne(e => e.SharedWallet)
                 .WithMany(sharedWallet => sharedWallet.Expenses)
                 .HasForeignKey(e => e.SharedWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(e => e.Category)
-                .WithMany()
-                .HasForeignKey(e => e.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
 
             builder.HasOne(e => e.SubCategory)
-                .WithMany()
+                .WithMany(x => x.Expenses)
                 .HasForeignKey(e => e.SubCategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(e => e.RelatedBudget)
                 .WithMany()
                 .HasForeignKey(e => e.RelatedBudgetId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(e => e.Template)
-                .WithMany()
-                .HasForeignKey(e => e.TemplateId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(e => e.Template)
+            //    .WithMany()
+            //    .HasForeignKey(e => e.TemplateId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(e => e.Attachments)
                 .WithOne(attachment => attachment.Expense)

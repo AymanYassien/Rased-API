@@ -16,11 +16,11 @@ namespace Rased.Business
             builder.Property(b => b.Name)
                 .IsRequired()
                 .HasColumnType("nvarchar(50)");
+            builder.Property(b => b.CategoryName)
+                .IsRequired(false)
+                .HasColumnType("nvarchar(50)");
 
-            builder.Property(b => b.CategoryId)
-                .IsRequired();
-
-            builder.Property(b => b.PlannedAmount)
+            builder.Property(b => b.BudgetAmount)
                 .IsRequired()
                 .HasColumnType("decimal(8,2)");
 
@@ -39,16 +39,12 @@ namespace Rased.Business
                 .HasDefaultValue(0.00m);
 
             builder.Property(b => b.RemainingAmount)
-                .HasPrecision(8, 2)
-                .HasDefaultValueSql("PlannedAmount");
+                .HasPrecision(8, 2);
 
 
-            builder.Property(b => b.DayOfMonth)
-                .HasAnnotation("Range", new[] { 1, 28 });
+            builder.Property(b => b.DayOfMonth);
 
-            builder.Property(b => b.DayOfWeek)
-                .HasAnnotation("Range", new[] { 1, 7 });
-
+            builder.Property(b => b.DayOfWeek);
 
             // DEfault values for none Required 
             builder.Property(b => b.RolloverUnspent)
@@ -56,19 +52,14 @@ namespace Rased.Business
 
 
             builder.HasOne(b => b.Wallet)
-                .WithMany()
+                .WithMany(x => x.Budgets)
                 .HasForeignKey(b => b.WalletId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
 
             builder.HasOne(b => b.SharedWallet)
-                .WithMany()
+                .WithMany(x => x.Budgets)
                 .HasForeignKey(b => b.SharedWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(b => b.Category)
-                .WithMany()
-                .HasForeignKey(b => b.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .IsRequired(false);
             
             builder.HasOne(b => b.StaticBudgetTypesData)
                 .WithMany()
@@ -76,13 +67,13 @@ namespace Rased.Business
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(b => b.SubCategory)
-                .WithMany()
+                .WithMany(x => x.Budgets)
                 .HasForeignKey(b => b.SubCategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-            builder.HasCheckConstraint("CK_Budget_PlannedAmount_Positive",
-                "[PlannedAmount] > 0");
+            //builder.HasCheckConstraint("CK_Budget_BudgetAmount_Positive",
+            //    "[BudgetAmount] > 0");
 
             builder.HasCheckConstraint("CK_Budget_SpentAmount_NonNegative",
                 "[SpentAmount] >= 0");

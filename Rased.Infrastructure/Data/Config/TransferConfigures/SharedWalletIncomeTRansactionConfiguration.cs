@@ -36,7 +36,7 @@ namespace Rased.Business
             builder.HasOne(swit => swit.Transaction)
                 .WithMany()
                 .HasForeignKey(swit => swit.TransactionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(swit => swit.Income)
                 .WithMany()

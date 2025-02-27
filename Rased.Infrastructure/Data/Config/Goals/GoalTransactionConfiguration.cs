@@ -1,22 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Preferences;
+using Rased.Infrastructure.Models.Goals;
 
-namespace Rased.Infrastructure.Data.Config.Preferences
+namespace Rased.Infrastructure.Data.Config.Goals
 {
-    public class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
+    public class GoalTransactionConfiguration : IEntityTypeConfiguration<GoalTransaction>
     {
-        public void Configure(EntityTypeBuilder<Currency> builder)
+        public void Configure(EntityTypeBuilder<GoalTransaction> builder)
         {
-            builder.ToTable("Currencies");
+            builder.ToTable("GoalTransactions");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
                    .ValueGeneratedOnAdd();
-            builder.Property(x => x.Name)
-                   .HasColumnType("NVARCHAR(255)")
+            builder.Property(x => x.InsertedAmount)
+                   .HasColumnType("DECIMAL(12, 9)")
                    .IsRequired();
-            builder.Property(x => x.Symbol)
-                   .HasColumnType("NVARCHAR(50)")
+            builder.Property(x => x.InsertedDate)
+                   .HasColumnType("DATETIME2")
                    .IsRequired();
             builder.Property(x => x.CreatedAt)
                    .HasColumnType("DATETIME2")

@@ -15,7 +15,7 @@ public class StaticBudgetTypesDataConfiguration : IEntityTypeConfiguration<Stati
             .IsRequired()
             .HasColumnType("nvarchar(20)");
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticBudgetTypesData
             {
                 Id = 1,
@@ -41,6 +41,6 @@ public class StaticBudgetTypesDataConfiguration : IEntityTypeConfiguration<Stati
                 Id = 5,
                 Name = "INACTIVE"
             }
-        );
+        );*/
     }
 }

@@ -15,10 +15,10 @@ public class StaticWalletStatusDataConfiguration: IEntityTypeConfiguration<Stati
             .HasMaxLength(20)
             .HasColumnType("nvarchar(20)");
 
-        entity.HasData(
+        /*entity.HasData(
             new StaticWalletStatusData { id = 1, Name = "ACTIVE" },
             new StaticWalletStatusData { id = 2, Name = "ARCHIVED" },
             new StaticWalletStatusData { id = 3, Name = "DELETED" }
-            );
+            );*/
     }
 }

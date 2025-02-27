@@ -14,7 +14,7 @@ public class StaticReceiverTypeDataConfiguration : IEntityTypeConfiguration<Stat
             .IsRequired()
             .HasMaxLength(20); 
         
-        entity.HasData(
+        /*entity.HasData(
             new StaticReceiverTypeData
             {
                 Id = 1,
@@ -40,6 +40,6 @@ public class StaticReceiverTypeDataConfiguration : IEntityTypeConfiguration<Stat
                 Id = 5,
                 Name = "SHARED_WALLET"
             }
-        );
+        );*/
     }
 }

@@ -28,11 +28,6 @@ namespace Rased.Business
                 .HasMaxLength(100)
                 .HasColumnType("nvarchar(100)");
 
-            builder.Property(sw => sw.Currency)
-                .IsRequired()
-                .HasMaxLength(10)
-                .HasColumnType("nvarchar(10)");
-
             builder.Property(sw => sw.TotalBalance)
                 .HasColumnType("decimal(8,2)")
                 .IsRequired();
@@ -54,43 +49,6 @@ namespace Rased.Business
                 .WithMany()
                 .HasForeignKey(sw => sw.WalletStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
-            
-            builder.HasOne(sw => sw.Creator)
-                .WithMany()
-                .HasForeignKey(sw => sw.CreatorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(sw => sw.Members)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Incomes)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Expenses)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.ExpensesTemplates)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Budgets)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Loans)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Goals)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(sw => sw.Savings)
-                .WithOne()
-                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(sw => sw.SentTransactions)
                 .WithOne()

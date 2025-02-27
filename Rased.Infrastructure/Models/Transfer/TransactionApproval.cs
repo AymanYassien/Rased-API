@@ -7,7 +7,7 @@ namespace Rased.Infrastructure
     {
         public int ApprovalId { get; set; }
         public int TransactionId { get; set; }
-        public int ApproverId { get; set; }
+        public string ApproverId { get; set; }
         public DateTime ApprovedAt { get; set; }
 
         // Navigation properties

@@ -14,15 +14,17 @@ public class IncomeConfiguration : IEntityTypeConfiguration<Income>
         entity.Property(e => e.Title)
             .IsRequired()
             .HasMaxLength(50);
+        entity.Property(e => e.CategoryName)
+            .IsRequired(false)
+            .HasMaxLength(50);
 
         entity.Property(e => e.Description)
             .HasMaxLength(200)
-            .IsRequired(false); 
+            .IsRequired(false);
 
         entity.Property(e => e.Amount)
             .IsRequired()
-            .HasColumnType("decimal(8,2)") 
-            .HasAnnotation("MinValue", 0); 
+            .HasColumnType("decimal(8,2)");
 
         entity.Property(e => e.CreatedDate)
             .IsRequired()
@@ -38,19 +40,24 @@ public class IncomeConfiguration : IEntityTypeConfiguration<Income>
             .IsRequired(false); 
 
         entity.HasOne(e => e.SharedWallet)
-            .WithMany() 
+            .WithMany(x => x.Incomes) 
             .HasForeignKey(e => e.SharedWalletId)
-            .IsRequired(false); 
+            .IsRequired(false);
+
+        entity.HasOne(e => e.SubCategory)
+            .WithMany(x => x.Incomes)
+            .HasForeignKey(e => e.SubCategoryId)
+            .IsRequired(false);
 
         entity.HasOne(e => e.IncomeSourceType)
             .WithMany() 
             .HasForeignKey(e => e.IncomeSourceTypeId)
             .IsRequired();
 
-        entity.HasOne(e => e.IncomeTemplate)
-            .WithMany() 
-            .HasForeignKey(e => e.IncomeTemplateId)
-            .IsRequired(false); 
+        //entity.HasOne(e => e.IncomeTemplate)
+        //    .WithMany() 
+        //    .HasForeignKey(e => e.IncomeTemplateId)
+        //    .IsRequired(false); 
 
         
         entity.HasCheckConstraint("CK_Income_WalletOrSharedWallet",

@@ -18,6 +18,10 @@ public class IncomeTemplateConfiguration : IEntityTypeConfiguration<IncomeTempla
             .HasMaxLength(50)
             .HasColumnType("nvarchar(50)");
 
+        entity.Property(e => e.CategoryName)
+            .IsRequired(false)
+            .HasMaxLength(50);
+
         entity.Property(e => e.Description)
             .HasMaxLength(200)
             .IsRequired(false)
@@ -25,26 +29,30 @@ public class IncomeTemplateConfiguration : IEntityTypeConfiguration<IncomeTempla
 
         entity.Property(e => e.Amount)
             .IsRequired()
-            .HasColumnType("decimal(8,2)")
-            .HasAnnotation("MinValue", 0); 
+            .HasColumnType("decimal(8,2)");
 
         entity.Property(e => e.IsNeedApprovalWhenAutoAdd)
             .IsRequired()
             .HasDefaultValue(false);
         
         entity.HasOne(e => e.Wallet)
-            .WithMany()
+            .WithMany(x => x.IncomeTemplates)
             .HasForeignKey(e => e.WalletId)
             .IsRequired(false); 
 
         entity.HasOne(e => e.SharedWallet)
-            .WithMany()
+            .WithMany(x => x.IncomeTemplates)
             .HasForeignKey(e => e.SharedWalletId)
-            .IsRequired(false); 
+            .IsRequired(false);
+
+        entity.HasOne(e => e.SubCategory)
+            .WithMany(x => x.IncomeTemplates)
+            .HasForeignKey(e => e.SubCategoryId)
+            .IsRequired(false);
 
         entity.HasOne(e => e.AutomationRule)
-            .WithMany() 
-            .HasForeignKey(e => e.AutomationRuleId)
+            .WithOne(x => x.IncomeTemplate) 
+            .HasForeignKey<IncomeTemplate>(e => e.AutomationRuleId)
             .IsRequired();
 
         entity.HasOne(e => e.IncomeSourceType)
