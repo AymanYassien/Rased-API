@@ -1,10 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Budgets;
+using Rased.Infrastructure;
 
 
-namespace Rased.Infrastructure.Data.Config.BudgetConfigures
+namespace Rased.Business
 {
     public class BudgetConfiguration : IEntityTypeConfiguration<Budget>
     {
@@ -30,7 +30,7 @@ namespace Rased.Infrastructure.Data.Config.BudgetConfigures
             builder.Property(b => b.EndDate)
                 .IsRequired();
 
-            builder.Property(b => b.Status)
+            builder.Property(b => b.BudgetTypeId)
                 .IsRequired();
 
 
@@ -39,7 +39,7 @@ namespace Rased.Infrastructure.Data.Config.BudgetConfigures
                 .HasDefaultValue(0.00m);
 
             builder.Property(b => b.RemainingAmount)
-                .HasPrecision(7, 2)
+                .HasPrecision(8, 2)
                 .HasDefaultValueSql("PlannedAmount");
 
 
@@ -56,7 +56,7 @@ namespace Rased.Infrastructure.Data.Config.BudgetConfigures
 
 
             builder.HasOne(b => b.Wallet)
-                .WithMany(x => x.Budgets)
+                .WithMany()
                 .HasForeignKey(b => b.WalletId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -65,10 +65,20 @@ namespace Rased.Infrastructure.Data.Config.BudgetConfigures
                 .HasForeignKey(b => b.SharedWalletId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(b => b.Category)
+                .WithMany()
+                .HasForeignKey(b => b.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(b => b.StaticBudgetTypesData)
+                .WithMany()
+                .HasForeignKey(b => b.BudgetTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(b => b.SubCategory)
-                .WithMany(x => x.Budgets)
+                .WithMany()
                 .HasForeignKey(b => b.SubCategoryId)
-                .IsRequired();
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             builder.HasCheckConstraint("CK_Budget_PlannedAmount_Positive",

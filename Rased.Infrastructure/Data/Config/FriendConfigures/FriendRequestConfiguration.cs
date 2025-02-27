@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Friends;
+using Rased.Infrastructure;
 
-namespace Rased.Infrastructure.Data.Config.FriendConfigures
+namespace Rased.Business
 {
     public class FriendRequestConfiguration : IEntityTypeConfiguration<FriendRequest>
     {
@@ -20,7 +20,7 @@ namespace Rased.Infrastructure.Data.Config.FriendConfigures
                 .IsRequired()
                 .HasColumnType("datetime");
 
-            builder.Property(fr => fr.Status)
+            builder.Property(fr => fr.FriendRequestStatusId)
                 .IsRequired();
 
             builder.Property(fr => fr.UpdatedAt)
@@ -30,6 +30,11 @@ namespace Rased.Infrastructure.Data.Config.FriendConfigures
             builder.HasOne(fr => fr.Sender)
                 .WithMany()
                 .HasForeignKey(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(fr => fr.StaticFriendRequestStatusData)
+                .WithMany()
+                .HasForeignKey(fr => fr.FriendRequestStatusId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(fr => fr.Receiver)

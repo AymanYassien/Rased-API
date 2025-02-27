@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.SharedWallets;
+using Rased.Infrastructure;
 
-namespace Rased.Infrastructure.Data.Config.SharedWalletConfigures
+namespace Rased.Business
 {
     public class SharedWalletConfiguration : IEntityTypeConfiguration<SharedWallet>
     {
@@ -46,10 +46,15 @@ namespace Rased.Infrastructure.Data.Config.SharedWalletConfigures
             builder.Property(sw => sw.LastModified)
                 .IsRequired();
 
-            builder.Property(sw => sw.Status)
+            builder.Property(sw => sw.WalletStatusId)
                 .IsRequired();
 
 
+            builder.HasOne(sw => sw.StaticWalletStatusData)
+                .WithMany()
+                .HasForeignKey(sw => sw.WalletStatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
             builder.HasOne(sw => sw.Creator)
                 .WithMany()
                 .HasForeignKey(sw => sw.CreatorId)

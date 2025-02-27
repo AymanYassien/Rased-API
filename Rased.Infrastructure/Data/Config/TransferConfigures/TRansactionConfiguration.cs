@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Transfers;
+using Rased.Infrastructure;
 
 
-namespace Rased.Infrastructure.Data.Config.TransferConfigures
+namespace Rased.Business
 {
     public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
     {
@@ -23,7 +23,7 @@ namespace Rased.Infrastructure.Data.Config.TransferConfigures
             builder.Property(t => t.ReceiverWalletId)
                 .IsRequired(false);
 
-            builder.Property(t => t.ReceiverType)
+            builder.Property(t => t.ReceiverTypeId)
                 .IsRequired();
 
             builder.Property(t => t.Amount)
@@ -41,7 +41,7 @@ namespace Rased.Infrastructure.Data.Config.TransferConfigures
             builder.Property(t => t.UpdatedAt)
                 .IsRequired(false);
 
-            builder.Property(t => t.Status)
+            builder.Property(t => t.TransactionStatusId)
                 .IsRequired();
 
             builder.Property(t => t.DisplayColor)
@@ -61,6 +61,16 @@ namespace Rased.Infrastructure.Data.Config.TransferConfigures
                 .HasForeignKey(t => t.SenderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(t => t.StaticReceiverTypeData)
+                .WithMany()
+                .HasForeignKey(t => t.ReceiverTypeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.HasOne(t => t.StaticTransactionStatusData)
+                .WithMany()
+                .HasForeignKey(t => t.TransactionStatusId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
             builder.HasOne(t => t.SenderWallet)
                 .WithMany(sw => sw.SentTransactions)
                 .HasForeignKey(t => t.SenderWalletId)
@@ -91,7 +101,7 @@ namespace Rased.Infrastructure.Data.Config.TransferConfigures
             builder.HasIndex(t => t.ReceiverWalletId)
                 .HasDatabaseName("IX_Transaction_ReceiverWalletId");
 
-            builder.HasIndex(t => t.Status)
+            builder.HasIndex(t => t.TransactionStatusId)
                 .HasDatabaseName("IX_Transaction_Status");
         }
     }

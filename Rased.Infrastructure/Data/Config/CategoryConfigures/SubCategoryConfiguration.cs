@@ -1,9 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure.Models.Categories;
+using Rased.Infrastructure;
 
-namespace Rased.Infrastructure.Data.Config.CategoryConfigures
+
+namespace Rased.Business
 {
     public class SubCategoryConfiguration : IEntityTypeConfiguration<SubCategory>
     {
@@ -11,7 +12,7 @@ namespace Rased.Infrastructure.Data.Config.CategoryConfigures
         {
             builder.HasKey(sc => sc.SubCategoryId);
 
-            builder.Property(sc => sc.CategoryId)
+            builder.Property(sc => sc.ParentCategoryId)
                 .IsRequired();
 
             builder.Property(sc => sc.Name)
@@ -27,9 +28,9 @@ namespace Rased.Infrastructure.Data.Config.CategoryConfigures
             builder.Property(sc => sc.IsActive)
                 .HasDefaultValue(true);
 
-            builder.HasOne(sc => sc.Category)
+            builder.HasOne(sc => sc.ParentCategory)
                 .WithMany(c => c.SubCategories)
-                .HasForeignKey(sc => sc.CategoryId)
+                .HasForeignKey(sc => sc.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
