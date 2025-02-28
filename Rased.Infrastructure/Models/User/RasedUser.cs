@@ -12,5 +12,14 @@ namespace Rased.Infrastructure.Models.User
         public string? Address { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+        public string? OTP { get; set; }
+        public DateTime? OtpExpiryTime { get; set; }
+        public bool IsBanned { get; set; } = false;
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
+
+
+
     }
 }

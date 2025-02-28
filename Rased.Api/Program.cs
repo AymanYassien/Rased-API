@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Rased.Business;
-using Rased.Business.Data;
+using Rased.Business.Services.AuthServices;
+using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Models.User;
+using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Api
@@ -14,8 +16,7 @@ namespace Rased.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            // ----------------------------
+            
             // Add RasedDbContext Service To The Pipeline
             builder.Services.AddDbContext<RasedDbContext>(
                 op => op.UseSqlServer(
@@ -24,11 +25,22 @@ namespace Rased.Api
                 )
             );
 
+
             // System Services Registeration
+
             // Register Identity
             builder.Services.AddIdentity<RasedUser, IdentityRole>().AddEntityFrameworkStores<RasedDbContext>();
+
             // Register Unit Of Work
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            //Register Business Services
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+            // Register Repository 
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+
 
 
 
