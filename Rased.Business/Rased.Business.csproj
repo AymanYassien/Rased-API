@@ -7,11 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Rased.Infrastructure\Rased.Infrastructure.csproj" />
+    <Compile Remove="AutoMapper\**" />
+    <Compile Remove="Dtos\**" />
+    <EmbeddedResource Remove="AutoMapper\**" />
+    <EmbeddedResource Remove="Dtos\**" />
+    <None Remove="AutoMapper\**" />
+    <None Remove="Dtos\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="AutoMapper\" />
+    <ProjectReference Include="..\Rased.Infrastructure\Rased.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

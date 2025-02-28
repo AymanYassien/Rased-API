@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Rased.Infrastructure.Models.Extras;
+using Rased.Infrastructure.Models.Preferences;
+using Rased.Infrastructure.Models.Subscriptions;
 
 namespace Rased.Infrastructure.Models.User
 {
@@ -21,5 +24,12 @@ namespace Rased.Infrastructure.Models.User
 
 
 
+
+        // Navigation Properties
+        public virtual UserPreference Preference { get; set; } = new UserPreference();
+        public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
+        public virtual ICollection<SharedWallet> SharedWallets { get; set; } = new List<SharedWallet>();
+        public virtual ICollection<Notification>? Notifications { get; set; }
     }
 }

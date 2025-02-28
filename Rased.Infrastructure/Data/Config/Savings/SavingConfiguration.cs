@@ -20,7 +20,7 @@ namespace Rased.Infrastructure.Data.Config.Savings
                    .IsRequired(false);
             builder.Property(x => x.TotalAmount)
                    .HasColumnType("DECIMAL(9, 6)")
-                   .IsRequired(false);
+                   .IsRequired();
             builder.Property(x => x.IsSaving)
                    .HasColumnType("BIT")
                    .HasDefaultValue(1);
@@ -31,11 +31,19 @@ namespace Rased.Infrastructure.Data.Config.Savings
                    .HasColumnType("DATETIME2")
                    .IsRequired(false);
 
-            // Relationships (Ex)
-            //builder.HasOne(x => x.Wallet)
-            //       .WithMany(x => x.Savings)
-            //       .HasForeignKey(x => x.WalletId)
-            //       .IsRequired();
+            // Relationships
+            builder.HasOne(x => x.Wallet)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.WalletId)
+                   .IsRequired(false);
+            builder.HasOne(x => x.SharedWallet)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.SharedWalletId)
+                   .IsRequired(false);
+            builder.HasOne(x => x.SubCategory)
+                   .WithMany(x => x.Savings)
+                   .HasForeignKey(x => x.SubCatId)
+                   .IsRequired(false);
         }
     }
 }

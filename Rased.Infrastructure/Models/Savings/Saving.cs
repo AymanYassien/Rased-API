@@ -11,11 +11,13 @@
         public DateTime? UpdatedAt { get; set; }
 
         // Parents Ids
-        public int WalletId { get; set; }
-        public int CatId { get; set; }
+        public int? WalletId { get; set; }
+        public int? SharedWalletId { get; set; }
+        public int? SubCatId { get; set; }
 
         // Navigation Properties
-        //public Wallet Wallet { get; set; } = null!;
-        public SavingCategory SavingCategories { get; set; } = new SavingCategory();
+        public Wallet? Wallet { get; set; }
+        public SharedWallet? SharedWallet { get; set; }
+        public SubCategory? SubCategory { get; set; }
     }
 }

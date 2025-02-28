@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Rased.Business;
 using Rased.Business.Services.AuthServices;
 using Rased.Infrastructure.Data;
+using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.UnitsOfWork;
