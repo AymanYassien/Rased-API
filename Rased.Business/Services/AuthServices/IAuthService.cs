@@ -10,15 +10,17 @@ namespace Rased.Business.Services.AuthServices
 {
     public interface IAuthService
     {
-        Task<LoginResponce> Login(LoginDto loginDto);
+        Task<LoginResponce> LoginAsync(LoginDto loginDto);
         Task<LoginResponce> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
 
-        Task<GeneralRespnose> Register(RegisterDto registerDto);
+        Task<GeneralRespnose> RegisterAsync(RegisterDto registerDto);
         Task<GeneralRespnose> VerifyOtpAsync(VerifyOtpDto verifyOtpDto);
 
 
-        Task<GeneralRespnose> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
-        Task<GeneralRespnose> ResetPassword(ResetPasswordDto resetPasswordDto);
+        Task<GeneralRespnose> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+        Task<GeneralRespnose> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
+
+        Task<GeneralRespnose> ResendOtpAsync(ResendOtpDto resendOtpDto);
 
 
     }

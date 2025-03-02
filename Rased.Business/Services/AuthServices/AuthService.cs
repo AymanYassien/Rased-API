@@ -23,16 +23,19 @@ namespace Rased.Business.Services.AuthServices
         private readonly UserManager<RasedUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<CustomRole> _roleManager;
 
-        public AuthService( UserManager<RasedUser> userManager , IEmailService emailService , IConfiguration configuration)
+        public AuthService( UserManager<RasedUser> userManager , IEmailService emailService , IConfiguration configuration
+            ,RoleManager<CustomRole> roleManager)
         {
             _userManager = userManager;
             _emailService = emailService;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
 
         // Register
-        public async Task<GeneralRespnose> Register(RegisterDto registerDto)
+        public async Task<GeneralRespnose> RegisterAsync(RegisterDto registerDto)
         {
             var response = new GeneralRespnose();
             if (_userManager.Users.Any(s => s.FirstName == registerDto.FirstName && s.LastName == registerDto.LastName))
@@ -59,8 +62,10 @@ namespace Rased.Business.Services.AuthServices
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
+                UserName = registerDto.FirstName + registerDto.LastName ,
                 OTP = GenerateOTP(),
-                OtpExpiryTime = DateTime.UtcNow.AddMinutes(5)
+                CreatedAt = DateTime.UtcNow,
+                OtpExpiryTime = DateTime.UtcNow.AddMinutes(10)
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -70,7 +75,7 @@ namespace Rased.Business.Services.AuthServices
                 string emailBody = $"Dear {user.FirstName} {user.LastName},\r\n\r\n" +
                           $"Your one-time password (OTP) for verification is:\r\n\r\n" +
                           $"🔹 {user.OTP}\r\n\r\n" +
-                          $"This code is valid for 5 minutes. Please do not share this code with anyone for security reasons.\r\n\r\n" +
+                          $"This code is valid for 10 minutes. Please do not share this code with anyone for security reasons.\r\n\r\n" +
                           $"If you didn't request this code, please ignore this email.\r\n\r\n" +
                           $"Best regards,\r\n" +
                           $"The Rased Team";
@@ -94,13 +99,19 @@ namespace Rased.Business.Services.AuthServices
             var response = new GeneralRespnose();
 
             var user = await _userManager.FindByEmailAsync(verifyOtpDto.Email);
-            if (user == null || user.OTP != verifyOtpDto.OTP)
+            if (user == null)
             {
-                response.Errors.Add("Invalid OTP or email.");
+                response.Errors.Add("Email not found. Please make sure the email is correct.");
                 return response;
             }
 
-            if (user.OtpExpiryTime == null || DateTime.UtcNow > user.OtpExpiryTime)
+            if (string.IsNullOrEmpty(user.OTP) || user.OTP != verifyOtpDto.OTP)
+            {
+                response.Errors.Add("Invalid OTP.");
+                return response;
+            }
+
+            if (!user.OtpExpiryTime.HasValue || DateTime.UtcNow > user.OtpExpiryTime.Value)
             {
                 response.Errors.Add("OTP has expired. Please request a new one.");
                 return response;
@@ -109,7 +120,6 @@ namespace Rased.Business.Services.AuthServices
             user.EmailConfirmed = true;
             user.OTP = null;
             user.OtpExpiryTime = null;
-           
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -130,7 +140,7 @@ namespace Rased.Business.Services.AuthServices
 
 
         // Login
-        public async Task<LoginResponce> Login(LoginDto loginDto)
+        public async Task<LoginResponce> LoginAsync(LoginDto loginDto)
         {
             var response = new LoginResponce();
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
@@ -174,7 +184,7 @@ namespace Rased.Business.Services.AuthServices
 
                 //  Save Refresh Token  
                 user.RefreshToken = response.RefreshToken;
-                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // صالح لمدة 7 أيام
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(15); 
                 await _userManager.UpdateAsync(user);
 
                 response.successed = true;
@@ -200,7 +210,7 @@ namespace Rased.Business.Services.AuthServices
             SigningCredentials signingCredential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             //Determine Expiration
-            DateTime tokenExpiration = RememberMe ? DateTime.Now.AddDays(30) : DateTime.Now.AddHours(2);
+            DateTime tokenExpiration = RememberMe ? DateTime.UtcNow.AddHours(1) : DateTime.UtcNow.AddMinutes(30);
 
             //Token
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken
@@ -253,7 +263,7 @@ namespace Rased.Business.Services.AuthServices
 
             //   Update User Data
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(15);
             await _userManager.UpdateAsync(user);
 
             response.successed = true;
@@ -298,7 +308,7 @@ namespace Rased.Business.Services.AuthServices
 
 
        // Reset Password
-        public async Task<GeneralRespnose> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        public async Task<GeneralRespnose> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
         {
             var response = new GeneralRespnose();
             var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
@@ -335,7 +345,7 @@ namespace Rased.Business.Services.AuthServices
             return response;
         }
 
-        public async Task<GeneralRespnose> ResetPassword(ResetPasswordDto resetPasswordDto)
+        public async Task<GeneralRespnose> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
         {
             var response = new GeneralRespnose();
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
@@ -372,6 +382,74 @@ namespace Rased.Business.Services.AuthServices
             await _userManager.UpdateAsync(user);
 
             response.successed = true;
+            return response;
+        }
+
+
+        // Resend Otp
+        public async Task<GeneralRespnose> ResendOtpAsync(ResendOtpDto resendOtpDto)
+        {
+            var response = new GeneralRespnose();
+
+            var user = await _userManager.FindByEmailAsync(resendOtpDto.Email);
+            if (user == null)
+            {
+                response.Errors.Add("Email not found. Please make sure the email is correct.");
+                return response;
+            }
+
+            if (!resendOtpDto.isForResetPassword && user.EmailConfirmed)
+            {
+                response.Errors.Add("Email is already verified.");
+                return response;
+            }
+
+            // New OTP
+            user.OTP = GenerateOTP();
+            user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(10);
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                response.Errors.AddRange(updateResult.Errors.Select(e => e.Description));
+                return response;
+            }
+
+            // Register Or Reset Password
+            string subject, emailBody;
+
+            if (resendOtpDto.isForResetPassword)
+            {
+                subject = "Password Reset OTP - Rased Project";
+                emailBody = $"Dear {user.FirstName} {user.LastName},\r\n\r\n" +
+                            $"Your password reset OTP is:\r\n\r\n" +
+                            $"🔹 {user.OTP}\r\n\r\n" +
+                            $"This code is valid for 10 minutes.\r\n\r\n" +
+                            $"If you didn't request this, please ignore this email.\r\n\r\n" +
+                            $"Best regards,\r\n" +
+                            $"The Rased Team";
+            }
+            else
+            {
+                subject = "Verify Your Email - Rased Project";
+                emailBody = $"Dear {user.FirstName} {user.LastName},\r\n\r\n" +
+                            $"Your new OTP for email verification is:\r\n\r\n" +
+                            $"🔹 {user.OTP}\r\n\r\n" +
+                            $"This code is valid for 10 minutes. Please do not share this code with anyone for security reasons.\r\n\r\n" +
+                            $"If you didn't request this, please ignore this email.\r\n\r\n" +
+                            $"Best regards,\r\n" +
+                            $"The Rased Team";
+            }
+
+            var emailResult = await _emailService.SendEmailAsync(user.Email, subject, emailBody);
+
+            if (emailResult.successed)
+            {
+                response.successed = true;
+                return response;
+            }
+
+            response.Errors.AddRange(emailResult.Errors);
             return response;
         }
 

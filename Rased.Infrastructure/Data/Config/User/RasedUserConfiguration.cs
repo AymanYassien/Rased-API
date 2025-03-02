@@ -14,23 +14,23 @@ namespace Rased.Infrastructure.Data.Config.User
                    .HasColumnType("NVARCHAR(255)")
                    .IsRequired();
             builder.Property(x => x.Country)
-                   .HasColumnType("NVARCHAR(255)")
-                   .IsRequired();
+                   .HasColumnType("NVARCHAR(255)");
+
             builder.Property(x => x.Address)
-                   .HasColumnType("NVARCHAR(MAX)")
-                   .IsRequired();
+                   .HasColumnType("NVARCHAR(MAX)");
+
             builder.Property(x => x.DateOfBirth)
-                   .HasColumnType("DATE")
-                   .IsRequired(false);
+                   .HasColumnType("DATE");
+                   
             builder.Property(x => x.ProfilePic)
-                   .HasColumnType("IMAGE")
-                   .IsRequired(false);
+                   .HasColumnType("IMAGE");
+                   
             builder.Property(x => x.CreatedAt)
                    .HasColumnType("DATETIME2")
                    .IsRequired();
             builder.Property(x => x.UpdatedAt)
-                   .HasColumnType("DATETIME2")
-                   .IsRequired(false);
+                   .HasColumnType("DATETIME2");
+                  
 
             // Relationships
             builder.HasMany(x => x.Wallets)

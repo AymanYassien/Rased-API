@@ -17,14 +17,19 @@ using Rased.Infrastructure.Models.Preferences;
 using Rased.Infrastructure.Models.Savings;
 using Rased.Infrastructure.Models.Subscriptions;
 using Rased.Infrastructure.Models.User;
+using Rased.Infrastructure.Helpers.Constants;
 
 namespace Rased.Infrastructure.Data
 {
-    public class RasedDbContext: IdentityDbContext<RasedUser>
+    public class RasedDbContext: IdentityDbContext<RasedUser ,CustomRole , string>
     {
         public RasedDbContext(DbContextOptions<RasedDbContext> options) : base(options) { }
 
         // DbSets ...
+
+        public virtual DbSet<RasedUser> users { get; set; }
+        public virtual  DbSet<CustomRole> CustomRoles { get; set; }
+
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<StaticBudgetTypesData> StaticBudgetTypes { get; set; }
 
@@ -109,6 +114,6 @@ namespace Rased.Infrastructure.Data
         }
 
 
-        public virtual DbSet<RasedUser> users { get; set; }
+        
     }
 }

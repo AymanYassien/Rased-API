@@ -20,9 +20,9 @@ namespace Rased.Api.Controllers.Auth
 
         // Register
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        public async Task<IActionResult> Register( [FromBody] RegisterDto registerDto)
         {
-            var result = await _authService.Register(registerDto);
+            var result = await _authService.RegisterAsync(registerDto);
             if (!result.successed)
                 return BadRequest(result.Errors);
 
@@ -30,7 +30,7 @@ namespace Rased.Api.Controllers.Auth
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp( VerifyOtpDto verifyOtpDto)
+        public async Task<IActionResult> VerifyOtp([FromBody]  VerifyOtpDto verifyOtpDto)
         {
             var result = await _authService.VerifyOtpAsync(verifyOtpDto);
             if (!result.successed)
@@ -43,9 +43,9 @@ namespace Rased.Api.Controllers.Auth
 
         // Login
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        public async Task<IActionResult> Login( [FromBody] LoginDto loginDto)
         {
-            var response = await _authService.Login(loginDto);
+            var response = await _authService.LoginAsync(loginDto);
 
             if (!response.successed)
                 return BadRequest(response.Errors);    
@@ -54,7 +54,7 @@ namespace Rased.Api.Controllers.Auth
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<IActionResult> RefreshToken( [FromBody] RefreshTokenDto refreshTokenDto)
         {
             var response = await _authService.RefreshTokenAsync(refreshTokenDto);
 
@@ -67,9 +67,9 @@ namespace Rased.Api.Controllers.Auth
 
         // Reset Password
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword( ForgotPasswordDto forgotPasswordDto)
+        public async Task<IActionResult> ForgotPassword( [FromBody] ForgotPasswordDto forgotPasswordDto)
         {
-            var result = await _authService.ForgotPassword(forgotPasswordDto);
+            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto);
             if (!result.successed)
                 return BadRequest( result.Errors );
 
@@ -79,14 +79,27 @@ namespace Rased.Api.Controllers.Auth
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
-            var result = await _authService.ResetPassword(resetPasswordDto);
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto);
             if (!result.successed)
                 return BadRequest(result.Errors );
 
             return Ok(new { success = true, message = "Your password has been reset successfully." });
         }
 
+        // Resend OTP
+        [HttpPost("ResendOtp")]
+        public async Task<IActionResult> ResendOtp( [FromBody] ResendOtpDto resendOtpDto)
+        {
+      
+            var result = await _authService.ResendOtpAsync(resendOtpDto);
 
+            if (!result.successed)
+            {
+                return BadRequest(new { errors = result.Errors });
+            }
+
+            return Ok(new { message = "OTP has been resent successfully." });
+        }
 
 
     }

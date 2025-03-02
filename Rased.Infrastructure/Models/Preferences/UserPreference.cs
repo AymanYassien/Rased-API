@@ -19,7 +19,7 @@ namespace Rased.Infrastructure.Models.Preferences
         public int CurrencyId { get; set; }
 
         // Navigation Properties
-        public RasedUser User { get; set; } = new RasedUser();
+        public virtual RasedUser? User { get; set; }
         public NotificationSetting NotificationSetting { get; set; } = new NotificationSetting();
     }
 }

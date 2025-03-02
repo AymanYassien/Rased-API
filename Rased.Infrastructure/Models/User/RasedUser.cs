@@ -19,14 +19,14 @@ namespace Rased.Infrastructure.Models.User
         public string? OTP { get; set; }
         public DateTime? OtpExpiryTime { get; set; }
         public bool IsBanned { get; set; } = false;
-        public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
 
 
 
         // Navigation Properties
-        public virtual UserPreference Preference { get; set; } = new UserPreference();
+        public virtual UserPreference? Preference { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
         public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
         public virtual ICollection<SharedWallet> SharedWallets { get; set; } = new List<SharedWallet>();
