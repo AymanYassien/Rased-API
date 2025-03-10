@@ -73,14 +73,14 @@ namespace Rased.Infrastructure.Repositoryies.Base
 
     public Repository_Test(RasedDbContext context)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context = context ;
         _dbSet = _context.Set<T>();
     }
     
     public async Task<IQueryable<T>> GetAllAsync(
-        Expression<Func<T, bool>>? filter = null,
+        Expression<Func<T, bool>>[]? filters = null,
         Expression<Func<T, object>>[]? includes = null,
-        int pageNumber = 1,
+        int pageNumber = 0,
         int pageSize = 10)
     {
         IQueryable<T> query =  _dbSet;
@@ -89,8 +89,10 @@ namespace Rased.Infrastructure.Repositoryies.Base
             foreach (var include in includes)
                 query = query.Include(include);
         
-        if (filter != null)
-            query = query.Where(filter);
+        if (filters != null)
+            foreach (var filter in filters)
+                query = query.Where(filter);
+            
         
         
         int totalCount = await query.CountAsync();

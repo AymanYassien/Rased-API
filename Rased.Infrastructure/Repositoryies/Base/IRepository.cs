@@ -22,9 +22,9 @@ namespace Rased.Infrastructure.Repositoryies.Base
     {
         
         Task<IQueryable<T>> GetAllAsync(
-            Expression<Func<T, bool>>? filter = null,
+            Expression<Func<T, bool>>[]? filter = null,
             Expression<Func<T, object>>[]? includes = null,
-            int pageNumber = 1,
+            int pageNumber = 0,
             int pageSize = 10);
 
         Task<T?> GetByIdAsync(
