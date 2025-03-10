@@ -12,6 +12,8 @@ using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.UnitsOfWork;
 using System.Text;
+using Rased_API.Rased.Business.Services.BudgetService;
+using Rased_API.Rased.Business.Services.BudgetService;
 
 namespace Rased.Api
 {
@@ -88,6 +90,7 @@ namespace Rased.Api
             //Register Business Services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IBudgetService, BudgetService>();
 
             // Register Repository 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));

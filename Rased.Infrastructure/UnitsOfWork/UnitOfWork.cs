@@ -1,4 +1,7 @@
-﻿using Rased.Infrastructure.Data;
+﻿using Rased_API.Rased.Infrastructure.Repositoryies.BudgetRepositroy;
+using Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
+using Rased_API.Rased.Infrastructure.Repositoryies.IncomeRepository;
+using Rased.Infrastructure.Data;
 using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Infrastructure.UnitsOfWork
@@ -8,6 +11,9 @@ namespace Rased.Infrastructure.UnitsOfWork
         // All Services to be injected 
         private readonly RasedDbContext _context;
         // ....
+        public IExpensesRepository Expenses { get; private set; }                
+        public IIncomeRepository   Income   { get; private set; }
+        public IBudgetRepository   Budget   { get; private set; }
 
 
         // All System Services to be instantiated by the constructor
@@ -18,6 +24,10 @@ namespace Rased.Infrastructure.UnitsOfWork
         public UnitOfWork(RasedDbContext context)
         {
             _context = context;
+            
+            Expenses = new ExpenseRepository(_context);
+            Income   = new IncomeRepository(_context);
+            Budget   = new BudgetRepository(_context);
         }
 
         // Save All System Changes and return the number of affected rows
