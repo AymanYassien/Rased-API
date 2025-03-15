@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace Rased.Business.Dtos.Response
     {
         public bool Succeeded { get; set; }
         public List<string> Errors { get; set; } = new();
-        public string Message { get; set; } 
+        public string Message { get; set; }
         public HttpStatusCode StatusCode { get; set; }
         public string errors { get; set; }
 
@@ -43,9 +44,9 @@ namespace Rased.Business.Dtos.Response
             Succeeded = false;
             Errors = new List<string> { error };
         }
-        
-        public ApiResponse(){}
-        
+
+        public ApiResponse() { }
+
         public ApiResponse<T> Response(bool isSuccess, T data, string message, string error, HttpStatusCode statusCode)
         {
             return new ApiResponse<T>()
@@ -56,7 +57,8 @@ namespace Rased.Business.Dtos.Response
                 errors = error,
                 StatusCode = statusCode
             };
-    }
+        }
 
+    }
 }
 
