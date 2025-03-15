@@ -7,7 +7,7 @@
         public int? WalletId { get; set; }
         public int? SharedWalletId { get; set; }
         public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -19,7 +19,7 @@
         //public virtual SharedWallet SharedWallet { get; set; } // Assumed class
         public virtual IncomeTemplate IncomeTemplate { get; set; }
         public virtual ExpenseTemplate ExpenseTemplate { get; set; }
-        public virtual StaticTriggerTypeData StaticTriggerTypeData { get; set; } // Assumed class
+        public virtual StaticTriggerTypeData StaticTriggerTypeData { get; set; } 
     }
 
 }

@@ -102,13 +102,13 @@ namespace Rased.Infrastructure.Repositoryies.Base
             query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         }
 
-        var items = await query.ToListAsync();
+        var items =  query;
 
         return query;
     }
 
-    public async Task<T?> GetByIdAsync(
-        Expression<Func<T, bool>>? filter = null,
+    public async Task<T?> GetAsync(
+        Expression<Func<T, bool>>[]? filters = null,
         Expression<Func<T, object>>[]? includes = null,
         bool asNoTracking = true)
     {
@@ -118,14 +118,19 @@ namespace Rased.Infrastructure.Repositoryies.Base
             foreach (var include in includes)
                 query = query.Include(include);
         
-        if (filter != null)
-            query = query.Where(filter);
+        if (filters != null)
+            foreach (var filter in filters)
+                query = query.Where(filter);
 
         return await query.FirstOrDefaultAsync();
     }
-    
 
-    
+    public async Task<T?> GetByIdAsync(TKey id)
+    {
+        return _dbSet.Find(id);
+    }
+
+
     public async Task AddAsync(T entity)
     {
         await _dbSet.AddAsync(entity); 
@@ -151,11 +156,16 @@ namespace Rased.Infrastructure.Repositoryies.Base
         _dbSet.RemoveRange(entities); 
     }
 
-    public void RemoveById(TKey id)
+    public bool RemoveById(TKey id)
     {
         var entity = _dbSet.Find(id);
         if (entity != null)
-            _dbSet.Remove(entity); 
+        {
+            _dbSet.Remove(entity);
+            return true;
+        }
+
+        return false;
     }
     
     

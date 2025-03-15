@@ -27,16 +27,18 @@ namespace Rased.Infrastructure.Repositoryies.Base
             int pageNumber = 0,
             int pageSize = 10);
 
-        Task<T?> GetByIdAsync(
-            Expression<Func<T, bool>>? filter = null,
+        Task<T?> GetAsync(
+            Expression<Func<T, bool>>[]? filters = null,
             Expression<Func<T, object>>[]? includes = null,
             bool asNoTracking = true);
 
-        
+
+        Task<T?> GetByIdAsync(TKey id);
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
         void Update(T entity); 
         void Remove(T entity);
+        bool RemoveById(TKey id);
         void RemoveRange(IEnumerable<T> entities);
         
         Task<int> SaveChangesAsync();
