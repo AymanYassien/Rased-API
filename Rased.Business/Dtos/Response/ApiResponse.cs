@@ -1,7 +1,11 @@
-using System.Net;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Rased.Business.Dtos.Response;
-
+namespace Rased.Business.Dtos.Response
+{
     public class ApiResponse<T>
     {
         public bool Succeeded { get; set; }
@@ -52,7 +56,7 @@ namespace Rased.Business.Dtos.Response;
                 errors = error,
                 StatusCode = statusCode
             };
-        }
-        
     }
+
+}
 

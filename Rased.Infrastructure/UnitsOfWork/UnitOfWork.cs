@@ -2,13 +2,17 @@
 using Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
 using Rased_API.Rased.Infrastructure.Repositoryies.IncomeRepository;
 using Rased.Infrastructure.Data;
+using Rased.Infrastructure.Models.Goals;
+using Rased.Infrastructure.Models.Savings;
+using Rased.Infrastructure.Repositoryies.Base;
+using Rased.Infrastructure.Repositoryies.Savings;
 using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        // All Services to be injected 
+        // All IRepositoryies to be injected 
         private readonly RasedDbContext _context;
         // ....
         public IExpensesRepository Expenses { get; private set; }                
@@ -16,11 +20,15 @@ namespace Rased.Infrastructure.UnitsOfWork
         public IBudgetRepository   Budget   { get; private set; }
 
 
-        // All System Services to be instantiated by the constructor
-        // public IAuthService RasedAuth { get; private set; }
-        // ....
 
-        // Constructor to inject all services and instantiate all system services
+        // All System IRepositoryies to be instantiated by the constructor
+     
+        public ISavingRepository SavingRepository { get; private set; }
+
+        public IRepository<Goal, int> GoalRepository { get; private set; }
+
+
+        // Constructor to inject all Repositoryies
         public UnitOfWork(RasedDbContext context)
         {
             _context = context;
@@ -28,7 +36,12 @@ namespace Rased.Infrastructure.UnitsOfWork
             Expenses = new ExpenseRepository(_context);
             Income   = new IncomeRepository(_context);
             Budget   = new BudgetRepository(_context);
+            SavingRepository = new SavingRepository(context);
+            GoalRepository = new Repository<Goal, int>(context);
         }
+
+       
+
 
         // Save All System Changes and return the number of affected rows
         public async Task<int> CommitChangesAsync()

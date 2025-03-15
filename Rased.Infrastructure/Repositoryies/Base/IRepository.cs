@@ -9,13 +9,11 @@ namespace Rased.Infrastructure.Repositoryies.Base
 {
     public interface IRepository<T, U> where T : class
     {
-
         IQueryable<T> GetAll();
-        T GetById(U id);
-        void Add(T entity);
-        void Update(T entity);
-        void DeleteById(U id);
-
+        Task<T?> GetByIdAsync(U id);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task DeleteByIdAsync(U id);
     }
     
     public interface IRepository_Test<T, TKey> where T : class

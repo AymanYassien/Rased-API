@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Rased.Business;
+using Rased.Business.AutoMapper;
 using Rased.Business.Services.AuthServices;
+using Rased.Business.Services.Goals;
+using Rased.Business.Services.Savings;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Helpers.Constants;
@@ -33,7 +36,7 @@ namespace Rased.Api
             );
 
 
-            // System Services Registeration
+           
 
             //Identity
             builder.Services.AddIdentity<RasedUser, CustomRole>(options =>
@@ -87,12 +90,17 @@ namespace Rased.Api
             // Register Unit Of Work
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            //Register Business Services
+            // Services Registeration
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
-            builder.Services.AddScoped<IBudgetService, BudgetService>();
+            builder.Services.AddScoped<ISavingService, SavingService>();
+            builder.Services.AddScoped<IGoalService, GoalService>();
 
-            // Register Repository 
+            //AutoMapping Registeration
+            builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));
+            builder.Services.AddAutoMapper(map => map.AddProfile(new GoalProfile()));
+
+            // Base Repository 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 

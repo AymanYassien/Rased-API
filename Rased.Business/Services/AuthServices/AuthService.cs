@@ -320,7 +320,7 @@ namespace Rased.Business.Services.AuthServices
             }
 
             user.OTP = GenerateOTP();
-            user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(5);
+            user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(10);
 
             await _userManager.UpdateAsync(user);
 
