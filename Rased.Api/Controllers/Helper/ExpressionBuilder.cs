@@ -68,6 +68,8 @@ public static class ExpressionBuilder
         }
         catch (Exception ex)
         {
+            
+            
             throw new ArgumentException($"Cannot convert '{value}' to type {targetType.Name}: {ex.Message}");
         }
     }
