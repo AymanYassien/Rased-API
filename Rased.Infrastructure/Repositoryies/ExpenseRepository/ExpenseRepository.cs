@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Rased.Business.Dtos;
-using Rased.Business.Dtos.Response;
 using Rased.Infrastructure;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Repositoryies.Base;

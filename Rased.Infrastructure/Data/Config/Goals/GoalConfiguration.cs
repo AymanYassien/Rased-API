@@ -12,12 +12,15 @@ namespace Rased.Infrastructure.Data.Config.Goals
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id)
                    .ValueGeneratedOnAdd();
+
             builder.Property(x => x.Name)
                    .HasColumnType("NVARCHAR(255)")
                    .IsRequired();
+
             builder.Property(x => x.CategoryName)
                    .HasColumnType("NVARCHAR(255)")
                    .IsRequired(false);
+
             builder.Property(x => x.Description)
                    .HasColumnType("NVARCHAR(MAX)")
                    .IsRequired(false);
@@ -25,14 +28,14 @@ namespace Rased.Infrastructure.Data.Config.Goals
                    .HasColumnType("NVARCHAR(50)")
                    .IsRequired(false);
             builder.Property(x => x.StartedAmount)
-                   .HasColumnType("DECIMAL(12, 9)")
-                   .IsRequired();
+                   .IsRequired()
+                   .HasPrecision(18, 2);
             builder.Property(x => x.CurrentAmount)
-                   .HasColumnType("DECIMAL(12, 9)")
-                   .IsRequired();
+                   .IsRequired()
+                   .HasPrecision(18, 2);
             builder.Property(x => x.TargetAmount)
-                   .HasColumnType("DECIMAL(12, 9)")
-                   .IsRequired();
+                   .IsRequired()
+                   .HasPrecision(18, 2);
             builder.Property(x => x.StartedDate)
                    .HasColumnType("DATETIME2")
                    .IsRequired();
@@ -46,7 +49,7 @@ namespace Rased.Infrastructure.Data.Config.Goals
                    .HasColumnType("NVARCHAR(50)")
                    .IsRequired(false);
             builder.Property(x => x.FrequencyAmount)
-                   .HasColumnType("DECIMAL(12, 9)")
+                   .HasPrecision(18, 2)
                    .IsRequired(false);
             builder.Property(x => x.CreatedAt)
                    .HasColumnType("DATETIME2")

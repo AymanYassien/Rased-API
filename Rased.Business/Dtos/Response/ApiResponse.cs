@@ -1,12 +1,17 @@
+using System;
 using System.Net;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Rased.Business.Dtos.Response;
-
+namespace Rased.Business.Dtos.Response
+{
     public class ApiResponse<T>
     {
         public bool Succeeded { get; set; }
         public List<string> Errors { get; set; } = new();
-        public string Message { get; set; } 
+        public string Message { get; set; }
         public HttpStatusCode StatusCode { get; set; }
         public string errors { get; set; }
 
@@ -39,9 +44,9 @@ namespace Rased.Business.Dtos.Response;
             Succeeded = false;
             Errors = new List<string> { error };
         }
-        
-        public ApiResponse(){}
-        
+
+        public ApiResponse() { }
+
         public ApiResponse<T> Response(bool isSuccess, T data, string message, string error, HttpStatusCode statusCode)
         {
             return new ApiResponse<T>()
@@ -53,6 +58,7 @@ namespace Rased.Business.Dtos.Response;
                 StatusCode = statusCode
             };
         }
-        
+
     }
+}
 
