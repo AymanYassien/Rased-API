@@ -22,37 +22,37 @@ public class ExpenseService : IExpenseService
     public  async Task<ApiResponse<object>> GetUserExpensesByWalletId(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         IQueryable<Expense> res = await _unitOfWork.Expenses.GetUserExpensesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
         if (res == null)
-            _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
         
-        _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
+        return  _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
-        return  _response;
+          
     }
 
     public async Task<ApiResponse<object>> GetUserExpense(int walletId, int ExpenseId, bool isShared = false)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         var res = await _unitOfWork.Expenses.GetUserExpenseAsync(walletId, ExpenseId, isShared);
         
         if (res == null)
-            _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         var newResult = _MapToExpenseDto(res);
         
-        _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+       
     }
 
     public async Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto)
@@ -90,13 +90,13 @@ public class ExpenseService : IExpenseService
         }
         
         if (1 > expenseId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         var res = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
         
         if (res == null)
-            _response.Response(false, null, "", $"Not Found Expense with id {expenseId}",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", $"Not Found Expense with id {expenseId}",  HttpStatusCode.NotFound);
 
         
         var expense = _MapToExpenseDtoFromUpdate(updateExpenseDto);
@@ -114,98 +114,97 @@ public class ExpenseService : IExpenseService
         }
         
         return _response.Response(true, expense, $"Success Update Expense with id: {expense.ExpenseId}", $"",
-            HttpStatusCode.Created);
+            HttpStatusCode.NoContent);
     }
 
     public async Task<ApiResponse<object>> DeleteUserExpense(int expenseId)
     {
         if (1 > expenseId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         var res =  _unitOfWork.Expenses.RemoveById(expenseId);
         if (res is false)
-            _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
         
-        _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+        
     }
 
     public async Task<ApiResponse<object>> CalculateTotalExpensesAmount(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountAsync(walletId, isShared, filter);
         if (res < 0)
-            _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
-        _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+       
     }
 
     public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastWeek(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastWeekAsync(walletId, isShared, filter);
         if (res < 0)
-            _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
-        _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+        
     }
 
     public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastMonth(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastMonthAsync(walletId, isShared, filter);
         if (res < 0)
-            _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
-        _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
-
-        return _response;
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        
     }
 
     public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastYear(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastYearAsync(walletId, isShared, filter);
         if (res < 0)
-            _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
-        _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+        
     }
 
     public async Task<ApiResponse<object>>CalculateTotalExpensesAmountForSpecificPeriod(int walletId, DateTime startDateTime, DateTime endDateTime,
         Expression<Func<Expense, bool>>[]? filter = null, bool isShared = false)
     {
         if (1 > walletId)
-            _response.Response(false, null, "",
+            return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForSpecificPeriodAsync(walletId, startDateTime, endDateTime, filter, isShared);
         if (res < 0)
-            _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
-        _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
-        return _response;
+        
     }
     
 
@@ -216,13 +215,13 @@ public class ExpenseService : IExpenseService
         IQueryable<Expense> res = await _unitOfWork.Expenses.GetAllAsync(filter, includes, pageNumber, pageSize);
         
         if (res == null)
-            _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
         
-        _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
-
-        return  _response;
+        return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
+       
+        
     }
     
     private ExpenseDto _MapToExpenseDto(Expense expense)

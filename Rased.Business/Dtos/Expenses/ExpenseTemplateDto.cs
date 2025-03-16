@@ -10,7 +10,7 @@ public class ExpenseTemplateDto
     public int? SubCategoryId { get; set; }
     public string? CategoryName { get; set; }
     public decimal Amount { get; set; }
-    public bool IsNeedApprovalWhenAutoAdd { get; set; }
+    public bool IsNeedApprovalWhenAutoAdd { get; set; } = false;
     public string Description { get; set; }
     public int? PaymentMethodId { get; set; } = 1;
     public bool IsActive { get; set; } = true;

@@ -2,6 +2,7 @@
 using Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
 using Rased_API.Rased.Infrastructure.Repositoryies.IncomeRepository;
 using Rased.Infrastructure.Data;
+using Rased.Infrastructure.Repositoryies.Utility;
 using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Infrastructure.UnitsOfWork
@@ -11,7 +12,9 @@ namespace Rased.Infrastructure.UnitsOfWork
         // All Services to be injected 
         private readonly RasedDbContext _context;
         // ....
-        public IExpensesRepository Expenses { get; private set; }                
+        public IExpensesRepository Expenses { get; private set; }
+        public IExpenseTemplateRepository ExpenseTemplates { get; private set; }
+        public IAutomationRuleRepository AutomationRules { get; private set; }
         public IIncomeRepository   Income   { get; private set; }
         public IBudgetRepository   Budget   { get; private set; }
 
@@ -26,6 +29,8 @@ namespace Rased.Infrastructure.UnitsOfWork
             _context = context;
             
             Expenses = new ExpenseRepository(_context);
+            ExpenseTemplates = new ExpenseTemplateRepository(_context);
+            AutomationRules = new AutomationRuleRepository(_context);
             Income   = new IncomeRepository(_context);
             Budget   = new BudgetRepository(_context);
         }
