@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rased.Api.Controllers.Helper;
 using Rased.Business.Dtos;
 using Rased.Business.Services.ExpenseService;
 using Rased.Infrastructure;
@@ -8,6 +9,7 @@ namespace Rased.Api.Controllers.Expenses;
 
 [ApiController]
 [Route("/api/Expense")]
+[Authorize]
 public class ExpensesController : ControllerBase
 {
     private readonly IExpenseService _expenseService; 
@@ -22,9 +24,11 @@ public class ExpensesController : ControllerBase
         int walletId, 
         [FromQuery] int pageNumber = 0, 
         [FromQuery] int pageSize = 10, 
-        [FromQuery] bool isShared = false)
+        [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
     {
-        var response = await _expenseService.GetUserExpensesByWalletId(walletId, null, pageNumber, pageSize, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.GetUserExpensesByWalletId(walletId, filters, pageNumber, pageSize, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
 
@@ -64,33 +68,41 @@ public class ExpensesController : ControllerBase
 
     // 6. Calculate Total Expenses Amount
     [HttpGet("wallet/{walletId}/total")]
-    public async Task<IActionResult> CalculateTotalExpensesAmount(int walletId, [FromQuery] bool isShared = false)
+    public async Task<IActionResult> CalculateTotalExpensesAmount(int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
     {
-        var response = await _expenseService.CalculateTotalExpensesAmount(walletId, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.CalculateTotalExpensesAmount(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
     // 7. Calculate Total Expenses for Last Week
     [HttpGet("wallet/{walletId}/total/last-week")]
-    public async Task<IActionResult> CalculateTotalExpensesAmountForLastWeek(int walletId, [FromQuery] bool isShared = false)
+    public async Task<IActionResult> CalculateTotalExpensesAmountForLastWeek(int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
-        var response = await _expenseService.CalculateTotalExpensesAmountForLastWeek(walletId, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.CalculateTotalExpensesAmountForLastWeek(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
     // 8. Calculate Total Expenses for Last Month
     [HttpGet("wallet/{walletId}/total/last-month")]
-    public async Task<IActionResult> CalculateTotalExpensesAmountForLastMonth(int walletId, [FromQuery] bool isShared = false)
+    public async Task<IActionResult> CalculateTotalExpensesAmountForLastMonth(int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
-        var response = await _expenseService.CalculateTotalExpensesAmountForLastMonth(walletId, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.CalculateTotalExpensesAmountForLastMonth(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
     // 9. Calculate Total Expenses for Last Year
     [HttpGet("wallet/{walletId}/total/last-year")]
-    public async Task<IActionResult> CalculateTotalExpensesAmountForLastYear(int walletId, [FromQuery] bool isShared = false)
+    public async Task<IActionResult> CalculateTotalExpensesAmountForLastYear(int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
-        var response = await _expenseService.CalculateTotalExpensesAmountForLastYear(walletId, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.CalculateTotalExpensesAmountForLastYear(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
@@ -100,9 +112,11 @@ public class ExpensesController : ControllerBase
         int walletId, 
         [FromQuery] DateTime startDateTime, 
         [FromQuery] DateTime endDateTime, 
-        [FromQuery] bool isShared = false)
+        [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
-        var response = await _expenseService.CalculateTotalExpensesAmountForSpecificPeriod(walletId, startDateTime, endDateTime, null, isShared);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.CalculateTotalExpensesAmountForSpecificPeriod(walletId, startDateTime, endDateTime, filters, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
 
@@ -111,9 +125,11 @@ public class ExpensesController : ControllerBase
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> GetAllExpensesForAdmin(
         [FromQuery] int pageNumber = 0, 
-        [FromQuery] int pageSize = 10)
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
-        var response = await _expenseService.GetAllExpensesForAdmin(null, null, pageNumber, pageSize);
+        var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        var response = await _expenseService.GetAllExpensesForAdmin(filters, null, pageNumber, pageSize);
         return StatusCode((int)response.StatusCode, response);
     }
 

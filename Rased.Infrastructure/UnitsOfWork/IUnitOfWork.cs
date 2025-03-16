@@ -1,6 +1,7 @@
 ﻿using Rased_API.Rased.Infrastructure.Repositoryies.BudgetRepositroy;
 using Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
 using Rased_API.Rased.Infrastructure.Repositoryies.IncomeRepository;
+using Rased.Infrastructure.Repositoryies.Utility;
 
 using Rased.Infrastructure.Models.Goals;
 using Rased.Infrastructure.Models.Savings;
@@ -25,6 +26,8 @@ namespace Rased.Infrastructure.UnitsOfWork
         // ....
         
         public IExpensesRepository Expenses { get; }                
+        public IExpenseTemplateRepository ExpenseTemplates{ get; }                
+        public IAutomationRuleRepository AutomationRules{ get; }                
         public IIncomeRepository Income { get; }
         public IBudgetRepository Budget { get; }
 
