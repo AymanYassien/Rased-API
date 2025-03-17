@@ -17,6 +17,7 @@ using Rased.Infrastructure.UnitsOfWork;
 using System.Text;
 using Rased_API.Rased.Business.Services.BudgetService;
 using Rased_API.Rased.Business.Services.BudgetService;
+using Microsoft.OpenApi.Models;
 
 namespace Rased.Api
 {
@@ -67,23 +68,20 @@ namespace Rased.Api
                 #endregion
                 Option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    //IssuerSigningKey = securityKey,
-                    //ValidateIssuer = true,
-                    //ValidateAudience = true,
-
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = securityKey,
 
-                    ValidateIssuer = true,
-                    //ValidIssuer = builder.Configuration[""],
+                    ValidateIssuer = false,
+                    //ValidIssuer = builder.Configuration["Jwt:Issuer"],
 
-                    ValidateAudience = true,
-                    //ValidAudience = builder.Configuration[""],
+                    ValidateAudience = false,
+                    //ValidAudience = builder.Configuration["Jwt:Audience"],
 
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero  
                 };
             });
+            //builder.Services.AddAuthorization();
 
 
 
@@ -114,7 +112,34 @@ namespace Rased.Api
 
             //Swagger
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by your token",
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+            });
 
 
             var app = builder.Build();
@@ -126,6 +151,7 @@ namespace Rased.Api
                 await SeedRoles.SeedRole(roleManager);
             }
 
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -136,6 +162,8 @@ namespace Rased.Api
 
             app.UseHttpsRedirection();
 
+          
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
