@@ -9,6 +9,9 @@ using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.Savings;
 
 using Rased.Infrastructure.UnitsOfWork;
+using Microsoft.AspNetCore.Identity;
+using Rased.Infrastructure.Models.User;
+using Rased.Infrastructure.Repositoryies.Wallets;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -16,7 +19,10 @@ namespace Rased.Infrastructure.UnitsOfWork
     {
         // All IRepositoryies to be injected 
         private readonly RasedDbContext _context;
+        private readonly UserManager<RasedUser> _userManager;
         // ....
+
+        public IWalletRepository Wallets { get; private set; }
         public IExpensesRepository Expenses { get; private set; }
         public IExpenseTemplateRepository ExpenseTemplates { get; private set; }
         public IAutomationRuleRepository AutomationRules { get; private set; }
@@ -33,20 +39,22 @@ namespace Rased.Infrastructure.UnitsOfWork
 
 
         // Constructor to inject all Repositoryies
-        public UnitOfWork(RasedDbContext context)
+        public UnitOfWork(RasedDbContext context, UserManager<RasedUser> userManager)
         {
             _context = context;
-            
+            _userManager = userManager;
+
+            Wallets = new WalletRepository(_context, _userManager);
             Expenses = new ExpenseRepository(_context);
             ExpenseTemplates = new ExpenseTemplateRepository(_context);
             AutomationRules = new AutomationRuleRepository(_context);
-            Income   = new IncomeRepository(_context);
-            Budget   = new BudgetRepository(_context);
+            Income = new IncomeRepository(_context);
+            Budget = new BudgetRepository(_context);
             SavingRepository = new SavingRepository(context);
             GoalRepository = new Repository<Goal, int>(context);
         }
 
-       
+
 
 
         // Save All System Changes and return the number of affected rows

@@ -1,21 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rased.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rased.Infrastructure.Repositoryies.Base
 {
     public class Repository<T, U> : IRepository<T, U> where T : class
     {
         protected readonly RasedDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
         public Repository(RasedDbContext context)
         {
             _context = context;
+            _dbSet = _context.Set<T>();
         }
 
         // Get all entities as IQueryable (remains synchronous for flexible querying)
@@ -23,6 +20,36 @@ namespace Rased.Infrastructure.Repositoryies.Base
         {
             return _context.Set<T>().AsNoTracking().AsQueryable();
         }
+
+        // --->>> Testing Methods
+        public IQueryable<T> GetAll(
+        Expression<Func<T, bool>>[]? filters = null,
+        Expression<Func<T, object>>[]? includes = null,
+        //int pageNumber = 0,
+        //int pageSize = 10,
+        bool track = true)
+        {
+            IQueryable<T> query = track ? _dbSet : _dbSet.AsNoTracking();
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            if (filters != null)
+                foreach (var filter in filters)
+                    query = query.Where(filter);
+
+            // Dev...
+            //int totalCount = await query.CountAsync();
+            //if (pageSize > 0)
+            //{
+            //    if (pageSize > 100) pageSize = 100; // Cap page size
+            //    query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            //}
+
+            return query;
+        }
+
 
         // Get a single entity by its ID asynchronously
         public async Task<T?> GetByIdAsync(U id)

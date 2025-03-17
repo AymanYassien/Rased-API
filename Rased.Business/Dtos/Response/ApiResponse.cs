@@ -15,7 +15,7 @@ namespace Rased.Business.Dtos.Response
         public HttpStatusCode StatusCode { get; set; }
         public string errors { get; set; }
 
-        public T Data { get; set; }
+        public T? Data { get; set; }
 
         // Take Data If Successed
         public ApiResponse(T data)

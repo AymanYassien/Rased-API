@@ -10,6 +10,15 @@ namespace Rased.Infrastructure.Repositoryies.Base
     public interface IRepository<T, U> where T : class
     {
         IQueryable<T> GetAll();
+
+        // ---->>> Testing 
+        IQueryable<T> GetAll(
+        Expression<Func<T, bool>>[]? filters = null,
+        Expression<Func<T, object>>[]? includes = null,
+        //int pageNumber = 0,
+        //int pageSize = 10,
+        bool track = true);
+
         Task<T?> GetByIdAsync(U id);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
