@@ -219,8 +219,8 @@ namespace Rased.Business.Services.AuthServices
             //Token
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken
             (
-                // issuer: _configuration["Jwt:Issuer"],  
-                //audience: _configuration["Jwt:Audience"],  
+                 issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 signingCredentials: signingCredential,
                 expires: tokenExpiration

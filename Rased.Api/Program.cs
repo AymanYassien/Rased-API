@@ -71,17 +71,17 @@ namespace Rased.Api
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = securityKey,
 
-                    ValidateIssuer = false,
-                    //ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
 
-                    ValidateAudience = false,
-                    //ValidAudience = builder.Configuration["Jwt:Audience"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
 
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero  
                 };
             });
-            //builder.Services.AddAuthorization();
+            builder.Services.AddAuthorization();
 
 
 
