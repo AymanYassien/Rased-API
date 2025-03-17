@@ -10,11 +10,11 @@ namespace Rased.Business.Dtos.Auths
     public class RegisterDto
     {
         [Required(ErrorMessage = "FirstName is required")]
-        [StringLength(50, ErrorMessage = "FirstName must be between 5 and 50 characters", MinimumLength = 5)]
+        [StringLength(50, ErrorMessage = "FirstName must be between 1 and 50 characters", MinimumLength = 1)]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "LastName is required")]
-        [StringLength(50, ErrorMessage = "LastName must be between 5 and 50 characters", MinimumLength = 5)]
+        [StringLength(50, ErrorMessage = "LastName must be between 1 and 50 characters", MinimumLength = 1)]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
