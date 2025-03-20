@@ -214,7 +214,7 @@ public class AutomationService : IAutomationService
         return false;
     }
     
-    if (dto.EndDate < dto.StartDate)
+    if ( dto.StartDate < dto.EndDate)
     {
         errorMessage = "Ensure End Date.";
         return false;

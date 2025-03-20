@@ -21,7 +21,7 @@ public interface IExpenseTemplateRepository : IRepository_Test<ExpenseTemplate, 
     // Task<decimal> CalculateTotalExpensesTemplateAmountForLastYearAsync(int walletId, bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null);
     // Task<decimal> CalculateTotalExpensesTemplateAmountForSpecificPeriodAsync(int walletId, DateTime startDateTime, DateTime endDateTime, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, bool isShared = false);
 
-    Task<int> CountExpensesTemplateAsync(int walletId,Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
-    Task<int> CountExpensesTemplatesForAdminAsync(Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
+    Task<int> CountExpensesTemplateAsync(int walletId,Expression<Func<ExpenseTemplate, bool>>[]? filter = null,  bool isShared = false);
+    Task<int> CountExpensesTemplatesForAdminAsync(Expression<Func<ExpenseTemplate, bool>>[]? filter = null,  bool isShared = false);
 
 }

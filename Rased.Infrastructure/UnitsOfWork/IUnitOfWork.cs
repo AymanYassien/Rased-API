@@ -25,6 +25,8 @@ namespace Rased.Infrastructure.UnitsOfWork
         // IAuthService RasedAuth { get; }
         // ....
         
+        public IPaymentMethodRepository PaymentMethods { get; }                
+        public IAttachmentRepository Attachments { get; }                
         public IExpensesRepository Expenses { get; }                
         public IExpenseTemplateRepository ExpenseTemplates{ get; }                
         public IAutomationRuleRepository AutomationRules{ get; }                

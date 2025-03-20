@@ -1,0 +1,26 @@
+
+Budget + Expenses
+
+Add 		:	Expense (if has budget => update 2 Columns)
+Update 	    :	Expense (2 Operations : Delete + Add )
+Delete	    :	Expense (if has budget => update 2 Columns)
+
+Add 		:	Budget      ———————
+Update 	    :	Budget       Handled
+Delete	    :	Expense (can not delete if Any Related To it )
+
+
+Handle Recall
+_________________________________________________________________________ 1H
+Budget SD
+Income 3Component
+_________________________2H
+Testing      -      Doc
+Routing  | Exception Handler  |  Log    |  Testing   |  Versioning
+Triggers | Indexes
+
+Review Codes 
+______________ 15H
+Deploy + AI (Voice, Invoices)
+______________20H
+

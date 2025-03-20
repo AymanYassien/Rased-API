@@ -1,6 +1,10 @@
+using System.Linq.Expressions;
+using System.Net;
 using Rased_API.Rased.Business.Services.BudgetService;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
 using Rased_API.Rased.Infrastructure.Repositoryies.BudgetRepositroy;
+using Rased.Business.Dtos.Response;
+using Rased.Infrastructure;
 using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased_API.Rased.Business.Services.BudgetService;
@@ -8,50 +12,560 @@ namespace Rased_API.Rased.Business.Services.BudgetService;
 public class BudgetService : IBudgetService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private ApiResponse<object> _response;
     public BudgetService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
+        _response = new ApiResponse<object>();
     }
 
-    public async Task<decimal> GetMonthlyExpensesAsync(DateTime month)
+
+    public async Task<ApiResponse<object>> AddBudgetAsync(AddBudgetDto dto)
     {
-        // can ensure if month is 12, Validate date here .. etc
+        if (!IsAddDtoValid(dto, out var errorMessage))
+        {
+            return _response.Response(false, dto, "", $"Bad Request, Error Messages : {errorMessage}",
+                HttpStatusCode.BadRequest);
+        }
         
-        return await _unitOfWork.Expenses.GetTotalExpensesAtMonthAsync(month);
+        try
+        {
+            var budget = MapToBudgetFromAdd(dto);
+            await _unitOfWork.Budget.AddAsync(budget);
+            await _unitOfWork.CommitChangesAsync();
+            
+            return _response.Response(true, budget, $"Success add Budget with id: {budget.BudgetId}", $"",
+                HttpStatusCode.Created);
+        }
+        catch (Exception ex)
+        {
+            
+            return _response.Response(false, dto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+                HttpStatusCode.InternalServerError);
+        }
     }
 
-    public Task<BudgetDto> AddBudgetAsync(AddBudgetDto dto)
+    public async Task<ApiResponse<object>> UpdateBudgetAsync(int budgetId, UpdateBudgetDto dto)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<BudgetDto> UpdateBudgetAsync(UpdateBudgetDto dto)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<BudgetDto> GetBudgetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IQueryable<BudgetDto>> GetAllBudgetsAsync(int pageNumber, int pageSize)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<BudgetDto> GetActiveBudgetAsync(DateTime date)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteBudgetAsync(int id)
-    {
-        // var budget = await _unitOfWork.Budget.GetByIdAsync(id);
-        // if (budget == null) throw new KeyNotFoundException("Budget not found");
-        // _unitOfWork.Budget.Remove(budget);
-        // await _unitOfWork.CommitChangesAsync();
+        if (!IsUpdateDtoValid(dto, out var errorMessage))
+        {
+            return _response.Response(false, dto, "", $"Bad Request, Error Messages : {errorMessage}",
+                HttpStatusCode.BadRequest);
+        }
         
-        throw new NotImplementedException();
+        try
+        {
+            var budget =
+                await _unitOfWork.Budget.GetByIdAsync(budgetId);
+
+            if (budget.BudgetId == budgetId)
+            {
+                
+                _unitOfWork.Budget.Update(MapToBudgetFromUpdate(budget, dto));
+                await _unitOfWork.CommitChangesAsync();
+                
+                return _response.Response(true, null, $"Success Update Budget with id: {budget.BudgetId}", $"",
+                    HttpStatusCode.NoContent);
+            }
+            else
+                return _response.Response(false, dto, "", $"Bad Request",
+                    HttpStatusCode.BadRequest);
+            
+        }
+        catch (Exception ex)
+        {
+            
+            return _response.Response(false, dto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+                HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> DeleteBudgetAsync(int id)
+    {
+        if (1 > id)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res =  _unitOfWork.Budget.RemoveById(id);
+        if (res is false)
+            return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
+        
+        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+
+    }
+
+    public async Task<ApiResponse<object>> GetBudgetsForAdminAsync(Expression<Func<Budget, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10)
+    {
+        try
+        {
+            var res = await _unitOfWork.Budget.GetAllAsync(filter, null, pageNumber, pageSize);
+            if (res is null)
+                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                    HttpStatusCode.NotFound);
+
+            return _response.Response(true, res, "Success", "", HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetBudgetsByWalletIdAsync(int walletId, Expression<Func<Budget, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
+        bool isShared = false)
+    {
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.GetBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+            if (res is null)
+                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                    HttpStatusCode.NotFound);
+            
+            var mapped = MapToBudgetDto(res);
+            return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
+
+            return _response.Response(true, res, "Success", "", HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetValidBudgetsByWalletIdAsync(int walletId, Expression<Func<Budget, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
+        bool isShared = false)
+    {
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            
+            var res = await _unitOfWork.Budget.GetValidBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+            if (res is null)
+                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                    HttpStatusCode.NotFound);
+
+            var mapped = MapToBudgetDto(res);
+            return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetBudgetsByWalletIdCategorizedAtSpecificPeriodAsync(int walletId, DateTime startDate, DateTime endDate,
+        Expression<Func<Budget, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10, bool isShared = false)
+    {
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.GetBudgetsByWalletIdCategorizedAtSpecificPeriodAsync(walletId, startDate, endDate, filter, pageNumber, pageSize, isShared);
+            if (res is null)
+                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                    HttpStatusCode.NotFound);
+
+            var mapped = MapToBudgetDto(res);
+            return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
+
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> CountValidBudgetsByWalletIdAsync(int walletId, bool isShared = false)
+    {
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.CountValidBudgetsByWalletIdAsync(walletId, isShared);
+            if (res < 0)
+                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                    HttpStatusCode.NotFound);
+
+            return _response.Response(true, res, "Success", "", HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> IsBudgetValidAsync(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.IsBudgetValidAsync(budgetId);
+            if (res is false)
+                return _response.Response(false, null, "", "Not Found, or Nothing to Update", HttpStatusCode.NotFound);
+            return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetBudgetAmountAsync(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        decimal res =  await _unitOfWork.Budget.GetBudgetAmountAsync(budgetId);
+        if (res < 0)
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+        
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+    }
+
+    public async Task<ApiResponse<object>> IsBudgetRolloverAsync(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.IsBudgetRolloverAsync(budgetId);
+            if (res is false)
+                return _response.Response(false, null, "", "Not Found, or Nothing to Update", HttpStatusCode.NotFound);
+            return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetBudgetSpentAmountAsync(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        decimal res =  await _unitOfWork.Budget.GetBudgetSpentAmountAsync(budgetId);
+        if (res < 0)
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+        
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+    }
+
+    public async Task<ApiResponse<object>> UpdateBudgetSpentAmountAsync(int budgetId, decimal newSpent)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.UpdateBudgetSpentAmountAsync(budgetId, newSpent);
+            if (res is false)
+                return _response.Response(false, null, "", "Not Found, or Nothing to Update", HttpStatusCode.NotFound);
+            return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+
+    public async Task<ApiResponse<object>> GetRemainingAmountAsync(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        decimal res =  await _unitOfWork.Budget.GetRemainingAmountAsync(budgetId);
+        if (res < 0)
+            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+        
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+    }
+    
+    private bool IsAddDtoValid(AddBudgetDto dto, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        // 1. Title: Required, MaxLength(50)
+        if (string.IsNullOrEmpty(dto.Name))
+        {
+            errorMessage = "Title is required.";
+            return false;
+        }
+        if (dto.Name.Length > 50)
+        {
+            errorMessage = "Title cannot exceed 50 characters.";
+            return false;
+        }
+        
+        
+        // 4. StartDate: Required
+        if (dto.StartDate == default(DateTime))
+        {
+            errorMessage = "StartDate is required.";
+            return false;
+        }
+
+        // 5. EndDate: Required
+        if (dto.EndDate == default(DateTime))
+        {
+            errorMessage = "EndDate is required.";
+            return false;
+        }
+    
+        if ( dto.StartDate < dto.EndDate )
+        {
+            errorMessage = "Ensure End Date.";
+            return false;
+        }
+
+        // 6. DayOfMonth: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 1-31)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        {
+            errorMessage = "DayOfMonth must be between 1 and 28.";
+            return false;
+        }
+
+        // 7. DayOfWeek: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        {
+            errorMessage = "DayOfWeek must be between 0 and 7.";
+            return false;
+        }
+        
+
+        if (dto.CategoryName?.Length > 50)
+        {
+            errorMessage = "CategoryName cannot exceed 50 characters.";
+            return false;
+        }
+        
+        if (dto.BudgetAmount == default(decimal))
+        {
+            errorMessage = "Amount is required.";
+            return false;
+        }
+        if (dto.BudgetAmount <= 0)
+        {
+            errorMessage = "Amount must be greater than 0.";
+            return false;
+        }
+        if (dto.BudgetAmount != decimal.Round(dto.BudgetAmount, 2) || dto.BudgetAmount > 999999.99m)
+        {
+            errorMessage = "Amount must have no more than 2 decimal places and fit within 8 digits (max 999999.99).";
+            return false;
+        }
+
+        if (dto.SubCategoryId != null && dto.SubCategoryId < 1 )
+        {
+            errorMessage = "Sub Category Id must > zero";
+            return false;
+        }
+        
+        // 6. Check Constraint: WalletId XOR SharedWalletId
+        if ((dto.WalletId.HasValue && dto.SharedWalletId.HasValue) || 
+            (!dto.WalletId.HasValue && !dto.SharedWalletId.HasValue))
+        {
+            errorMessage = "Exactly one of WalletId or SharedWalletId must be provided.";
+            return false;
+        }
+
+        return true;
+    }
+    
+    private bool IsUpdateDtoValid(UpdateBudgetDto dto, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        // 1. Title: Required, MaxLength(50)
+        if (string.IsNullOrEmpty(dto.Name))
+        {
+            errorMessage = "Title is required.";
+            return false;
+        }
+        if (dto.Name.Length > 50)
+        {
+            errorMessage = "Title cannot exceed 50 characters.";
+            return false;
+        }
+        
+        
+        // 4. StartDate: Required
+        if (dto.StartDate == default(DateTime))
+        {
+            errorMessage = "StartDate is required.";
+            return false;
+        }
+
+        // 5. EndDate: Required
+        if (dto.EndDate == default(DateTime))
+        {
+            errorMessage = "EndDate is required.";
+            return false;
+        }
+    
+        if ( dto.StartDate < dto.EndDate )
+        {
+            errorMessage = "Ensure End Date.";
+            return false;
+        }
+
+        // 6. DayOfMonth: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 1-31)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        {
+            errorMessage = "DayOfMonth must be between 1 and 28.";
+            return false;
+        }
+
+        // 7. DayOfWeek: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        {
+            errorMessage = "DayOfWeek must be between 0 and 7.";
+            return false;
+        }
+        
+
+        if (dto.CategoryName?.Length > 50)
+        {
+            errorMessage = "CategoryName cannot exceed 50 characters.";
+            return false;
+        }
+        
+        if (dto.BudgetAmount == default(decimal))
+        {
+            errorMessage = "Amount is required.";
+            return false;
+        }
+        if (dto.BudgetAmount <= 0)
+        {
+            errorMessage = "Amount must be greater than 0.";
+            return false;
+        }
+        if (dto.BudgetAmount != decimal.Round(dto.BudgetAmount, 2) || dto.BudgetAmount > 999999.99m)
+        {
+            errorMessage = "Amount must have no more than 2 decimal places and fit within 8 digits (max 999999.99).";
+            return false;
+        }
+
+        if (dto.SubCategoryId != null && dto.SubCategoryId < 1 )
+        {
+            errorMessage = "Sub Category Id must > zero";
+            return false;
+        }
+        
+        // 6. Check Constraint: WalletId XOR SharedWalletId
+        if ((dto.WalletId.HasValue && dto.SharedWalletId.HasValue) || 
+            (!dto.WalletId.HasValue && !dto.SharedWalletId.HasValue))
+        {
+            errorMessage = "Exactly one of WalletId or SharedWalletId must be provided.";
+            return false;
+        }
+
+        return true;
+    }
+    
+    private IQueryable<BudgetDto> MapToBudgetDto(IQueryable<Budget> budgets)
+    {
+        return budgets.Select(budget => new BudgetDto()
+        {
+            BudgetId = budget.BudgetId,
+            WalletId = budget.WalletId,
+            SharedWalletId = budget.SharedWalletId,
+            Name = budget.Name,
+            CategoryName = budget.CategoryName,
+            SubCategoryId = budget.SubCategoryId,
+            BudgetAmount = budget.BudgetAmount,
+            DayOfWeek = budget.DayOfWeek,
+            DayOfMonth = budget.DayOfMonth,
+            BudgetTypeId = budget.BudgetId,
+            RolloverUnspent = budget.RolloverUnspent,
+            RemainingAmount = budget.RemainingAmount,
+            StartDate = budget.StartDate,
+            EndDate = budget.EndDate,
+            SpentAmount = budget.SpentAmount
+        });
+    }
+
+    private BudgetDto MapToBudgetDto(Budget budget)
+    {
+        return new BudgetDto()
+        {
+            BudgetId = budget.BudgetId,
+            WalletId = budget.WalletId,
+            SharedWalletId = budget.SharedWalletId,
+            Name = budget.Name,
+            CategoryName = budget.CategoryName,
+            SubCategoryId = budget.SubCategoryId,
+            BudgetAmount = budget.BudgetAmount,
+            DayOfWeek = budget.DayOfWeek,
+            DayOfMonth = budget.DayOfMonth,
+            BudgetTypeId = budget.BudgetId,
+            RolloverUnspent = budget.RolloverUnspent,
+            RemainingAmount = budget.RemainingAmount,
+            StartDate = budget.StartDate,
+            EndDate = budget.EndDate,
+            SpentAmount = budget.SpentAmount
+        };
+    }
+
+    private Budget MapToBudgetFromAdd(AddBudgetDto dto)
+    {
+        return new Budget()
+        {
+            WalletId = dto.WalletId,
+            SharedWalletId = dto.SharedWalletId,
+            Name = dto.Name,
+            CategoryName = dto.CategoryName,
+            SubCategoryId = dto.SubCategoryId,
+            BudgetAmount = dto.BudgetAmount,
+            DayOfWeek = dto.DayOfWeek,
+            DayOfMonth = dto.DayOfMonth,
+            BudgetTypeId = null,
+            RolloverUnspent = dto.RolloverUnspent,
+            RemainingAmount = dto.BudgetAmount,
+            StartDate = dto.StartDate,
+            EndDate = dto.EndDate,
+            SpentAmount = 0
+        };
+    }
+
+    private Budget MapToBudgetFromUpdate(Budget budget, UpdateBudgetDto dto)
+    {
+        budget.Name = dto.Name;
+        budget.CategoryName = dto.CategoryName;
+        budget.SubCategoryId = dto.SubCategoryId;
+        budget.BudgetAmount = dto.BudgetAmount;
+        budget.DayOfWeek = dto.DayOfWeek;
+        budget.DayOfMonth = dto.DayOfMonth;
+        budget.BudgetTypeId = null;
+        budget.RolloverUnspent = dto.RolloverUnspent;
+        budget.RemainingAmount = dto.BudgetAmount - budget.RemainingAmount;
+        budget.StartDate = dto.StartDate;
+        budget.EndDate = dto.EndDate;
+        
+        return budget;
     }
 }
