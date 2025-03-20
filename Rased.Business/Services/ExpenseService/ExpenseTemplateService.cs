@@ -151,7 +151,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.ExpenseTemplates.CountExpensesTemplateAsync(walletId, null,isShared);
+        var res = await _unitOfWork.ExpenseTemplates.CountExpensesTemplateAsync(walletId, null);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
@@ -176,7 +176,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
     
     public async Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
     {
-        var res = await _unitOfWork.ExpenseTemplates.CountExpensesTemplatesForAdminAsync(filter, isShared);
+        var res = await _unitOfWork.ExpenseTemplates.GetAllAsync(filter);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
