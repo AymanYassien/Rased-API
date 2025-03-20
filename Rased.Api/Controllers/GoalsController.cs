@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Goals;
 using Rased.Business.Dtos.Response;
@@ -6,8 +7,10 @@ using Rased.Business.Services.Goals;
 
 namespace Rased.Api.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GoalsController : ControllerBase
     {
         private readonly IGoalService _goalService;
@@ -18,6 +21,7 @@ namespace Rased.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllGoalsAsync()
         {
             var response = await _goalService.GetAllGoalsAsync();

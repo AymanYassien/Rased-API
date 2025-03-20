@@ -5,5 +5,7 @@ namespace Rased.Infrastructure
     {
         public int id { get; set; }
         public string Name { get; set; }
+
+        public virtual ICollection<Wallet>? Wallets { get; set; }
     } 
 }

@@ -20,20 +20,25 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
         entity.Property(e => e.Icon)
             .HasMaxLength(100);
 
-        entity.Property(e => e.TotalBalance)
+        entity.Property(e => e.InitialBalance)
             .IsRequired()
-            .HasColumnType("decimal(8,2)")
+            .HasColumnType("decimal(11,2)")
             .HasPrecision(8,2);
 
+        entity.Property(e => e.TotalBalance)
+            .IsRequired()
+            .HasColumnType("decimal(11,2)")
+            .HasPrecision(8, 2);
+
         entity.Property(e => e.ExpenseLimit)
-            .HasColumnType("decimal(8,2)");
+            .HasColumnType("decimal(11,2)");
 
         entity.HasOne(e => e.StaticWalletStatusData)
-            .WithMany()
+            .WithMany(x => x.Wallets)
             .HasForeignKey(e => e.WalletStatusId);
 
         entity.HasOne(e => e.StaticColorTypeData)
-            .WithMany()
+            .WithMany(x => x.Wallets)
             .HasForeignKey(e => e.ColorTypeId);
     }
 }

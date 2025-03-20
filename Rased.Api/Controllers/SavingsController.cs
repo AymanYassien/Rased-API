@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.Savings;
 using Rased.Business.Services.Savings;
+using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Repositoryies.Savings;
 
 namespace Rased.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    ////[Authorize(Roles = $"{RasedRolesConstants.Admin},{RasedRolesConstants.User}")]
+    [Authorize]
     public class SavingsController : ControllerBase
     {
         private readonly ISavingService _savingService;

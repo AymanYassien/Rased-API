@@ -1,22 +1,19 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Rased.Business;
 using Rased.Business.AutoMapper;
 using Rased.Business.Services.AuthServices;
 using Rased.Business.Services.Goals;
 using Rased.Business.Services.Savings;
-using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.UnitsOfWork;
 using System.Text;
-using Rased_API.Rased.Business.Services.BudgetService;
-using Rased_API.Rased.Business.Services.BudgetService;
+using Microsoft.OpenApi.Models;
+using Rased.Business.Services.Wallets;
 
 namespace Rased.Api
 {
@@ -67,23 +64,20 @@ namespace Rased.Api
                 #endregion
                 Option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    //IssuerSigningKey = securityKey,
-                    //ValidateIssuer = true,
-                    //ValidateAudience = true,
-
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = securityKey,
 
                     ValidateIssuer = true,
-                    //ValidIssuer = builder.Configuration[""],
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
 
                     ValidateAudience = true,
-                    //ValidAudience = builder.Configuration[""],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
 
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero  
                 };
             });
+            builder.Services.AddAuthorization();
 
 
 
@@ -95,6 +89,7 @@ namespace Rased.Api
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ISavingService, SavingService>();
             builder.Services.AddScoped<IGoalService, GoalService>();
+            builder.Services.AddScoped<IWalletService, WalletService>();
 
             //AutoMapping Registeration
             builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));
@@ -114,7 +109,34 @@ namespace Rased.Api
 
             //Swagger
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter 'Bearer' followed by your token",
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+            });
 
 
             var app = builder.Build();
@@ -126,6 +148,7 @@ namespace Rased.Api
                 await SeedRoles.SeedRole(roleManager);
             }
 
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -136,6 +159,8 @@ namespace Rased.Api
 
             app.UseHttpsRedirection();
 
+          
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

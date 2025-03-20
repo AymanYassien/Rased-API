@@ -176,7 +176,11 @@ namespace Rased.Business.Services.AuthServices
 
 
 
-                await _userManager.AddClaimsAsync(user, claims);
+                var existingClaims = await _userManager.GetClaimsAsync(user);
+                if (!existingClaims.Any())
+                {
+                    await _userManager.AddClaimsAsync(user, claims);
+                }
                 response.Token = GenerateToken(claims, loginDto.RememberMe);
 
                 //  Generate Refresh Token
@@ -210,11 +214,13 @@ namespace Rased.Business.Services.AuthServices
             SigningCredentials signingCredential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             //Determine Expiration
-            DateTime tokenExpiration = RememberMe ? DateTime.UtcNow.AddHours(1) : DateTime.UtcNow.AddMinutes(30);
+            DateTime tokenExpiration = RememberMe ? DateTime.UtcNow.AddHours(24) : DateTime.UtcNow.AddHours(1);
 
             //Token
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken
             (
+                 issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
                 signingCredentials: signingCredential,
                 expires: tokenExpiration
@@ -248,7 +254,7 @@ namespace Rased.Business.Services.AuthServices
                 return response;
             }
             // Get User By Id That Exist In Token
-            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = principal.FindFirstValue(JwtRegisteredClaimNames.Sub);
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null || user.RefreshToken != refreshTokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)

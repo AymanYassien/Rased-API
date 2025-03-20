@@ -11,10 +11,10 @@ namespace Rased.Infrastructure
     {
         
         public int WalletId { get; set; }
-        public int UserId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Icon { get; set; }
+        public decimal InitialBalance { get; set; }
         public decimal TotalBalance { get; set; }
         public decimal ExpenseLimit { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -22,7 +22,7 @@ namespace Rased.Infrastructure
         public int WalletStatusId { get; set; }
         public int ColorTypeId { get; set; }
         public int CurrencyId { get; set; }
-        public string CreatorId { get; set; }
+        public string CreatorId { get; set; } = null!;
 
         // Navigation Properties
         public virtual Currency Currency { get; set; } = new Currency();
