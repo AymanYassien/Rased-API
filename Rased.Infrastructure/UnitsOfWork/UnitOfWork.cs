@@ -21,11 +21,12 @@ namespace Rased.Infrastructure.UnitsOfWork
         private readonly RasedDbContext _context;
         private readonly UserManager<RasedUser> _userManager;
         // ....
-
+        
+        public IWalletRepository Wallets { get; private set; }
 
         public IPaymentMethodRepository PaymentMethods { get; private set; }      
         public IAttachmentRepository Attachments { get; private set; }
-        public IWalletRepository Wallets { get; private set; }
+
         public IExpensesRepository Expenses { get; private set; }
         public IExpenseTemplateRepository ExpenseTemplates { get; private set; }
         public IAutomationRuleRepository AutomationRules { get; private set; }

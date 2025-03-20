@@ -22,6 +22,7 @@ namespace Rased.Infrastructure.UnitsOfWork
         // ....
         
 
+
         public IPaymentMethodRepository PaymentMethods { get; }                
         public IAttachmentRepository Attachments { get; }                
 
