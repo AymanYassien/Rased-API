@@ -19,7 +19,7 @@ namespace Rased.Infrastructure
         public decimal SpentAmount { get; set; }
         public decimal RemainingAmount { get; set; }
         public bool RolloverUnspent { get; set; }
-        public int  BudgetTypeId { get; set; }
+        public int?  BudgetTypeId { get; set; }
         public int? DayOfMonth { get; set; }
         public int? DayOfWeek { get; set; }
 

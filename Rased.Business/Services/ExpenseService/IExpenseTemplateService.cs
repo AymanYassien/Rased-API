@@ -11,16 +11,17 @@ public interface IExpenseTemplateService
     public Task<ApiResponse<object>> GetUserExpenseTemplatesByWalletId(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
     public Task<ApiResponse<object>> GetUserExpenseTemplate(int walletId, int expenseTemplateId, bool isShared = false );
     public Task<ApiResponse<object>> AddUserExpenseTemplate(AddExpenseTemplateDto newExpenseTemplate);
-    public Task<ApiResponse<object>> UpdateUserExpenseTemplate(int expenseTemplateId,UpdateExpenseTemplateDto updateExpenseTemplateDto);
+    public Task<ApiResponse<object>> UpdateUserExpenseTemplate(int walletId, int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto , bool isShared = false);
     public Task<ApiResponse<object>> DeleteUserExpenseTemplate(int expenseTemplateId);
     
     // Count
 
-    public Task<ApiResponse<object>> CountExpensesTemplate(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
+    public Task<ApiResponse<object>> CountExpensesTemplate(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, 
+        bool isShared = false);
     
     
     // Calculated  - maybe not heavy use those points - 
-    public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmount(int walletId, bool isShared = false ,Expression<Func<Expense, bool>>[]? filter = null);
+    public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmount(int walletId, bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null);
     // public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmountForLastWeek(int walletId, bool isShared = false , Expression<Func<Expense, bool>>[]? filter = null);
     // public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmountForLastMonth(int walletId, bool isShared = false , Expression<Func<Expense, bool>>[]? filter = null);
     // public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmountForLastYear(int walletId, bool isShared = false , Expression<Func<Expense, bool>>[]? filter = null);
@@ -31,9 +32,5 @@ public interface IExpenseTemplateService
     
     
     // For Admin 
-    public Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(
-        Expression<Func<Expense, bool>>[]? filter = null,
-        Expression<Func<Expense, object>>[]? includes = null,
-        int pageNumber = 0,
-        int pageSize = 10);
+    public Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null);
 }

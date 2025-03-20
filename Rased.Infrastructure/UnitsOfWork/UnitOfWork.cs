@@ -22,6 +22,9 @@ namespace Rased.Infrastructure.UnitsOfWork
         private readonly UserManager<RasedUser> _userManager;
         // ....
 
+
+        public IPaymentMethodRepository PaymentMethods { get; private set; }      
+        public IAttachmentRepository Attachments { get; private set; }
         public IWalletRepository Wallets { get; private set; }
         public IExpensesRepository Expenses { get; private set; }
         public IExpenseTemplateRepository ExpenseTemplates { get; private set; }
@@ -52,6 +55,8 @@ namespace Rased.Infrastructure.UnitsOfWork
             Budget = new BudgetRepository(_context);
             SavingRepository = new SavingRepository(context);
             GoalRepository = new Repository<Goal, int>(context);
+            Attachments = new AttachmentRepository(_context);
+            PaymentMethods = new PaymentMethodRepository(_context);
         }
 
 

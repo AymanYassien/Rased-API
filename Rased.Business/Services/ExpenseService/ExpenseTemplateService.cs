@@ -21,20 +21,23 @@ public class ExpenseTemplateService : IExpenseTemplateService
     public async Task<ApiResponse<object>> GetUserExpenseTemplatesByWalletId(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
         bool isShared = false)
     {
-        // if (1 > walletId)
-        //     return _response.Response(false, null, "",
-        //         "Bad Request ",  HttpStatusCode.BadRequest);
-        //
-        // IQueryable<ExpenseTemplate> res = await _unitOfWork.ExpenseTemplates.GetUserExpensesTemplateByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
-        //
-        // if (res == null)
-        //     return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
-        //
-        // //IQueryable < ExpenseTemplateDto > newResult = MapToExpenseTemplateDto(res);
-        //
-        // //return  _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
 
-        throw new NotImplementedException();
+        filter = new Expression<Func<ExpenseTemplate, bool>>[]
+        {
+            a => a.AutomationRule.AutomationRuleId == a.AutomationRuleId
+        };
+        
+        IQueryable<ExpenseTemplate> res = await _unitOfWork.ExpenseTemplates.GetUserExpensesTemplateByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+        
+        if (res == null)
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+
+        IQueryable<ExpenseTemplateDto> newResult = MapToExpenseTemplatesDto(res);
+        
+        return  _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
     }
     
@@ -58,45 +61,165 @@ public class ExpenseTemplateService : IExpenseTemplateService
 
     public async Task<ApiResponse<object>> AddUserExpenseTemplate(AddExpenseTemplateDto newExpenseTemplate)
     {
-        throw new NotImplementedException();
+        if (!IsAddDtoValid(newExpenseTemplate, out var errorMessage))
+        {
+            return _response.Response(false, newExpenseTemplate, "", $"Bad Request, Error Messages : {errorMessage}",
+                HttpStatusCode.BadRequest);
+        }
+        
+        try
+        {
+            var automationRule = FillAutomationByAddDto(newExpenseTemplate);
+            await _unitOfWork.AutomationRules.AddAsync(automationRule);
+            
+            var expenseTemplate = FillExpenseTemplateByAddDto(newExpenseTemplate, automationRule.AutomationRuleId);
+            await _unitOfWork.ExpenseTemplates.AddAsync(expenseTemplate);
+            await _unitOfWork.CommitChangesAsync();
+
+            var newDTO = await MapToExpenseTemplateDto(expenseTemplate, automationRule);
+            
+            return _response.Response(true, newDTO, $"Success add Expense with id: {newDTO.TemplateId}", $"",
+                HttpStatusCode.Created);
+        }
+        catch (Exception ex)
+        {
+            
+            return _response.Response(false, newExpenseTemplate, "", $"Database constraint violation: {ex.InnerException?.Message}",
+                HttpStatusCode.InternalServerError);
+        }
+        
+        
     }
 
-    public async Task<ApiResponse<object>> UpdateUserExpenseTemplate(int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto)
+    public async Task<ApiResponse<object>> UpdateUserExpenseTemplate(int walletId, int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto , bool isShared = false)
     {
-        throw new NotImplementedException();
+        if (!IsUpdateDtoValid(updateExpenseTemplateDto, out var errorMessage))
+        {
+            return _response.Response(false, updateExpenseTemplateDto, "", $"Bad Request, Error Messages : {errorMessage}",
+                HttpStatusCode.BadRequest);
+        }
+        
+        try
+        {
+            var expenseTemplate =
+                await _unitOfWork.ExpenseTemplates.GetUserExpenseAsync(walletId, expenseTemplateId, isShared);
+
+            if (expenseTemplate.TemplateId == expenseTemplateId && expenseTemplate.AutomationRuleId == updateExpenseTemplateDto.AutomationRuleId)
+            {
+                var automationRule = await _unitOfWork.AutomationRules.GetByIdAsync(updateExpenseTemplateDto.AutomationRuleId);
+                if (automationRule is not null)
+                {
+                    _unitOfWork.AutomationRules.Update(UpdateAutomationRule(updateExpenseTemplateDto, automationRule));
+                } 
+                _unitOfWork.ExpenseTemplates.Update(UpdateExpenseTemplate(expenseTemplate, updateExpenseTemplateDto));
+                await _unitOfWork.CommitChangesAsync();
+                
+                return _response.Response(true, null, $"Success Update Expense Template with id: {expenseTemplate.TemplateId}", $"",
+                    HttpStatusCode.NoContent);
+            }
+            else
+                return _response.Response(false, updateExpenseTemplateDto, "", $"Bad Request",
+                    HttpStatusCode.BadRequest);
+            
+        }
+        catch (Exception ex)
+        {
+            
+            return _response.Response(false, updateExpenseTemplateDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+                HttpStatusCode.InternalServerError);
+        }
     }
 
-    public Task<ApiResponse<object>> DeleteUserExpenseTemplate(int expenseTemplateId)
+    public async Task<ApiResponse<object>> DeleteUserExpenseTemplate(int expenseTemplateId)
     {
-        throw new NotImplementedException();
+        if (1 > expenseTemplateId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res =  _unitOfWork.ExpenseTemplates.RemoveById(expenseTemplateId);
+        if (res is false)
+            return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
+        
+        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        
     }
 
-    public Task<ApiResponse<object>> CountExpensesTemplate(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
+    public async Task<ApiResponse<object>> CountExpensesTemplate(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, 
         bool isShared = false)
     {
-        throw new NotImplementedException();
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res = await _unitOfWork.ExpenseTemplates.CountExpensesTemplateAsync(walletId, null);
+        
+        if (res == null)
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+
+        return _response.Response(false, res, "This is Number of Expenses Templates", "",  HttpStatusCode.NotFound);
     }
 
-    public Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmount(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmount(int walletId, bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
     {
-        throw new NotImplementedException();
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res = await _unitOfWork.ExpenseTemplates.CalculateTotalExpensesTemplateAmountAsync(walletId,isShared);
+        
+        if (res == null)
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+
+        return _response.Response(false, res, "This is Total Amount of Expenses Templates", "",  HttpStatusCode.NotFound);
+
     }
     
-    public Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(Expression<Func<Expense, bool>>[]? filter = null, Expression<Func<Expense, object>>[]? includes = null, int pageNumber = 0,
-        int pageSize = 10)
+    public async Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
     {
-        throw new NotImplementedException();
+        var res = await _unitOfWork.ExpenseTemplates.GetAllAsync(filter);
+        
+        if (res == null)
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+
+        return _response.Response(false, res, "This is Total Expenses Templates", "",  HttpStatusCode.NotFound);
+
     }
-
-
-
+    
     private async Task<AutomationRule> GetAutomationRuleById(int automationRoleId)
     {
         return await _unitOfWork.AutomationRules.GetByIdAsync(automationRoleId);
     }
-    private async Task<ExpenseTemplateDto> MapToExpenseTemplateDto(ExpenseTemplate expenseTemplate)
+
+    private  ExpenseTemplate UpdateExpenseTemplate(ExpenseTemplate expenseTemplate, UpdateExpenseTemplateDto dto )
     {
-        var automation = await GetAutomationRuleById(expenseTemplate.AutomationRuleId);
+        // update some fields
+
+        expenseTemplate.Name = dto.Name;
+        expenseTemplate.SubCategoryId = dto.SubCategoryId;
+        expenseTemplate.CategoryName = dto.CategoryName;
+        expenseTemplate.Amount = dto.Amount;
+        expenseTemplate.Description = dto.Description;
+        expenseTemplate.PaymentMethodId = dto.PaymentMethodId;
+
+        return expenseTemplate;
+    }
+    
+    private  AutomationRule UpdateAutomationRule(UpdateExpenseTemplateDto dto, AutomationRule automationRule)
+    {
+        automationRule.Title = dto.Name;
+        automationRule.Description = dto.Description;
+        automationRule.StartDate = dto.StartDate;
+        automationRule.EndDate = dto.EndDate;
+        automationRule.IsActive = dto.IsActive;
+        automationRule.DayOfMonth = dto.DayOfMonth;
+        automationRule.DayOfWeek = dto.DayOfWeek;
+
+        return automationRule;
+    }
+    
+    private async Task<ExpenseTemplateDto> MapToExpenseTemplateDto(ExpenseTemplate expenseTemplate, AutomationRule automation)
+    {
+        
         return new ExpenseTemplateDto()
         {
             TemplateId = expenseTemplate.TemplateId,
@@ -120,4 +243,299 @@ public class ExpenseTemplateService : IExpenseTemplateService
         };
     }
     
+    private  IQueryable<ExpenseTemplateDto> MapToExpenseTemplatesDto(IQueryable<ExpenseTemplate> expenseTemplates)
+    {
+        
+        return  expenseTemplates.Select(expenseTemplate => new ExpenseTemplateDto
+        {
+            TemplateId = expenseTemplate.TemplateId,
+            WalletId = expenseTemplate.WalletId,
+            SharedWalletId = expenseTemplate.SharedWalletId,
+            AutomationRuleId = expenseTemplate.AutomationRuleId,
+            Name = expenseTemplate.Name,
+            Amount = expenseTemplate.Amount,
+            CategoryName = expenseTemplate.CategoryName,
+            SubCategoryId = expenseTemplate.SubCategoryId,
+            IsNeedApprovalWhenAutoAdd = expenseTemplate.IsNeedApprovalWhenAutoAdd,
+            PaymentMethodId = expenseTemplate.PaymentMethodId,
+            Description = expenseTemplate.Description,
+            
+            IsActive = expenseTemplate.AutomationRule.IsActive,
+            StartDate = expenseTemplate.AutomationRule.StartDate,
+            EndDate = expenseTemplate.AutomationRule.EndDate,
+            DayOfMonth = expenseTemplate.AutomationRule.DayOfMonth,
+            DayOfWeek = expenseTemplate.AutomationRule.DayOfWeek
+            
+        });
+    }
+    
+    private bool IsAddDtoValid(AddExpenseTemplateDto dto, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        // 1. Title: Required, MaxLength(50)
+        if (string.IsNullOrEmpty(dto.Name))
+        {
+            errorMessage = "Title is required.";
+            return false;
+        }
+        if (dto.Name.Length > 50)
+        {
+            errorMessage = "Title cannot exceed 50 characters.";
+            return false;
+        }
+
+        // 2. Description: MaxLength(200), optional
+        if (dto.Description?.Length > 200)
+        {
+            errorMessage = "Description cannot exceed 200 characters.";
+            return false;
+        }
+        
+        // 4. StartDate: Required
+        if (dto.StartDate == default(DateTime))
+        {
+            errorMessage = "StartDate is required.";
+            return false;
+        }
+
+        // 5. EndDate: Required
+        if (dto.EndDate == default(DateTime))
+        {
+            errorMessage = "EndDate is required.";
+            return false;
+        }
+    
+        if ( dto.StartDate < dto.EndDate )
+        {
+            errorMessage = "Ensure End Date.";
+            return false;
+        }
+
+        // 6. DayOfMonth: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 1-31)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        {
+            errorMessage = "DayOfMonth must be between 1 and 28.";
+            return false;
+        }
+
+        // 7. DayOfWeek: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        {
+            errorMessage = "DayOfWeek must be between 0 and 7.";
+            return false;
+        }
+        
+
+        if (dto.CategoryName?.Length > 50)
+        {
+            errorMessage = "CategoryName cannot exceed 50 characters.";
+            return false;
+        }
+        
+        if (dto.Amount == default(decimal))
+        {
+            errorMessage = "Amount is required.";
+            return false;
+        }
+        if (dto.Amount <= 0)
+        {
+            errorMessage = "Amount must be greater than 0.";
+            return false;
+        }
+        if (dto.Amount != decimal.Round(dto.Amount, 2) || dto.Amount > 999999.99m)
+        {
+            errorMessage = "Amount must have no more than 2 decimal places and fit within 8 digits (max 999999.99).";
+            return false;
+        }
+
+        if (dto.SubCategoryId != null && dto.SubCategoryId < 1 )
+        {
+            errorMessage = "Sub Category Id must > zero";
+            return false;
+        }
+        
+        if (dto.PaymentMethodId != null && dto.PaymentMethodId < 1 )
+        {
+            errorMessage = "Payment Method Id must > zero";
+            return false;
+        }
+        
+    
+
+        return true;
+    }
+    
+    private bool IsUpdateDtoValid(UpdateExpenseTemplateDto dto, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        // 1. Title: Required, MaxLength(50)
+        if (string.IsNullOrEmpty(dto.Name))
+        {
+            errorMessage = "Title is required.";
+            return false;
+        }
+        if (dto.Name.Length > 50)
+        {
+            errorMessage = "Title cannot exceed 50 characters.";
+            return false;
+        }
+
+        // 2. Description: MaxLength(200), optional
+        if (dto.Description?.Length > 200)
+        {
+            errorMessage = "Description cannot exceed 200 characters.";
+            return false;
+        }
+        
+        // 4. StartDate: Required
+        if (dto.StartDate == default(DateTime))
+        {
+            errorMessage = "StartDate is required.";
+            return false;
+        }
+
+        // 5. EndDate: Required
+        if (dto.EndDate == default(DateTime))
+        {
+            errorMessage = "EndDate is required.";
+            return false;
+        }
+    
+        if ( dto.StartDate < dto.EndDate )
+        {
+            errorMessage = "Ensure End Date.";
+            return false;
+        }
+
+        // 6. DayOfMonth: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 1-31)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        {
+            errorMessage = "DayOfMonth must be between 1 and 28.";
+            return false;
+        }
+
+        // 7. DayOfWeek: Optional, no specific range in Fluent API
+        // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        {
+            errorMessage = "DayOfWeek must be between 0 and 7.";
+            return false;
+        }
+        
+
+        if (dto.CategoryName?.Length > 50)
+        {
+            errorMessage = "CategoryName cannot exceed 50 characters.";
+            return false;
+        }
+        
+        if (dto.Amount == default(decimal))
+        {
+            errorMessage = "Amount is required.";
+            return false;
+        }
+        if (dto.Amount <= 0)
+        {
+            errorMessage = "Amount must be greater than 0.";
+            return false;
+        }
+        if (dto.Amount != decimal.Round(dto.Amount, 2) || dto.Amount > 999999.99m)
+        {
+            errorMessage = "Amount must have no more than 2 decimal places and fit within 8 digits (max 999999.99).";
+            return false;
+        }
+
+        if (dto.SubCategoryId != null && dto.SubCategoryId < 1 )
+        {
+            errorMessage = "Sub Category Id must > zero";
+            return false;
+        }
+        
+        if (dto.PaymentMethodId != null && dto.PaymentMethodId < 1 )
+        {
+            errorMessage = "Payment Method Id must > zero";
+            return false;
+        }
+        
+        if (dto.IsActive != true && dto.IsActive != false )
+        {
+            errorMessage = "Must be True or False ";
+            return false;
+        }
+        
+        // not update isNeedApproval, templateId, automationID 
+        
+    
+
+        return true;
+    }
+
+    private AutomationRule FillAutomationByAddDto(AddExpenseTemplateDto dto)
+    {
+        var automationRule = new AutomationRule();
+        
+        if (dto.WalletId != null)
+            automationRule.WalletId = dto.WalletId;
+        
+        if (dto.SharedWalletId != null)
+            automationRule.SharedWalletId = dto.SharedWalletId;
+        
+        if (dto.Description != null)
+            automationRule.Description = dto.Description;
+        
+        if (dto.DayOfMonth != null)
+            automationRule.DayOfMonth = dto.DayOfMonth;
+        
+        if (dto.DayOfWeek != null)
+            automationRule.DayOfWeek = dto.DayOfWeek;
+
+        automationRule.Title = dto.Name;
+        automationRule.IsActive = true;
+        automationRule.StartDate = dto.StartDate;
+        automationRule.EndDate = dto.EndDate;
+        
+        return automationRule;
+    } 
+    
+    private ExpenseTemplate FillExpenseTemplateByAddDto(AddExpenseTemplateDto dto, int automationRuleId)
+    {
+        var expenseTemplate = new ExpenseTemplate();
+        
+        if (dto.WalletId != null)
+            expenseTemplate.WalletId = dto.WalletId;
+        
+        if (dto.SharedWalletId != null)
+            expenseTemplate.SharedWalletId = dto.SharedWalletId;
+        
+        if (dto.Description != null)
+            expenseTemplate.Description = dto.Description;
+        
+        if (dto.SubCategoryId != null)
+            expenseTemplate.SubCategoryId = dto.SubCategoryId;
+        
+        if (dto.CategoryName != null)
+            expenseTemplate.CategoryName = dto.CategoryName;
+        
+        if (dto.PaymentMethodId is > 0)
+            expenseTemplate.PaymentMethodId = dto.PaymentMethodId;
+        
+
+        expenseTemplate.AutomationRuleId = automationRuleId;
+        expenseTemplate.Name = dto.Name;
+        expenseTemplate.Amount = dto.Amount;
+        expenseTemplate.IsNeedApprovalWhenAutoAdd = false;
+        
+        
+        return expenseTemplate;
+    }
+
+    private async Task<ExpenseTemplateDto> MapToExpenseTemplateDto(ExpenseTemplate expenseTemplate)
+    {
+        return await MapToExpenseTemplateDto(expenseTemplate, await GetAutomationRuleById(expenseTemplate.AutomationRuleId));
+    }
 }

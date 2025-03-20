@@ -83,15 +83,14 @@ public class ExpenseTemplateRepository : Repository_Test<ExpenseTemplate, int>, 
         return await query.SumAsync(e => e.Amount);
     }
 
-    public async Task<int> CountExpensesTemplateAsync(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
-        bool isShared = false)
+    public async Task<int> CountExpensesTemplateAsync(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, bool isShared = false)
     {
         IQueryable<ExpenseTemplate> query = BuildBaseQuery(walletId, isShared, filter);
 
         return await query.CountAsync();
     }
 
-    public async Task<int> CountExpensesTemplatesForAdminAsync(Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
+    public async Task<int> CountExpensesTemplatesForAdminAsync(Expression<Func<ExpenseTemplate, bool>>[]? filter = null, 
         bool isShared = false)
     {
         IQueryable<ExpenseTemplate> query = _dbSet;
