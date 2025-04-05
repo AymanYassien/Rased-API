@@ -12,7 +12,7 @@ namespace Rased.Business.Dtos.Wallets
         public decimal ExpenseLimit { get; set; }
         // Relations
         [Required]
-        public string CreatorId { get; set; } = null!;
+        //public string CreatorId { get; set; } = null!; // This will be taken from the TOKEN
         public int CurrencyId { get; set; }
         public int ColorTypeId { get; set; }
         public int WalletStatusId { get; set; }

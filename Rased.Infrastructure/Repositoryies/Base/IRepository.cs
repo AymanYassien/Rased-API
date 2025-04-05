@@ -11,18 +11,16 @@ namespace Rased.Infrastructure.Repositoryies.Base
     {
         IQueryable<T> GetAll();
 
-        // ---->>> Testing 
-        IQueryable<T> GetAll(
+        IQueryable<T> GetData(
         Expression<Func<T, bool>>[]? filters = null,
         Expression<Func<T, object>>[]? includes = null,
-        //int pageNumber = 0,
-        //int pageSize = 10,
         bool track = true);
 
         Task<T?> GetByIdAsync(U id);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteByIdAsync(U id);
+        void Remove(T entity);
     }
     
     public interface IRepository_Test<T, TKey> where T : class

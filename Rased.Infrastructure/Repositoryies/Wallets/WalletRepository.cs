@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Rased.Infrastructure.Data;
+using Rased.Infrastructure.Models.Extras;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.DTOs;
@@ -15,7 +16,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             _userManager = userManager;
         }
 
-        // Extra Methods ...
+        // Get All Wallets
         public async Task<WalletDataPartsDto> GetWalletDataPartsAsync(int id)
         {
             var result = new WalletDataPartsDto();
@@ -31,12 +32,18 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             return result;
         }
 
-        public async Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string newWalletName, string? oldWalletName, bool isAdd)
+        // Some Critical Checks
+        public async Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string walletName, bool isAdd)
         {
             var result = new StatusDto();
 
-            // Handle Update Checks ....
-
+            // check if the user exists
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                result.Message = "Oops, Can't Access!!";
+                return result;
+            }
             // check if the wallet exists
             if (!isAdd)
             {
@@ -44,6 +51,23 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
                 if (wallet is null)
                 {
                     result.Message = "Wallet is Not Found";
+                    return result;
+                }
+                // Check if the Name exists
+                var checkName = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
+                if (checkName is not null && checkName.Name != walletName)
+                {
+                    result.Message = "Wallet Name should be Unique!";
+                    return result;
+                }
+            }
+            else
+            {
+                // check if the wallet name is unique
+                var walletUnique = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
+                if (walletUnique is not null)
+                {
+                    result.Message = "Wallet Name should be Unique!";
                     return result;
                 }
             }
@@ -67,25 +91,36 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             {
                 result.Message = "Currency is Not Found";
                 return result;
-            }
-            // check if the user exists
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user is null)
-            {
-                result.Message = "Oops, Can't Access!!";
-                return result;
-            }
-            // check if the wallet name is unique
-            var walletUnique = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == newWalletName);
-            if(walletUnique is not null)
-            {
-                result.Message = "Wallet Name should be Unique!";
-                return result;
-            }
-
+            } 
 
             result.IsSucceeded = true;
             return result;
+        }
+
+
+        // Required Related Entities
+        public async Task<RasedUser> RasedUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return user!;
+        }
+
+        public async Task<StaticColorTypeData> GetStaticColorTypeAsync(int id)
+        {
+            var color = await _context.StaticColorTypes.FirstOrDefaultAsync(x => x.id == id);
+            return color!;
+        }
+
+        public async Task<StaticWalletStatusData> GetStaticWalletStatusDataAsync(int id)
+        {
+            var status = await _context.StaticWalletStatus.FirstOrDefaultAsync(x => x.id == id);
+            return status!;
+        }
+
+        public async Task<Currency> GetCurrencyAsync(int id)
+        {
+            var currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == id);
+            return currency!;
         }
     }
 }

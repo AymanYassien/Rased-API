@@ -1,4 +1,6 @@
-﻿using Rased.Infrastructure.Repositoryies.Base;
+﻿using Rased.Infrastructure.Models.Extras;
+using Rased.Infrastructure.Models.User;
+using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.DTOs;
 
 namespace Rased.Infrastructure.Repositoryies.Wallets
@@ -10,6 +12,13 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
         // Get the status, color, and currency of a wallet with Id
         Task<WalletDataPartsDto> GetWalletDataPartsAsync(int id);
         // Check Method ..
-        Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string newWalletName, string? oldWalletName, bool isAdd);
+        Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string walletName, bool isAdd);
+        //Task<StatusDto> AddNewWallet()
+
+        // Required Related Entities
+        Task<RasedUser> RasedUser(string userId);
+        Task<StaticColorTypeData> GetStaticColorTypeAsync(int id);
+        Task<StaticWalletStatusData> GetStaticWalletStatusDataAsync(int id);
+        Task<Currency> GetCurrencyAsync(int id);
     }
 }
