@@ -18,14 +18,27 @@ namespace Rased.Api.Controllers.Wallet
             _walletService = walletService;
         }
 
-        [HttpGet("All", Name = "AllWallets")]
+        [HttpGet("All", Name = "All")]
         public async Task<IActionResult> GetAllWallets()
         {
             // Current Authenticated User
             var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var result = await _walletService.GetAllWalletsAsync(curUserId);
+            var result = await _walletService.GetAllWalletsAsync(curUserId!);
             if(!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet("Single/{id:int}", Name = "Single")]
+        public async Task<IActionResult> GetSingleWallet(int id)
+        {
+            // Current Authenticated User
+            var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _walletService.GetWalletByIdAsync(id, curUserId!);
+            if (!result.Succeeded)
                 return BadRequest(result);
 
             return Ok(result);
@@ -37,7 +50,33 @@ namespace Rased.Api.Controllers.Wallet
             // Current Authenticated User
             var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var result = await _walletService.AddWalletAsync(model, curUserId);
+            var result = await _walletService.AddWalletAsync(model, curUserId!);
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut("Update/{id:int}", Name = "Update")]
+        public async Task<IActionResult> UpdateWallet(int id, RequestWalletDto model)
+        {
+            // Current Authenticated User
+            var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _walletService.UpdateWalletAsync(model, id, curUserId!);
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("Remove/{id:int}", Name = "Remove")]
+        public async Task<IActionResult> RemoveWallet(int id)
+        {
+            // Current Authenticated User
+            var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _walletService.RemoveWalletAsync(id, curUserId!);
             if (!result.Succeeded)
                 return BadRequest(result);
 
