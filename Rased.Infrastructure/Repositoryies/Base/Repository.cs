@@ -7,7 +7,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
     public class Repository<T, U> : IRepository<T, U> where T : class
     {
         protected readonly RasedDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        protected readonly DbSet<T> _dbSet;
 
         public Repository(RasedDbContext context)
         {

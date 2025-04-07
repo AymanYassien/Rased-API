@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250407201425_CategoriesMig")]
+    partial class CategoriesMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,9 +308,6 @@ namespace Rased.Infrastructure.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Icon")
                         .HasMaxLength(100)
                         .IsUnicode(true)
@@ -323,9 +323,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("CategoryId");
 
@@ -1828,9 +1825,6 @@ namespace Rased.Infrastructure.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Icon")
                         .HasMaxLength(100)
                         .IsUnicode(true)
@@ -1849,9 +1843,6 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int>("ParentCategoryId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("SubCategoryId");
 
