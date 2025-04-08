@@ -14,6 +14,8 @@ using Rased.Infrastructure.UnitsOfWork;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Rased.Business.Services.Wallets;
+using Rased.Business.Services.Categories;
+using Rased.Business.Services.SubCategories;
 
 namespace Rased.Api
 {
@@ -90,6 +92,8 @@ namespace Rased.Api
             builder.Services.AddScoped<ISavingService, SavingService>();
             builder.Services.AddScoped<IGoalService, GoalService>();
             builder.Services.AddScoped<IWalletService, WalletService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
 
             //AutoMapping Registeration
             builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));

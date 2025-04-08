@@ -54,19 +54,19 @@ namespace Rased.Business.Services.Categories
         {
             try
             {
-                // Check the Category Name
-                var check = await _unitOfWork.Categories.CheckHelper(model.Name, id);
-                if (!check.IsSucceeded)
-                {
-                    return new ApiResponse<string>(check.Message!);
-                }
-
                 // Get the current category
                 Expression<Func<Category, bool>>[] filters = { x => x.CategoryId == id };
                 var currentCategory = await _unitOfWork.Categories.GetData(filters).FirstOrDefaultAsync();
                 if (currentCategory == null)
                 {
                     return new ApiResponse<string>("Category Not Found!");
+                }
+
+                // Check the Category Name
+                var check = await _unitOfWork.Categories.CheckHelper(model.Name, id);
+                if (!check.IsSucceeded)
+                {
+                    return new ApiResponse<string>(check.Message!);
                 }
 
                 // Update the Category
@@ -127,35 +127,65 @@ namespace Rased.Business.Services.Categories
                 // Mapping Categories
                 foreach (var category in categories)
                 {
-                    result.Add(new ReadCategoryDto()
-                    {
-                        Id = category.CategoryId,
-                        Name = category.Name,
-                        Icon = category.Icon,
-                        Color = category.Color,
-                        IsActive = category.IsActive,
-                        CreatedAt = category.CreatedAt,
-                        UpdatedAt = category.UpdatedAt,
-                        SubCategories = category.SubCategories.Select(x => new ReadSubCategoryDto()
-                        {
-                            Id = x.SubCategoryId,
-                            MainCategoryName = category.Name,
-                            Name = x.Name,
-                            Icon = x.Icon,
-                            Color = x.Color,
-                            IsActive = x.IsActive,
-                            CreatedAt = x.CreatedAt,
-                            UpdatedAt = x.UpdatedAt
-                        }).ToList()
-                    });
+                    result.Add(MappingData(category));
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return new ApiResponse<List<ReadCategoryDto>>(e.Message);
             }
 
             return new ApiResponse<List<ReadCategoryDto>>(result);
+        }
+
+        public async Task<ApiResponse<ReadCategoryDto>> GetCategoryById(int id)
+        {
+            var result = new ReadCategoryDto();
+            try
+            {
+                // Get the current category
+                Expression<Func<Category, bool>>[] filters = { x => x.CategoryId == id };
+                Expression<Func<Category, object>>[] includes = { x => x.SubCategories };
+                var currentCategory = await _unitOfWork.Categories.GetData(filters, includes, false).FirstOrDefaultAsync();
+                if (currentCategory == null)
+                {
+                    return new ApiResponse<ReadCategoryDto>("Category Not Found!");
+                }
+                // Mapping Category
+                result = MappingData(currentCategory);
+            }
+            catch (Exception e)
+            {
+                return new ApiResponse<ReadCategoryDto>(e.Message);
+            }
+
+            return new ApiResponse<ReadCategoryDto>(result);
+        }
+
+        // Mapping Data
+        private static ReadCategoryDto MappingData(Category category)
+        {
+            return new ReadCategoryDto()
+            {
+                Id = category.CategoryId,
+                Name = category.Name,
+                Icon = category.Icon,
+                Color = category.Color,
+                IsActive = category.IsActive,
+                CreatedAt = category.CreatedAt,
+                UpdatedAt = category.UpdatedAt,
+                SubCategories = category.SubCategories.Select(x => new ReadSubCategoryDto()
+                {
+                    Id = x.SubCategoryId,
+                    MainCategoryName = category.Name,
+                    Name = x.Name,
+                    Icon = x.Icon,
+                    Color = x.Color,
+                    IsActive = x.IsActive,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt
+                }).ToList()
+            };
         }
     }
 }

@@ -14,5 +14,7 @@ namespace Rased.Business.Services.Categories
         Task<ApiResponse<string>> RemoveCategory(int id);
         // Read All Categories with its Subs
         Task<ApiResponse<List<ReadCategoryDto>>> GetAllCategories();
+        // Read Category by Id
+        Task<ApiResponse<ReadCategoryDto>> GetCategoryById(int id);
     }
 }

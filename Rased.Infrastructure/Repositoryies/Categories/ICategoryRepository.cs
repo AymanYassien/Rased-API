@@ -5,6 +5,6 @@ namespace Rased.Infrastructure.Repositoryies.Categories
 {
     public interface ICategoryRepository: IRepository<Category, int>
     {
-        Task<StatusDto> CheckHelper(string Name, int catId);
+        Task<StatusDto> CheckHelper(string name, int catId);
     }
 }

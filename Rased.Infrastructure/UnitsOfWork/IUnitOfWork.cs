@@ -9,6 +9,7 @@ using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.Savings;
 using Rased.Infrastructure.Repositoryies.Wallets;
 using Rased.Infrastructure.Repositoryies.Categories;
+using Rased.Infrastructure.Repositoryies.SubCategories;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -29,6 +30,7 @@ namespace Rased.Infrastructure.UnitsOfWork
 
         public IWalletRepository Wallets { get; }
         public ICategoryRepository Categories { get; }
+        public ISubCategoryRepository SubCategories { get; }
 
         public IExpensesRepository Expenses { get; }                
         public IExpenseTemplateRepository ExpenseTemplates{ get; }                
