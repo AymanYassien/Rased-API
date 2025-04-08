@@ -16,4 +16,7 @@ public class AddBudgetDto
     //public int BudgetTypeId { get; set; } = 0;
     public int? DayOfMonth { get; set; }
     public int? DayOfWeek { get; set; }
+    
+    // Name - Amount - sub Category ID - Category Name - Start Date + End - Day of Week - Day of Month
+    // 
 }

@@ -10,14 +10,12 @@ public class ExpenseTemplateRepository : Repository_Test<ExpenseTemplate, int>, 
 {
     private readonly RasedDbContext _context;
     private readonly DbSet<ExpenseTemplate> _dbSet;
-    
 
     public ExpenseTemplateRepository(RasedDbContext context) : base(context)
     {
         _context = context;
         _dbSet = _context.Set<ExpenseTemplate>();
     }
-    
 
     public async Task<IQueryable<ExpenseTemplate>> GetUserExpensesTemplateByWalletIdAsync(int walletId, bool isShared = false)
     {
@@ -32,7 +30,6 @@ public class ExpenseTemplateRepository : Repository_Test<ExpenseTemplate, int>, 
             x => x.WalletId == walletId
         });
     }
-
     
     public async Task<IQueryable<ExpenseTemplate>> GetUserExpensesTemplateByWalletIdAsync(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
         bool isShared = false)
@@ -135,6 +132,4 @@ public class ExpenseTemplateRepository : Repository_Test<ExpenseTemplate, int>, 
 
         return query;
     }
-
-
 }

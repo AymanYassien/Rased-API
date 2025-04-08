@@ -32,7 +32,8 @@ namespace Rased.Infrastructure.UnitsOfWork
         public IAutomationRuleRepository AutomationRules { get; private set; }
         public IIncomeRepository   Income   { get; private set; }
         public IBudgetRepository   Budget   { get; private set; }
-
+        public IIncomeTemplateRepository IncomeTemplate { get; }
+        public IStaticIncomeSourceTypeDataRepository StaticIncomeSourceTypeData { get; }
 
 
         // All System IRepositoryies to be instantiated by the constructor
@@ -58,6 +59,8 @@ namespace Rased.Infrastructure.UnitsOfWork
             GoalRepository = new Repository<Goal, int>(context);
             Attachments = new AttachmentRepository(_context);
             PaymentMethods = new PaymentMethodRepository(_context);
+            IncomeTemplate = new IncomeTemplateRepository(_context);
+            StaticIncomeSourceTypeData = new StaticIncomeSourceTypeDataRepository(_context);
         }
 
 

@@ -67,4 +67,5 @@ public class PaymentMethodDataController : ControllerBase
         var response = await _paymentMethodService.DeletePaymentMethod(paymentId);
         return StatusCode((int)response.StatusCode, response);
     }
+    
 }
