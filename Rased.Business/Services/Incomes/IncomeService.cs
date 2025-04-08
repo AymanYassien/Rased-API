@@ -1,293 +1,298 @@
 using System.Linq.Expressions;
 using System.Net;
+using Rased_API.Rased.Infrastructure;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
-using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
 using Rased.Infrastructure;
 using Rased.Infrastructure.UnitsOfWork;
 
-namespace Rased.Business.Services.ExpenseService;
+namespace api5.Rased_API.Rased.Business.Services.Incomes;
 
-public class ExpenseService : IExpenseService
+public class IncomeService : IIncomeService
 {
     private IUnitOfWork _unitOfWork;
     private ApiResponse<object> _response;
     
-    public ExpenseService(IUnitOfWork unitOfWork)
+    public IncomeService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
         _response = new ApiResponse<object>();
          
     }
 
-    public  async Task<ApiResponse<object>> GetUserExpensesByWalletId(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false)
+    public async Task<ApiResponse<object>> GetUserIncomesByWalletId(int walletId, Expression<Func<Income, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
+        bool isShared = false)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        IQueryable<Expense> res = await _unitOfWork.Expenses.GetUserExpensesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+        IQueryable<Income> res = await _unitOfWork.Income.GetUserIncomesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
+        IQueryable < IncomeDto > newResult = MapToIncomeDto(res);
         
         return  _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
-          
     }
 
-    public async Task<ApiResponse<object>> GetUserExpense(int walletId, int ExpenseId, bool isShared = false)
+    public async Task<ApiResponse<object>> GetUserIncome(int walletId, int IncomeId, bool isShared = false)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.Expenses.GetUserExpenseAsync(walletId, ExpenseId, isShared);
+        var res = await _unitOfWork.Income.GetUserIncomesAsync(walletId, IncomeId, isShared);
         
         if (res == null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        var newResult = _MapToExpenseDto(res);
+        var newResult = _MapToIncomeDto(res);
         
         return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
-       
+
     }
 
-    public async Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto)
+    public async Task<ApiResponse<object>> AddUserIncome(AddIncomeDto newIncomeDto)
     {
-        if (!IsExpenseDtoValid(newExpenseDto, out var errorMessage))
+        if (!IsIncomeDtoValid(newIncomeDto, out var errorMessage))
         {
-            return _response.Response(false, newExpenseDto, "", $"Bad Request, Error Messages : {errorMessage}",
+            return _response.Response(false, newIncomeDto, "", $"Bad Request, Error Messages : {errorMessage}",
                 HttpStatusCode.BadRequest);
         }
 
-        var expense = _MapToExpenseDtoFromAdd(newExpenseDto);
+        var income = _MapToIncomeFromAdd(newIncomeDto);
 
         try
         {
-            await _unitOfWork.Expenses.AddAsync(expense);
+            await _unitOfWork.Income.AddAsync(income);
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
         {
             
-            return _response.Response(false, newExpenseDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+            return _response.Response(false, newIncomeDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, expense, $"Success add Expense with id: {expense.ExpenseId}", $"",
+        return _response.Response(true, income, $"Success add Income with id: {income.IncomeId}", $"",
             HttpStatusCode.Created);
     }
 
-    public async Task<ApiResponse<object>> UpdateUserExpense(int expenseId, UpdateExpenseDto updateExpenseDto)
+    public async Task<ApiResponse<object>> UpdateUserIncome(int incomeId, UpdateIncomeDto updateIncomeDto)
     {
-        if (!IsExpenseDtoValid(updateExpenseDto, out var errorMessage))
+        if (!IsIncomeDtoValid(updateIncomeDto, out var errorMessage))
         {
-            return _response.Response(false, updateExpenseDto, "", $"Bad Request, Error Messages : {errorMessage}",
+            return _response.Response(false, updateIncomeDto, "", $"Bad Request, Error Messages : {errorMessage}",
                 HttpStatusCode.BadRequest);
         }
         
-        if (1 > expenseId)
+        if (1 > incomeId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+        var res = await _unitOfWork.Income.GetByIdAsync(incomeId);
         
         if (res == null)
-            return _response.Response(false, null, "", $"Not Found Expense with id {expenseId}",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", $"Not Found Income with id {incomeId}",  HttpStatusCode.NotFound);
 
         
-        var expense = _MapToExpenseDtoFromUpdate(updateExpenseDto);
+        var income = _MapToIncomeFromUpdate(updateIncomeDto);
 
         try
         {
-            _unitOfWork.Expenses.Update(expense);
+            _unitOfWork.Income.Update(income);
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
         {
             
-            return _response.Response(false, updateExpenseDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+            return _response.Response(false, updateIncomeDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, expense, $"Success Update Expense with id: {expense.ExpenseId}", $"",
+        return _response.Response(true, income, $"Success Update Income with id: {income.IncomeId}", $"",
             HttpStatusCode.NoContent);
     }
 
-    public async Task<ApiResponse<object>> DeleteUserExpense(int expenseId)
+    public async Task<ApiResponse<object>> DeleteUserIncome(int incomeId)
     {
-        if (1 > expenseId)
+        if (1 > incomeId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res =  _unitOfWork.Expenses.RemoveById(expenseId);
+        var res =  _unitOfWork.Income.RemoveById(incomeId);
         if (res is false)
             return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
         
         return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+
     }
 
-    public async Task<ApiResponse<object>> CalculateTotalExpensesAmount(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> CalculateTotalIncomesAmount(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountAsync(walletId, isShared, filter);
+        decimal res =  await _unitOfWork.Income.CalculateTotalIncomesAmountAsync(walletId, isShared, filter);
         if (res < 0)
             return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
-       
+
     }
 
-    public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastWeek(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> CalculateTotalIncomesAmountForLastWeek(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastWeekAsync(walletId, isShared, filter);
+        decimal res =  await _unitOfWork.Income.CalculateTotalIncomesAmountForLastWeekAsync(walletId, isShared, filter);
         if (res < 0)
             return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+
     }
 
-    public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastMonth(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> CalculateTotalIncomesAmountForLastMonth(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastMonthAsync(walletId, isShared, filter);
+        decimal res =  await _unitOfWork.Income.CalculateTotalIncomesAmountForLastMonthAsync(walletId, isShared, filter);
         if (res < 0)
             return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+
     }
 
-    public async Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastYear(int walletId, bool isShared = false, Expression<Func<Expense, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> CalculateTotalIncomesAmountForLastYear(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForLastYearAsync(walletId, isShared, filter);
+        decimal res =  await _unitOfWork.Income.CalculateTotalIncomesAmountForLastYearAsync(walletId, isShared, filter);
         if (res < 0)
             return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+
     }
 
-    public async Task<ApiResponse<object>>CalculateTotalExpensesAmountForSpecificPeriod(int walletId, DateTime startDateTime, DateTime endDateTime,
-        Expression<Func<Expense, bool>>[]? filter = null, bool isShared = false)
+    public async Task<ApiResponse<object>> CalculateTotalIncomesAmountForSpecificPeriod(int walletId, DateTime startDateTime, DateTime endDateTime,
+        Expression<Func<Income, bool>>[]? filter = null, bool isShared = false)
     {
         if (1 > walletId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        decimal res =  await _unitOfWork.Expenses.CalculateTotalExpensesAmountForSpecificPeriodAsync(walletId, startDateTime, endDateTime, filter, isShared);
+        decimal res =  await _unitOfWork.Income.CalculateTotalIncomesAmountForSpecificPeriodAsync(walletId, startDateTime, endDateTime, filter, isShared);
         if (res < 0)
             return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+
     }
-    
-    public async Task<ApiResponse<object>> GetAllExpensesForAdmin(Expression<Func<Expense, bool>>[]? filter = null, Expression<Func<Expense, object>>[]? includes = null, int pageNumber = 0,
+
+    public async Task<ApiResponse<object>> GetAllIncomesForAdmin(Expression<Func<Income, bool>>[]? filter = null, Expression<Func<Income, object>>[]? includes = null, int pageNumber = 0,
         int pageSize = 10)
     {
-        
-        IQueryable<Expense> res = await _unitOfWork.Expenses.GetAllAsync(filter, includes, pageNumber, pageSize);
+        IQueryable<Income> res = await _unitOfWork.Income.GetAllAsync(filter, includes, pageNumber, pageSize);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
+        IQueryable<IncomeDto> newResult = MapToIncomeDto(res);
         
         return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
+
     }
-    
-    private ExpenseDto _MapToExpenseDto(Expense expense)
+    private IncomeDto _MapToIncomeDto(Income income)
     {
-        return new ExpenseDto()
+        return new IncomeDto()
         {
-            ExpenseId = expense.ExpenseId,
-            WalletId = expense.WalletId,
-            SharedWalletId = expense.SharedWalletId,
-            Amount = expense.Amount,
-            CategoryName = expense.CategoryName,
-            SubCategoryId = expense.SubCategoryId,
-            Date = expense.Date,
-            PaymentMethodId = expense.PaymentMethodId,
-            IsAutomated = expense.IsAutomated,
-            Description = expense.Description,
-            Title = expense.Title
+            IncomeId = income.IncomeId,
+            WalletId = income.WalletId,
+            SharedWalletId = income.SharedWalletId,
+            Amount = income.Amount,
+            CategoryName = income.CategoryName,
+            SubCategoryId = income.SubCategoryId,
+            CreatedDate = income.CreatedDate,
+            IncomeSourceTypeId = income.IncomeSourceTypeId,
+            IsAutomated = income.IsAutomated,
+            Description = income.Description,
+            Title = income.Title,
+            IncomeTemplateId = income.IncomeTemplateId
         };
     }
 
-    private Expense _MapToExpenseDtoFromUpdate(UpdateExpenseDto updateExpenseDto)
+    private Income _MapToIncomeFromUpdate(UpdateIncomeDto updateIncomeDto)
     {
-        return new Expense()
+        return new Income()
         {
-            // ExpenseId = updateExpenseDto.ExpenseId,
-            WalletId = updateExpenseDto.WalletId,
-            SharedWalletId = updateExpenseDto.SharedWalletId,
-            Amount = updateExpenseDto.Amount,
-            CategoryName = updateExpenseDto.CategoryName,
-            SubCategoryId = updateExpenseDto.SubCategoryId,
-            Date = updateExpenseDto.Date,
-            PaymentMethodId = updateExpenseDto.PaymentMethodId,
-            IsAutomated = updateExpenseDto.IsAutomated,
-            Description = updateExpenseDto.Description,
-            Title = updateExpenseDto.Title,
-            RelatedBudgetId = updateExpenseDto.RelatedBudgetId
+            //IncomeId = income.IncomeId,
+            WalletId = updateIncomeDto.WalletId,
+            SharedWalletId = updateIncomeDto.SharedWalletId,
+            Amount = updateIncomeDto.Amount,
+            CategoryName = updateIncomeDto.CategoryName,
+            SubCategoryId = updateIncomeDto.SubCategoryId,
+            CreatedDate = updateIncomeDto.CreatedDate,
+            IncomeSourceTypeId = updateIncomeDto.IncomeSourceTypeId,
+            IsAutomated = updateIncomeDto.IsAutomated,
+            Description = updateIncomeDto.Description,
+            Title = updateIncomeDto.Title,
+            IncomeTemplateId = updateIncomeDto.IncomeTemplateId
         };
     }
     
-    private Expense _MapToExpenseDtoFromAdd(AddExpenseDto addExpenseDto)
+    private Income _MapToIncomeFromAdd(AddIncomeDto addIncomeDto)
     {
-        return new Expense()
+        return new Income()
         {
-            WalletId = addExpenseDto.WalletId,
-            SharedWalletId = addExpenseDto.SharedWalletId,
-            Amount = addExpenseDto.Amount,
-            CategoryName = addExpenseDto.CategoryName,
-            SubCategoryId = addExpenseDto.SubCategoryId,
-            Date = addExpenseDto.Date,
-            PaymentMethodId = addExpenseDto.PaymentMethodId,
+            WalletId = addIncomeDto.WalletId,
+            SharedWalletId = addIncomeDto.SharedWalletId,
+            Amount = addIncomeDto.Amount,
+            CategoryName = addIncomeDto.CategoryName,
+            SubCategoryId = addIncomeDto.SubCategoryId,
+            CreatedDate = addIncomeDto.CreatedDate,
+            IncomeSourceTypeId = addIncomeDto.IncomeSourceTypeId,
             IsAutomated = false,
-            Description = addExpenseDto.Description,
-            RelatedBudgetId = addExpenseDto.RelatedBudgetId,
-            Title = addExpenseDto.Title
-            
-
+            Description = addIncomeDto.Description,
+            Title = addIncomeDto.Title,
+            IncomeTemplateId = addIncomeDto.IncomeTemplateId
         };
     }
     
-    private IQueryable<ExpenseDto> MapToExpenseDto(IQueryable<Expense> expenses)
+    private IQueryable<IncomeDto> MapToIncomeDto(IQueryable<Income> incomes)
     {
-        return expenses.Select(expense => new ExpenseDto
+        return incomes.Select(income => new IncomeDto()
         {
-            ExpenseId = expense.ExpenseId,
-            WalletId = expense.WalletId,
-            SharedWalletId = expense.SharedWalletId,
-            Amount = expense.Amount,
-            CategoryName = expense.CategoryName,
-            SubCategoryId = expense.SubCategoryId,
-            Date = expense.Date,
-            PaymentMethodId = expense.PaymentMethodId,
-            IsAutomated = expense.IsAutomated,
-            Description = expense.Description,
-            Title = expense.Title
+            IncomeId = income.IncomeId,
+            WalletId = income.WalletId,
+            SharedWalletId = income.SharedWalletId,
+            Amount = income.Amount,
+            CategoryName = income.CategoryName,
+            SubCategoryId = income.SubCategoryId,
+            CreatedDate = income.CreatedDate,
+            IncomeSourceTypeId = income.IncomeSourceTypeId,
+            IsAutomated = income.IsAutomated,
+            Description = income.Description,
+            Title = income.Title,
+            IncomeTemplateId = income.IncomeTemplateId
+            
         });
     }
 
-    private bool IsExpenseDtoValid(AddExpenseDto dto, out string errorMessage)
+    private bool IsIncomeDtoValid(AddIncomeDto dto, out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -328,7 +333,7 @@ public class ExpenseService : IExpenseService
             }
 
             // 4. Date: Required
-            if (dto.Date == default(DateTime))
+            if (dto.CreatedDate == default(DateTime))
             {
                 errorMessage = "Date is required.";
                 return false;
@@ -356,7 +361,7 @@ public class ExpenseService : IExpenseService
             return true;
         }
     
-    private bool IsExpenseDtoValid(UpdateExpenseDto dto, out string errorMessage)
+    private bool IsIncomeDtoValid(UpdateIncomeDto dto, out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -397,7 +402,7 @@ public class ExpenseService : IExpenseService
             }
 
             // 4. Date: Required
-            if (dto.Date == default(DateTime))
+            if (dto.CreatedDate == default(DateTime))
             {
                 errorMessage = "Date is required.";
                 return false;
@@ -424,8 +429,4 @@ public class ExpenseService : IExpenseService
 
             return true;
         }
-
-    
-
-
 }

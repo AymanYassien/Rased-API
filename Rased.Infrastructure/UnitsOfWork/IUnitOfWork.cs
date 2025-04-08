@@ -33,7 +33,8 @@ namespace Rased.Infrastructure.UnitsOfWork
         public IAutomationRuleRepository AutomationRules{ get; }                
         public IIncomeRepository Income { get; }
         public IBudgetRepository Budget { get; }
-
+        public IIncomeTemplateRepository IncomeTemplate { get; }
+        public IStaticIncomeSourceTypeDataRepository StaticIncomeSourceTypeData { get; }
         // Commit Changes
         Task<int> CommitChangesAsync(); // return Affects Row!
     }
