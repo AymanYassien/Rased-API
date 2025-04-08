@@ -25,6 +25,11 @@ namespace Rased.Business
                 .IsUnicode(true)
                 .IsRequired(false);
 
+            builder.Property(c => c.Color)
+                .HasMaxLength(20)
+                .IsUnicode(true)
+                .IsRequired(false);
+
             builder.Property(sc => sc.IsActive)
                 .HasDefaultValue(true);
 

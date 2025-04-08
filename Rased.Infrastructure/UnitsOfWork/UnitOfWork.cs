@@ -12,6 +12,8 @@ using Rased.Infrastructure.UnitsOfWork;
 using Microsoft.AspNetCore.Identity;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Wallets;
+using Rased.Infrastructure.Repositoryies.Categories;
+using Rased.Infrastructure.Repositoryies.SubCategories;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -23,6 +25,8 @@ namespace Rased.Infrastructure.UnitsOfWork
         // ....
         
         public IWalletRepository Wallets { get; private set; }
+        public ICategoryRepository Categories { get; private set; }
+        public ISubCategoryRepository SubCategories { get; private set; }
 
         public IPaymentMethodRepository PaymentMethods { get; private set; }      
         public IAttachmentRepository Attachments { get; private set; }
@@ -50,6 +54,8 @@ namespace Rased.Infrastructure.UnitsOfWork
             _userManager = userManager;
 
             Wallets = new WalletRepository(_context, _userManager);
+            Categories = new CategoryRepository(_context);
+            SubCategories = new SubCategoryRepository(_context);
             Expenses = new ExpenseRepository(_context);
             ExpenseTemplates = new ExpenseTemplateRepository(_context);
             AutomationRules = new AutomationRuleRepository(_context);

@@ -44,7 +44,7 @@ namespace Rased.Api.Controllers.Wallet
             return Ok(result);
         }
 
-        [HttpPost("Add", Name = "Add")]
+        [HttpPost("Create", Name = "Create")]
         public async Task<IActionResult> AddWallet(RequestWalletDto model)
         {
             // Current Authenticated User
@@ -70,7 +70,7 @@ namespace Rased.Api.Controllers.Wallet
             return Ok(result);
         }
 
-        [HttpDelete("Remove/{id:int}", Name = "Remove")]
+        [HttpDelete("Delete/{id:int}", Name = "Delete")]
         public async Task<IActionResult> RemoveWallet(int id)
         {
             // Current Authenticated User

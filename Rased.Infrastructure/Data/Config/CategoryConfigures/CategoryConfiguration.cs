@@ -28,11 +28,11 @@ namespace Rased.Business
                 .IsUnicode(true)
                 .IsRequired(false);
 
-            builder.Property(c => c.CategoryTypeId)
-                .IsRequired();
-
-            builder.Property(c => c.IsActive)
+            builder.Property(sc => sc.IsActive)
                 .HasDefaultValue(true);
+
+            //builder.Property(c => c.CategoryTypeId)
+            //    .IsRequired();
 
             builder.HasMany(c => c.SubCategories)
                 .WithOne(SubCategory => SubCategory.ParentCategory)
