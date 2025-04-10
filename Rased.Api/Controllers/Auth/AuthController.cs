@@ -26,18 +26,24 @@ namespace Rased.Api.Controllers.Auth
             if (!result.successed)
                 return BadRequest(result.Errors);
 
-            return Ok(result.successed);
+            return Ok("Registration successful! You can now log in to your account.");
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp([FromBody]  VerifyOtpDto verifyOtpDto)
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto verifyOtpDto)
         {
             var result = await _authService.VerifyOtpAsync(verifyOtpDto);
+
             if (!result.successed)
                 return BadRequest(result.Errors);
 
-            return Ok(result.successed);
+            return Ok(new
+            {
+                result.successed,
+                Message = "OTP verification successful! Your account is now verified."
+            });
         }
+
 
 
 
@@ -48,12 +54,18 @@ namespace Rased.Api.Controllers.Auth
             var response = await _authService.LoginAsync(loginDto);
 
             if (!response.successed)
-                return BadRequest(response.Errors);    
+                return BadRequest(response.Errors);
 
-            return Ok(new {response.successed, response.Token, response.RefreshToken });
+            return Ok(new
+            {
+                response.successed,
+                response.Token,
+                response.RefreshToken,
+                Message = "Login successful! Welcome back to your account."
+            });
         }
 
-        [HttpPost("refresh-token")]
+            [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken( [FromBody] RefreshTokenDto refreshTokenDto)
         {
             var response = await _authService.RefreshTokenAsync(refreshTokenDto);
@@ -61,7 +73,13 @@ namespace Rased.Api.Controllers.Auth
             if (!response.successed)
                 return BadRequest(response.Errors);
 
-            return Ok( new {response.successed, token = response.Token, refreshToken = response.RefreshToken });
+            return Ok(new
+            {
+                response.successed,
+                token = response.Token,
+                refreshToken = response.RefreshToken,
+                Message = "Token refresh successful!"
+            });
         }
 
 

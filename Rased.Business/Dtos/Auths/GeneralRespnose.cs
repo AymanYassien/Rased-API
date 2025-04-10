@@ -9,6 +9,6 @@ namespace Rased.Business.Dtos.Auths
     public class GeneralRespnose
     {
         public bool successed { get; set; } = false;
-        public List<string> Errors { get; set; }
+        public List<string> Errors { get; set; } = new List<string> ();
     }
 }
