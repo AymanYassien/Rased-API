@@ -1,5 +1,6 @@
 ﻿using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.DTOs;
+using System.Linq.Expressions;
 
 namespace Rased.Infrastructure.Repositoryies.Wallets
 {
@@ -11,5 +12,8 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
         Task<WalletDataPartsDto> GetWalletDataPartsAsync(int id);
         // Check Method ..
         Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string newWalletName, string? oldWalletName, bool isAdd);
+
+
+
     }
 }

@@ -22,11 +22,13 @@ namespace Rased.Infrastructure.Data.Config.Goals
                    .IsRequired(false);
 
             builder.Property(x => x.Description)
-                   .HasColumnType("NVARCHAR(MAX)")
+                    .HasConversion<string>()
                    .IsRequired(false);
             builder.Property(x => x.Status)
-                   .HasColumnType("NVARCHAR(50)")
-                   .IsRequired(false);
+              .HasColumnType("NVARCHAR(50)")
+              .HasDefaultValue(GoalStatusEnum.InProgress) 
+              .IsRequired();
+
             builder.Property(x => x.StartedAmount)
                    .IsRequired()
                    .HasPrecision(18, 2);

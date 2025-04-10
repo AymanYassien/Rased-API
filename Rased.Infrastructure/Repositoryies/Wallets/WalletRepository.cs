@@ -4,6 +4,7 @@ using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.DTOs;
+using System.Linq.Expressions;
 
 namespace Rased.Infrastructure.Repositoryies.Wallets
 {
@@ -87,5 +88,9 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             result.IsSucceeded = true;
             return result;
         }
+
+    
+
+       
     }
 }

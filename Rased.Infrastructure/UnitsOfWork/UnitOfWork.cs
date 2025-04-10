@@ -12,6 +12,8 @@ using Rased.Infrastructure.UnitsOfWork;
 using Microsoft.AspNetCore.Identity;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Wallets;
+using Rased.Infrastructure.Repositoryies.Goals;
+using Rased.Infrastructure.Models.Transfer;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -35,7 +37,25 @@ namespace Rased.Infrastructure.UnitsOfWork
      
         public ISavingRepository SavingRepository { get; private set; }
 
-        public IRepository<Goal, int> GoalRepository { get; private set; }
+        public IGoalRepository GoalRepository { get; private set; }
+
+        public IGoalTransactionRepository GoalTransactionRepository { get; private set; }
+
+        public IRepository<Transaction, int> Transactions { get; private set; }
+
+        public IRepository<ExpenseTransactionRecord, int> ExpenseTransactionRecords { get; private set; }
+
+        public IRepository<PersonalIncomeTrasactionRecord, int> PersonalIncomeTrasactionRecords { get; private set; }
+
+        public IRepository<SharedWalletIncomeTransaction, int> SharedWalletIncomeTransactions { get; private set; }
+
+        public IRepository<StaticReceiverTypeData, int> StaticReceiverTypes { get; private set; }
+
+        public IRepository<StaticTransactionStatusData, int> StaticTransactionStatus { get; private set; }
+
+        public IRepository<TransactionApproval, int> TransactionApprovals { get; private set; }
+
+        public IRepository<TransactionRejection, int> TransactionRejections { get; private set; }
 
 
         // Constructor to inject all Repositoryies
@@ -51,7 +71,16 @@ namespace Rased.Infrastructure.UnitsOfWork
             Income = new IncomeRepository(_context);
             Budget = new BudgetRepository(_context);
             SavingRepository = new SavingRepository(context);
-            GoalRepository = new Repository<Goal, int>(context);
+            GoalRepository = new GoalRepository(context);
+            GoalTransactionRepository = new GoalTransactionRepository(context);
+            Transactions = new Repository<Transaction, int>(context);
+            ExpenseTransactionRecords = new Repository<ExpenseTransactionRecord, int>(context);
+            PersonalIncomeTrasactionRecords = new Repository<PersonalIncomeTrasactionRecord,  int>(context);
+            SharedWalletIncomeTransactions = new Repository<SharedWalletIncomeTransaction, int>(context);
+            StaticReceiverTypes = new Repository<StaticReceiverTypeData, int>(context);
+            StaticTransactionStatus = new Repository<StaticTransactionStatusData , int> (context);
+            TransactionApprovals = new Repository<TransactionApproval, int>(context);
+            TransactionRejections = new Repository<TransactionRejection, int>(context);
         }
 
 

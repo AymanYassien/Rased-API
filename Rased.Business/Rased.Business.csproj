@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Include="AutoMapper\GoalProfile.cs" />
     <Compile Include="AutoMapper\SavingProfile.cs" />
+    <Compile Include="AutoMapper\TransferProfile.cs" />
   </ItemGroup>
 
   <ItemGroup>

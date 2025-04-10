@@ -13,12 +13,12 @@ namespace Rased.Infrastructure
         public int? ReceiverWalletId { get; set; }
         public int ReceiverTypeId { get; set; }
         public decimal Amount { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int TransactionStatusId { get; set; }
         public string DisplayColor { get; set; }
-        public bool IsReadOnly { get; set; }
+        public bool IsReadOnly { get; set; } = false;
 
 
         // Navigation properties

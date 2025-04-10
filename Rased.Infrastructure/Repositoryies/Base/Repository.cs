@@ -20,7 +20,23 @@ namespace Rased.Infrastructure.Repositoryies.Base
         {
             return _context.Set<T>().AsNoTracking().AsQueryable();
         }
+        public IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression)
+        {
+            return _context.Set<T>().Where(expression);
+        }
+        public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
 
+        public IQueryable<T> FindAll(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.Where(predicate);
+        }
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
+        }
         // --->>> Testing Methods
         public IQueryable<T> GetAll(
         Expression<Func<T, bool>>[]? filters = null,

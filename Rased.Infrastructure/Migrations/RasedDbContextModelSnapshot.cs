@@ -488,7 +488,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ExpenseSpecificData")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -945,7 +944,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("NVARCHAR(MAX)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DesiredDate")
                         .HasColumnType("DATETIME2");
@@ -977,7 +976,10 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("DATETIME2");
 
                     b.Property<string>("Status")
-                        .HasColumnType("NVARCHAR(50)");
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR(50)")
+                        .HasDefaultValue("InProgress");
 
                     b.Property<int?>("SubCatId")
                         .HasColumnType("int");
@@ -1275,6 +1277,42 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("Subscriptions", (string)null);
                 });
 
+            modelBuilder.Entity("Rased.Infrastructure.Models.Transfer.TransactionRejection", b =>
+                {
+                    b.Property<int>("RejectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RejectionId"));
+
+                    b.Property<DateTime>("RejectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RejectedById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RejectionId");
+
+                    b.HasIndex("RejectedById")
+                        .HasDatabaseName("IX_TransactionRejection_RejectedById");
+
+                    b.HasIndex("TransactionId")
+                        .HasDatabaseName("IX_TransactionRejection_TransactionId");
+
+                    b.HasIndex("TransactionId", "RejectedById")
+                        .IsUnique()
+                        .HasDatabaseName("IX_TransactionRejection_TransactionId_RejectedById");
+
+                    b.ToTable("TransactionRejection");
+                });
+
             modelBuilder.Entity("Rased.Infrastructure.Models.User.RasedUser", b =>
                 {
                     b.Property<string>("Id")
@@ -1401,7 +1439,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("IncomeSpecificData")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -1510,6 +1547,10 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int>("IncomeId")
                         .HasColumnType("int");
+
+                    b.Property<string>("IncomeSpecificData")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("TransactionId")
                         .HasColumnType("int");
@@ -1717,6 +1758,23 @@ namespace Rased.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StaticReceiverTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Friend"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "SharedWallet"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "UnknownPerson"
+                        });
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.StaticSharedWalletAccessLevelData", b =>
@@ -1771,6 +1829,28 @@ namespace Rased.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("StaticTransactionStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Approved"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Canceled"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Deleted"
+                        });
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.StaticTriggerTypeData", b =>
@@ -1863,7 +1943,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -2500,6 +2579,25 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("Plan");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.Transfer.TransactionRejection", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "RejectedBy")
+                        .WithMany()
+                        .HasForeignKey("RejectedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Transaction", "Transaction")
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RejectedBy");
+
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.PersonalIncomeTrasactionRecord", b =>

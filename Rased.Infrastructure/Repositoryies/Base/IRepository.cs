@@ -23,8 +23,13 @@ namespace Rased.Infrastructure.Repositoryies.Base
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteByIdAsync(U id);
+        IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression);
+        Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
+        IQueryable<T> FindAll(Expression<Func<T, bool>> predicate);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+        
     }
-    
+
     public interface IRepository_Test<T, TKey> where T : class
     {
         
