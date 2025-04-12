@@ -92,7 +92,7 @@ namespace Rased.Infrastructure.UnitsOfWork
             StaticTransactionStatus = new Repository<StaticTransactionStatusData , int> (context);
             TransactionApprovals = new Repository<TransactionApproval, int>(context);
             TransactionRejections = new Repository<TransactionRejection, int>(context);
-            GoalRepository = new Repository<Goal, int>(context);
+            //GoalRepository = new Repository<Goal, int>(context);
             Attachments = new AttachmentRepository(_context);
             PaymentMethods = new PaymentMethodRepository(_context);
             IncomeTemplate = new IncomeTemplateRepository(_context);

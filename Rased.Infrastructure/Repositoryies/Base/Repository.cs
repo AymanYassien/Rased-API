@@ -20,10 +20,12 @@ namespace Rased.Infrastructure.Repositoryies.Base
         {
             return _context.Set<T>().AsNoTracking().AsQueryable();
         }
+
         public IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression)
         {
             return _context.Set<T>().Where(expression);
         }
+
         public async Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.FirstOrDefaultAsync(predicate);
@@ -33,12 +35,13 @@ namespace Rased.Infrastructure.Repositoryies.Base
         {
             return _dbSet.Where(predicate);
         }
+
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.AnyAsync(predicate);
         }
-        // --->>> Testing Methods
-        public IQueryable<T> GetAll(
+   
+     
         // Overloaded Method
         public IQueryable<T> GetData(
         Expression<Func<T, bool>>[]? filters = null,

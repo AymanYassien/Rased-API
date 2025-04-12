@@ -48,7 +48,7 @@ namespace Rased.Infrastructure.UnitsOfWork
         public ICategoryRepository Categories { get; }
         public ISubCategoryRepository SubCategories { get; }
 
-        public IExpensesRepository Expenses { get; }                
+                    
         public IExpenseTemplateRepository ExpenseTemplates{ get; }                
         public IAutomationRuleRepository AutomationRules{ get; }                
         public IBudgetRepository Budget { get; }
