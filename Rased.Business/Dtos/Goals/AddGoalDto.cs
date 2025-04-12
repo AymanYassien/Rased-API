@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rased.Infrastructure.Models.Goals;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Rased.Business.Dtos.Goals
         public string Name { get; set; } = string.Empty;
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
-        public string Status { get; set; }    // C(Completed) - P(Progressing)
+        public GoalStatusEnum Status { get; set; } = GoalStatusEnum.InProgress;  // C(Completed) - P(Progressing)
         public DateTime StartedDate { get; set; } = DateTime.UtcNow;
         public DateTime DesiredDate { get; set; }
         public decimal StartedAmount { get; set; } = 0;

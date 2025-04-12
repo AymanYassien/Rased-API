@@ -111,9 +111,31 @@ namespace Rased.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RasedUserConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AutomationRuleConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WalletConfiguration).Assembly);
+
+
+
+
+            // Seed Data for ReceiverType
+            modelBuilder.Entity<StaticReceiverTypeData>().HasData(
+                new StaticReceiverTypeData { Id = 1, Name = "Friend" },
+                new StaticReceiverTypeData { Id = 2, Name = "SharedWallet" },
+                new StaticReceiverTypeData { Id = 3, Name = "UnknownPerson" }
+            );
+
+            //  Seed Data for TransactionStatus
+            modelBuilder.Entity<StaticTransactionStatusData>().HasData(
+                new StaticTransactionStatusData { Id = 1, Name = "Pending" },
+                new StaticTransactionStatusData { Id = 2, Name = "Approved" },
+                new StaticTransactionStatusData { Id = 3, Name = "Canceled" },
+                new StaticTransactionStatusData { Id = 4, Name = "Deleted" }
+            );
+
         }
 
 
-        
+
+
+
+
     }
 }

@@ -32,6 +32,10 @@ namespace Rased.Business
             builder.Property(swit => swit.UpdatedAt)
                 .IsRequired(false);
 
+            builder.Property(pitr => pitr.IncomeSpecificData)
+                .HasMaxLength(500)
+                .HasColumnType("nvarchar(500)");
+
 
             builder.HasOne(swit => swit.Transaction)
                 .WithMany()

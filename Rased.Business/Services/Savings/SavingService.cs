@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.Savings;
 using Rased.Infrastructure.Models.Savings;
@@ -72,6 +73,57 @@ namespace Rased.Business.Services.Savings
 
             return new ApiResponse<string>(null, "Saving Deleted successfully.");
         }
+
+        // Wallet
+        public async Task<ApiResponse<IQueryable<ReadSavingDto>>> GetAllSavingsByWalletAsync(String userId, int walletId)
+        {
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+
+
+            if (!walletExists)
+                return new ApiResponse<IQueryable<ReadSavingDto>>("Wallet not found or doesn't belong to the user.");
+
+            var savings = _unitOfWork.SavingRepository
+                .FindAll(s => s.WalletId == walletId)
+                .ProjectTo<ReadSavingDto>(_mapper.ConfigurationProvider);
+
+            return new ApiResponse<IQueryable<ReadSavingDto>>(savings);
+        }
+        public async Task<ApiResponse<decimal>> GetTotalSavingsByWalletAsync(string userId, int walletId)
+        {
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+
+
+            if (!walletExists)
+                return new ApiResponse<Decimal>("Wallet not found or doesn't belong to the user.");
+
+            var totalSavings = await _unitOfWork.SavingRepository
+                .FindAll(s => s.WalletId == walletId)
+                .SumAsync(s => s.TotalAmount);
+
+            return new ApiResponse<decimal>(totalSavings);
+        }
+        public async Task<ApiResponse<IQueryable<ReadSavingDto>>> GetAllTrueSavingsByWalletAsync(string userId, int walletId)
+        {
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+
+
+            if (!walletExists)
+                return new ApiResponse<IQueryable<ReadSavingDto>>("Wallet not found or doesn't belong to the user.");
+
+           
+            var savings = _unitOfWork.SavingRepository
+                .FindAll(s => s.WalletId == walletId && s.IsSaving)
+                .ProjectTo<ReadSavingDto>(_mapper.ConfigurationProvider);
+
+            return new ApiResponse<IQueryable<ReadSavingDto>>(savings);
+        }
+
+
+
+
+
+
     }
 
 }

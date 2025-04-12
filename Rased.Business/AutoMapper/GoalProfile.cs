@@ -18,6 +18,11 @@ namespace Rased.Business.AutoMapper
             CreateMap<Goal, ReadGoalDto>().ReverseMap();
             CreateMap<Goal, AddGoalDto>().ReverseMap();
             CreateMap<Goal, UpdateGoalDto>().ReverseMap();
+
+
+            CreateMap<GoalTransaction, ReadGoalTransactionDto>().ReverseMap();
+            CreateMap<GoalTransaction, AddGoalTransactionDto>().ReverseMap();
+            CreateMap<GoalTransaction, UpdateGoalTransactionDto>().ReverseMap();
         }
     }
 }

@@ -1,12 +1,20 @@
 ﻿namespace Rased.Infrastructure.Models.Goals
 {
+    public enum GoalStatusEnum
+    {
+        InProgress = 1,
+        Completed = 2,
+        OnHold = 3,
+        Canceled = 4
+    }
+
     public class Goal
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
-        public string? Status { get; set; }   // C(Completed) - P(Progressing)
+        public GoalStatusEnum Status { get; set; } = GoalStatusEnum.InProgress;
         public DateTime StartedDate { get; set; }
         public DateTime DesiredDate { get; set; }
         public decimal StartedAmount { get; set; }

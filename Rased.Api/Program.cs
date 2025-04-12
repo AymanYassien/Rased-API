@@ -16,6 +16,7 @@ using Microsoft.OpenApi.Models;
 using Rased.Business.Services.Wallets;
 using Rased.Business.Services.Categories;
 using Rased.Business.Services.SubCategories;
+using Rased.Business.Services.Transfer;
 
 namespace Rased.Api
 {
@@ -94,10 +95,22 @@ namespace Rased.Api
             builder.Services.AddScoped<IWalletService, WalletService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+            builder.Services.AddScoped<IGoalTransactionService, GoalTransactionService>();
+
+            builder.Services.AddScoped<ITransactionService,TransactionService >();
+            builder.Services.AddScoped<IExpenseTransactionRecordService, ExpenseTransactionRecordService>();
+            builder.Services.AddScoped<IPersonalIncomeTransactionRecordService, PersonalIncomeTransactionRecordService>();
+            builder.Services.AddScoped<ISharedWalletIncomeTransactionService, SharedWalletIncomeTransactionService>();
+            builder.Services.AddScoped<ITransactionApprovalService, TransactionApprovalService>();
+            builder.Services.AddScoped<ITransactionRejectionService, TransactionRejectionService>();
+            builder.Services.AddScoped<IStaticReceiverTypeDataService, StaticReceiverTypeDataService>();
+            builder.Services.AddScoped<IStaticTransactionStatusService, StaticTransactionStatusService>();
 
             //AutoMapping Registeration
             builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));
             builder.Services.AddAutoMapper(map => map.AddProfile(new GoalProfile()));
+            builder.Services.AddAutoMapper(map => map.AddProfile(new TransferProfile()));
+            
 
             // Base Repository 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));

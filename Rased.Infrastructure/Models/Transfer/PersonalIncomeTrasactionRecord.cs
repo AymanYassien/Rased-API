@@ -10,7 +10,7 @@ namespace Rased.Infrastructure
         public bool isDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public string IncomeSpecificData { get; set; }
+        public string? IncomeSpecificData { get; set; }
 
         // Navigation Properties
         public virtual Transaction Transaction { get; set; }

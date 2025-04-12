@@ -85,6 +85,7 @@ namespace Rased.Business.Services.AuthServices
                 await _userManager.AddToRoleAsync(user, RasedRolesConstants.User);
 
                 response.successed = true;
+                response.Message = "Registration successful! You can now log in your account.";
                 return response;
 
             }

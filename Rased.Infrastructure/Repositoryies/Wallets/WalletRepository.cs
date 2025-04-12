@@ -122,5 +122,9 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             var currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == id);
             return currency!;
         }
+
+    
+
+       
     }
 }
