@@ -26,7 +26,11 @@ namespace Rased.Api.Controllers.Auth
             if (!result.successed)
                 return BadRequest(result.Errors);
 
-            return Ok("Registration successful! You can now log in to your account.");
+            return Ok( new
+            {
+                Message =  result.Message,
+                successed = result.successed
+            });
         }
 
         [HttpPost("verify-otp")]
