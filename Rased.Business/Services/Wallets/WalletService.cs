@@ -122,7 +122,6 @@ namespace Rased.Business.Services.Wallets
                 wallet.Description = model.Description;
                 wallet.Icon = model.Icon;
                 wallet.InitialBalance = model.InitialBalance;
-                wallet.TotalBalance = model.InitialBalance;
                 wallet.ExpenseLimit = model.ExpenseLimit;
                 wallet.CreatorId = userId;
                 wallet.CurrencyId = model.CurrencyId;
@@ -148,22 +147,29 @@ namespace Rased.Business.Services.Wallets
 
         public async Task<ApiResponse<string>> RemoveWalletAsync(int id, string userId)
         {
-            // Filter Expression
-            Expression<Func<Wallet, bool>>[] filters = { x => x.WalletId == id && x.CreatorId == userId };
+            try
+            {
+                // Filter Expression
+                Expression<Func<Wallet, bool>>[] filters = { x => x.WalletId == id && x.CreatorId == userId };
 
-            var wallet = _unitOfWork.Wallets.GetData(filters, null, true).FirstOrDefault();
-            if (wallet == null)
-                return new ApiResponse<string>("Wallet Not Found");
+                var wallet = _unitOfWork.Wallets.GetData(filters, null, true).FirstOrDefault();
+                if (wallet == null)
+                    return new ApiResponse<string>("Wallet Not Found");
 
-            // Remove the wallet
-            _unitOfWork.Wallets.Remove(wallet);
-            await _unitOfWork.CommitChangesAsync();
+                // Remove the wallet
+                _unitOfWork.Wallets.Remove(wallet);
+                await _unitOfWork.CommitChangesAsync();
+            }
+            catch (Exception e)
+            {
+                return new ApiResponse<string>(e.Message);
+            }
 
             return new ApiResponse<string>(null!, "Wallet Removed Successfully");
         }
 
         // Mapping Wallet Data
-        private ReadWalletDto MapWalletData(Wallet wallet, string curr, string color, string status)
+        private static ReadWalletDto MapWalletData(Wallet wallet, string curr, string color, string status)
         {
             return new ReadWalletDto
             {

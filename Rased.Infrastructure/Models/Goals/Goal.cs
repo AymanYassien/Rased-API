@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure.Models.Goals
+﻿using Rased.Infrastructure.Models.SharedWallets;
+
+namespace Rased.Infrastructure.Models.Goals
 {
     public enum GoalStatusEnum
     {

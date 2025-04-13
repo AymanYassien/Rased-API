@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure;
+using Rased.Infrastructure.Models.SharedWallets;
 
 namespace Rased.Business;
 

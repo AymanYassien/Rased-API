@@ -1,4 +1,5 @@
 
+using Rased.Infrastructure.Models.SharedWallets;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

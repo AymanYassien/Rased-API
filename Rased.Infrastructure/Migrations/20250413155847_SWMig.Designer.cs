@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250413155847_SWMig")]
+    partial class SWMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1201,7 +1204,7 @@ namespace Rased.Infrastructure.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("NVARCHAR(50)")
-                        .HasDefaultValue("معلق");
+                        .HasDefaultValue("Pending");
 
                     b.HasKey("Id");
 
@@ -1222,6 +1225,11 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SharedWalletId"));
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<int>("ColorTypeId")
                         .HasColumnType("int");
 
@@ -1236,6 +1244,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(500)");
 
@@ -1243,19 +1252,23 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("decimal(8,2)");
 
                     b.Property<string>("Icon")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("InitialBalance")
                         .HasColumnType("decimal(8,2)");
 
-                    b.Property<DateTime?>("LastModified")
+                    b.Property<DateTime>("LastModified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("StaticColorTypeDataId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("StaticWalletStatusDataId")
                         .HasColumnType("int");
@@ -1268,11 +1281,11 @@ namespace Rased.Infrastructure.Migrations
 
                     b.HasKey("SharedWalletId");
 
-                    b.HasIndex("ColorTypeId");
-
                     b.HasIndex("CreatorId");
 
                     b.HasIndex("CurrencyId");
+
+                    b.HasIndex("StaticColorTypeDataId");
 
                     b.HasIndex("StaticWalletStatusDataId");
 
@@ -2120,6 +2133,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -2127,6 +2141,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("decimal(11,2)");
 
                     b.Property<string>("Icon")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -2134,7 +2149,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasPrecision(8, 2)
                         .HasColumnType("decimal(11,2)");
 
-                    b.Property<DateTime?>("LastModified")
+                    b.Property<DateTime>("LastModified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -2640,12 +2655,6 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWallet", b =>
                 {
-                    b.HasOne("Rased.Infrastructure.StaticColorTypeData", "StaticColorTypeData")
-                        .WithMany("SharedWallets")
-                        .HasForeignKey("ColorTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Creator")
                         .WithMany("SharedWallets")
                         .HasForeignKey("CreatorId")
@@ -2655,6 +2664,12 @@ namespace Rased.Infrastructure.Migrations
                     b.HasOne("Rased.Infrastructure.Models.Extras.Currency", "Currency")
                         .WithMany("SharedWallets")
                         .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.StaticColorTypeData", "StaticColorTypeData")
+                        .WithMany("SharedWallets")
+                        .HasForeignKey("StaticColorTypeDataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

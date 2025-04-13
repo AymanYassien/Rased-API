@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure;
+using Rased.Infrastructure.Models.SharedWallets;
 
 namespace Rased.Business
 {
@@ -14,21 +14,28 @@ namespace Rased.Business
             builder.Property(sw => sw.Name)
                 .IsRequired()
                 .HasMaxLength(50)
-                .HasColumnType("nvarchar(50)");
+                .HasColumnType("nvarchar(50)")
+                .IsRequired();
 
             builder.Property(sw => sw.Description)
                 .HasMaxLength(200)
-                .HasColumnType("nvarchar(500)");
-
-            builder.Property(sw => sw.Color)
-                .HasMaxLength(20)
-                .HasColumnType("nvarchar(20)");
+                .HasColumnType("nvarchar(500)")
+                .IsRequired(false);
 
             builder.Property(sw => sw.Icon)
                 .HasMaxLength(100)
-                .HasColumnType("nvarchar(100)");
+                .HasColumnType("nvarchar(100)")
+                .IsRequired(false);
 
             builder.Property(sw => sw.TotalBalance)
+                .HasColumnType("decimal(8,2)")
+                .IsRequired();
+
+            builder.Property(sw => sw.InitialBalance)
+                .HasColumnType("decimal(8,2)")
+                .IsRequired();
+
+            builder.Property(sw => sw.ExpenseLimit)
                 .HasColumnType("decimal(8,2)")
                 .IsRequired();
 
@@ -39,11 +46,14 @@ namespace Rased.Business
                 .IsRequired();
 
             builder.Property(sw => sw.LastModified)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(sw => sw.WalletStatusId)
                 .IsRequired();
 
+            builder.HasOne(e => e.StaticColorTypeData)
+            .WithMany(x => x.SharedWallets)
+            .HasForeignKey(e => e.ColorTypeId);
 
             builder.HasOne(sw => sw.StaticWalletStatusData)
                 .WithMany()

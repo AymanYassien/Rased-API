@@ -1,5 +1,7 @@
 ﻿
 
+using Rased.Infrastructure.Models.SharedWallets;
+
 namespace Rased.Infrastructure
 {
     public class IncomeTemplate

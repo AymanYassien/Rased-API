@@ -7,7 +7,6 @@ using Rased.Infrastructure.Data.Config.Debts;
 using Rased.Infrastructure.Data.Config.Extras;
 using Rased.Infrastructure.Data.Config.Goals;
 using Rased.Infrastructure.Data.Config.Preferences;
-using Rased.Infrastructure.Data.Config.Savings;
 using Rased.Infrastructure.Data.Config.Subscriptions;
 using Rased.Infrastructure.Data.Config.User;
 using Rased.Infrastructure.Models.Debts;
@@ -18,6 +17,7 @@ using Rased.Infrastructure.Models.Savings;
 using Rased.Infrastructure.Models.Subscriptions;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Helpers.Constants;
+using Rased.Infrastructure.Models.SharedWallets;
 
 namespace Rased.Infrastructure.Data
 {
@@ -68,6 +68,7 @@ namespace Rased.Infrastructure.Data
         public DbSet<WalletStatistics> WalletStatistics { get; set; }
 
         public DbSet<SharedWallet> SharedWallets { get; set; }
+        public DbSet<SWInvitation> SWInvitations { get; set; }
         public DbSet<SharedWalletMembers> SharedWalletMembers { get; set; }
         public DbSet<StaticSharedWalletAccessLevelData> StaticSharedWalletAccessLevels { get; set; }
 

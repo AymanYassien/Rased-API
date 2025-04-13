@@ -8,7 +8,7 @@ public class StaticWalletStatusDataConfiguration: IEntityTypeConfiguration<Stati
 {
     public void Configure(EntityTypeBuilder<StaticWalletStatusData> entity)
     {
-        entity.HasKey(e => e.id);
+        entity.HasKey(e => e.Id);
 
         entity.Property(e => e.Name)
             .IsRequired()

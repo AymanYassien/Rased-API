@@ -2,34 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Models.Extras;
+using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.DTOs;
 
-namespace Rased.Infrastructure.Repositoryies.Wallets
+namespace Rased.Infrastructure.Repositoryies.SharedWallets
 {
-    public class WalletRepository : Repository<Wallet, int>, IWalletRepository
+    public class SharedWalletRepository : Repository<SharedWallet, int>, ISharedWalletRepository
     {
         private readonly UserManager<RasedUser> _userManager;
-        public WalletRepository(RasedDbContext context, UserManager<RasedUser> userManager) : base(context)
+
+        public SharedWalletRepository(RasedDbContext context, UserManager<RasedUser> userManager) : base(context)
         {
             _userManager = userManager;
-        }
-
-        // Get All Wallets
-        public async Task<WalletDataPartsDto> GetWalletDataPartsAsync(int id)
-        {
-            var result = new WalletDataPartsDto();
-
-            var wallet = await _context.Wallets.Include(x => x.StaticWalletStatusData).Include(x => x.StaticColorTypeData).Include(x => x.Currency).FirstOrDefaultAsync(x => x.WalletId == id);
-            if (wallet is null)
-                return result;
-
-            result.Status = wallet.StaticWalletStatusData.Name;
-            result.Color = wallet.StaticColorTypeData.Name;
-            result.Currency = wallet.Currency.Name;
-
-            return result;
         }
 
         // Some Critical Checks
@@ -101,7 +87,34 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             return result;
         }
 
+        // Get the Access Level
+        public async Task<StaticSharedWalletAccessLevelData> GetAccessLevelAsync(string accessName)
+        {
+            var level = await _context.StaticSharedWalletAccessLevels.FirstOrDefaultAsync(x => x.Name == accessName);
+            if (level is null)
+                return null!;
 
+            return level;
+        }
+
+        // Add a new member
+        public async Task<StatusDto> AddMemberAsync<TMember>(TMember member) where TMember : class
+        {
+            var result = new StatusDto();
+
+            try
+            {
+                await _context.AddAsync<TMember>(member);
+
+                result.IsSucceeded = true;
+            }
+            catch(Exception ex)
+            {
+                result.Message = $"EXCEPTION -- {ex.Message}";
+            }
+
+            return result;
+        }
 
         // Required Related Entities
         public async Task<RasedUser> RasedUser(string userId)
@@ -109,27 +122,20 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             var user = await _userManager.FindByIdAsync(userId);
             return user!;
         }
-
         public async Task<StaticColorTypeData> GetStaticColorTypeAsync(int id)
         {
             var color = await _context.StaticColorTypes.FirstOrDefaultAsync(x => x.Id == id);
             return color!;
         }
-
         public async Task<StaticWalletStatusData> GetStaticWalletStatusDataAsync(int id)
         {
             var status = await _context.StaticWalletStatus.FirstOrDefaultAsync(x => x.Id == id);
             return status!;
         }
-
         public async Task<Currency> GetCurrencyAsync(int id)
         {
             var currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == id);
             return currency!;
         }
-
-    
-
-       
     }
 }

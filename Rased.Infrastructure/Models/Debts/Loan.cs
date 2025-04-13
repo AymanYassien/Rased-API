@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure.Models.Debts
+﻿using Rased.Infrastructure.Models.SharedWallets;
+
+namespace Rased.Infrastructure.Models.Debts
 {
     public class Loan
     {

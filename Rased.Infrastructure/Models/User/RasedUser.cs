@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Rased.Infrastructure.Models.Extras;
 using Rased.Infrastructure.Models.Preferences;
+using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.Subscriptions;
 
 namespace Rased.Infrastructure.Models.User
@@ -30,6 +31,8 @@ namespace Rased.Infrastructure.Models.User
         public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
         public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
         public virtual ICollection<SharedWallet> SharedWallets { get; set; } = new List<SharedWallet>();
+        public virtual ICollection<SWInvitation> Senders { get; set; } = new List<SWInvitation>();
+        public virtual ICollection<SWInvitation> Receivers { get; set; } = new List<SWInvitation>();
         public virtual ICollection<Notification>? Notifications { get; set; }
     }
 }

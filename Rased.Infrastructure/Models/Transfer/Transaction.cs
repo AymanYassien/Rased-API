@@ -1,4 +1,5 @@
 
+using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.User;
 
 namespace Rased.Infrastructure

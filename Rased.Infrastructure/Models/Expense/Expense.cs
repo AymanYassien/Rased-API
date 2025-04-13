@@ -1,3 +1,5 @@
+using Rased.Infrastructure.Models.SharedWallets;
+
 namespace Rased.Infrastructure
 {
 

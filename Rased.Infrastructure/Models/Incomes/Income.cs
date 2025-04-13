@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure
+﻿using Rased.Infrastructure.Models.SharedWallets;
+
+namespace Rased.Infrastructure
 {
     public class Income
     {
