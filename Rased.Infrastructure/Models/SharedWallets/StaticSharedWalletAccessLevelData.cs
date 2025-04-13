@@ -1,4 +1,4 @@
-namespace Rased.Infrastructure
+namespace Rased.Infrastructure.Models.SharedWallets
 {
     public class StaticSharedWalletAccessLevelData
     {

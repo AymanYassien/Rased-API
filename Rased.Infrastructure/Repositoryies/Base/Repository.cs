@@ -60,6 +60,24 @@ namespace Rased.Infrastructure.Repositoryies.Base
 
             return query;
         }
+        // Generic Method to get all entities
+        public IQueryable<EType> GetData<EType>(
+        Expression<Func<EType, bool>>[]? filters = null,
+        Expression<Func<EType, object>>[]? includes = null,
+        bool track = true) where EType : class
+        {
+            IQueryable<EType> query = track ? _context.Set<EType>() : _context.Set<EType>().AsNoTracking();
+
+            if (filters != null)
+                foreach (var filter in filters)
+                    query = query.Where(filter);
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return query;
+        }
 
 
         // Get a single entity by its ID asynchronously
@@ -72,6 +90,12 @@ namespace Rased.Infrastructure.Repositoryies.Base
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
+        }
+        
+        // Generic Method to add Members
+        public async Task AddAsync<M>(M member) where M : class
+        {
+            await _context.Set<M>().AddAsync(member!);
         }
 
         // Update an existing entity asynchronously

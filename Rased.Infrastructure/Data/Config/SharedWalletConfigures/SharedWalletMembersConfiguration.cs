@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Rased.Infrastructure;
+using Rased.Infrastructure.Models.SharedWallets;
 
 
 namespace Rased.Business
@@ -29,7 +29,7 @@ namespace Rased.Business
                 .HasForeignKey(swm => swm.SharedWalletId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            builder.HasOne(swm => swm.UserProfile)
+            builder.HasOne(swm => swm.Member)
                 .WithMany()
                 .HasForeignKey(swm => swm.UserId)
                 .OnDelete(DeleteBehavior.NoAction);

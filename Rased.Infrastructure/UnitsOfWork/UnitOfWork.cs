@@ -16,6 +16,7 @@ using Rased.Infrastructure.Repositoryies.Categories;
 using Rased.Infrastructure.Repositoryies.SubCategories;
 using Rased.Infrastructure.Repositoryies.Goals;
 using Rased.Infrastructure.Models.Transfer;
+using Rased.Infrastructure.Repositoryies.SharedWallets;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -27,6 +28,7 @@ namespace Rased.Infrastructure.UnitsOfWork
         // ....
         
         public IWalletRepository Wallets { get; private set; }
+        public ISharedWalletRepository SharedWallets { get; private set; }
         public ICategoryRepository Categories { get; private set; }
         public ISubCategoryRepository SubCategories { get; private set; }
 
@@ -74,6 +76,7 @@ namespace Rased.Infrastructure.UnitsOfWork
             _userManager = userManager;
 
             Wallets = new WalletRepository(_context, _userManager);
+            SharedWallets = new SharedWalletRepository(_context, _userManager);
             Categories = new CategoryRepository(_context);
             SubCategories = new SubCategoryRepository(_context);
             Expenses = new ExpenseRepository(_context);

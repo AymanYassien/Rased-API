@@ -12,6 +12,7 @@ using Rased.Infrastructure.Repositoryies.Categories;
 using Rased.Infrastructure.Repositoryies.SubCategories;
 using Rased.Infrastructure.Repositoryies.Goals;
 using Rased.Infrastructure.Models.Transfer;
+using Rased.Infrastructure.Repositoryies.SharedWallets;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -42,6 +43,7 @@ namespace Rased.Infrastructure.UnitsOfWork
 
 
         public IWalletRepository Wallets { get; }
+        public ISharedWalletRepository SharedWallets { get; }
         public IExpensesRepository Expenses { get; }
         public IIncomeRepository Income { get; }
 

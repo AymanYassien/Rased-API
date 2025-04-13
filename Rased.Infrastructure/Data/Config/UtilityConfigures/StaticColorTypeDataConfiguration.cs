@@ -8,7 +8,7 @@ public class StaticColorTypeDataConfiguration:IEntityTypeConfiguration<StaticCol
 {
     public void Configure(EntityTypeBuilder<StaticColorTypeData> entity)
     {
-        entity.HasKey(e => e.id);
+        entity.HasKey(e => e.Id);
 
         entity.Property(e => e.Name)
             .IsRequired()

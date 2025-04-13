@@ -12,13 +12,16 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
 
         entity.Property(e => e.Name)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(50)
+            .IsRequired();
 
         entity.Property(e => e.Description)
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .IsRequired(false);
 
         entity.Property(e => e.Icon)
-            .HasMaxLength(100);
+            .HasMaxLength(100)
+            .IsRequired(false);
 
         entity.Property(e => e.InitialBalance)
             .IsRequired()
@@ -32,6 +35,9 @@ public class WalletConfiguration : IEntityTypeConfiguration<Wallet>
 
         entity.Property(e => e.ExpenseLimit)
             .HasColumnType("decimal(11,2)");
+
+        entity.Property(e => e.LastModified)
+                .IsRequired(false);
 
         entity.HasOne(e => e.StaticWalletStatusData)
             .WithMany(x => x.Wallets)
