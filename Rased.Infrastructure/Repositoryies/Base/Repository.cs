@@ -122,7 +122,11 @@ namespace Rased.Infrastructure.Repositoryies.Base
         }
     }
 
-
+    public class Repository_Test<T, TKey> : IRepository_Test<T, TKey> where T : class
+    {
+        protected readonly RasedDbContext _context;
+        protected readonly DbSet<T> _dbSet;
+        
     public Repository_Test(RasedDbContext context)
     {
         _context = context ;
@@ -157,9 +161,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
 
             return query;
         }
-
-
-       
+    
 
         public async Task<T?> GetAsync(
             Expression<Func<T, bool>>[]? filters = null,
@@ -208,9 +210,8 @@ namespace Rased.Infrastructure.Repositoryies.Base
         public void Remove(T entity)
         {
             _dbSet.Remove(entity);
-          
             _context.SaveChanges();
-            return true;
+            //return true;
  
         }
 
@@ -225,6 +226,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
             if (entity != null)
             {
                 _dbSet.Remove(entity);
+                _context.SaveChanges();
                 return true;
             }
 
