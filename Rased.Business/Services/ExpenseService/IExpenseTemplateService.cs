@@ -9,9 +9,9 @@ public interface IExpenseTemplateService
 {
     // Basic CRUD
     public Task<ApiResponse<object>> GetUserExpenseTemplatesByWalletId(int walletId, Expression<Func<ExpenseTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
-    public Task<ApiResponse<object>> GetUserExpenseTemplate(int walletId, int expenseTemplateId, bool isShared = false );
+    public Task<ApiResponse<object>> GetUserExpenseTemplate(int expenseTemplateId );
     public Task<ApiResponse<object>> AddUserExpenseTemplate(AddExpenseTemplateDto newExpenseTemplate);
-    public Task<ApiResponse<object>> UpdateUserExpenseTemplate(int walletId, int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto , bool isShared = false);
+    public Task<ApiResponse<object>> UpdateUserExpenseTemplate(int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto );
     public Task<ApiResponse<object>> DeleteUserExpenseTemplate(int expenseTemplateId);
     
     // Count
@@ -32,5 +32,5 @@ public interface IExpenseTemplateService
     
     
     // For Admin 
-    public Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null);
+    public Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(Expression<Func<ExpenseTemplate, bool>>[]? filter = null);
 }

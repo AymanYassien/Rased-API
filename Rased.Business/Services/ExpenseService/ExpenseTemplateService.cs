@@ -32,7 +32,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
         
         IQueryable<ExpenseTemplate> res = await _unitOfWork.ExpenseTemplates.GetUserExpensesTemplateByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
-        if (res == null)
+        if (!res.Any())
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable<ExpenseTemplateDto> newResult = MapToExpenseTemplatesDto(res);
@@ -41,18 +41,18 @@ public class ExpenseTemplateService : IExpenseTemplateService
 
     }
     
-    public async Task<ApiResponse<object>> GetUserExpenseTemplate(int walletId, int expenseTemplateId, bool isShared = false)
+    public async Task<ApiResponse<object>> GetUserExpenseTemplate(int expenseTemplateId)
     {
-        if (1 > walletId)
+        if (1 > expenseTemplateId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.ExpenseTemplates.GetUserExpenseAsync(walletId, expenseTemplateId, isShared);
+        var res = await _unitOfWork.ExpenseTemplates.GetByIdAsync( expenseTemplateId);
         
         if (res == null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        var newResult = MapToExpenseTemplateDto(res);
+        var newResult = await MapToExpenseTemplateDto(res);
         
         return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
@@ -69,15 +69,18 @@ public class ExpenseTemplateService : IExpenseTemplateService
         
         try
         {
+            // Add the automation rule first
             var automationRule = FillAutomationByAddDto(newExpenseTemplate);
             await _unitOfWork.AutomationRules.AddAsync(automationRule);
-            
+            await _unitOfWork.CommitChangesAsync();  // Commit to get the generated ID
+
+// Now create the expense template with the valid AutomationRuleId
             var expenseTemplate = FillExpenseTemplateByAddDto(newExpenseTemplate, automationRule.AutomationRuleId);
             await _unitOfWork.ExpenseTemplates.AddAsync(expenseTemplate);
-            await _unitOfWork.CommitChangesAsync();
+            await _unitOfWork.CommitChangesAsync();  // Commit the expense template
 
             var newDTO = await MapToExpenseTemplateDto(expenseTemplate, automationRule);
-            
+
             return _response.Response(true, newDTO, $"Success add Expense with id: {newDTO.TemplateId}", $"",
                 HttpStatusCode.Created);
         }
@@ -91,7 +94,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
         
     }
 
-    public async Task<ApiResponse<object>> UpdateUserExpenseTemplate(int walletId, int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto , bool isShared = false)
+    public async Task<ApiResponse<object>> UpdateUserExpenseTemplate(int expenseTemplateId, UpdateExpenseTemplateDto updateExpenseTemplateDto )
     {
         if (!IsUpdateDtoValid(updateExpenseTemplateDto, out var errorMessage))
         {
@@ -102,20 +105,23 @@ public class ExpenseTemplateService : IExpenseTemplateService
         try
         {
             var expenseTemplate =
-                await _unitOfWork.ExpenseTemplates.GetUserExpenseAsync(walletId, expenseTemplateId, isShared);
+                await _unitOfWork.ExpenseTemplates.GetByIdAsync(expenseTemplateId);
 
             if (expenseTemplate.TemplateId == expenseTemplateId && expenseTemplate.AutomationRuleId == updateExpenseTemplateDto.AutomationRuleId)
             {
                 var automationRule = await _unitOfWork.AutomationRules.GetByIdAsync(updateExpenseTemplateDto.AutomationRuleId);
                 if (automationRule is not null)
                 {
-                    _unitOfWork.AutomationRules.Update(UpdateAutomationRule(updateExpenseTemplateDto, automationRule));
+                    var entity = UpdateAutomationRule(updateExpenseTemplateDto, automationRule);
+                    _unitOfWork.AutomationRules.Update(entity);
+                    await _unitOfWork.CommitChangesAsync();
                 } 
-                _unitOfWork.ExpenseTemplates.Update(UpdateExpenseTemplate(expenseTemplate, updateExpenseTemplateDto));
+                var fullEntity = UpdateExpenseTemplate(expenseTemplate, updateExpenseTemplateDto);
+                _unitOfWork.ExpenseTemplates.Update(fullEntity);
                 await _unitOfWork.CommitChangesAsync();
                 
                 return _response.Response(true, null, $"Success Update Expense Template with id: {expenseTemplate.TemplateId}", $"",
-                    HttpStatusCode.NoContent);
+                    HttpStatusCode.OK);
             }
             else
                 return _response.Response(false, updateExpenseTemplateDto, "", $"Bad Request",
@@ -153,10 +159,10 @@ public class ExpenseTemplateService : IExpenseTemplateService
         
         var res = await _unitOfWork.ExpenseTemplates.CountExpensesTemplateAsync(walletId, null);
         
-        if (res == null)
+        if ( res == 0)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        return _response.Response(false, res, "This is Number of Expenses Templates", "",  HttpStatusCode.NotFound);
+        return _response.Response(false, res, "This is Number of Expenses Templates", "",  HttpStatusCode.OK);
     }
 
     public async Task<ApiResponse<object>> CalculateTotalExpensesTemplateAmount(int walletId, bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
@@ -167,21 +173,21 @@ public class ExpenseTemplateService : IExpenseTemplateService
         
         var res = await _unitOfWork.ExpenseTemplates.CalculateTotalExpensesTemplateAmountAsync(walletId,isShared);
         
-        if (res == null)
+        if ( res == 0)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        return _response.Response(false, res, "This is Total Amount of Expenses Templates", "",  HttpStatusCode.NotFound);
+        return _response.Response(false, res, "This is Total Amount of Expenses Templates", "",  HttpStatusCode.OK);
 
     }
     
-    public async Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin(bool isShared = false, Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
+    public async Task<ApiResponse<object>> GetAllExpensesTemplatesForAdmin( Expression<Func<ExpenseTemplate, bool>>[]? filter = null)
     {
         var res = await _unitOfWork.ExpenseTemplates.GetAllAsync(filter);
         
-        if (res == null)
+        if (!res.Any())
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        return _response.Response(false, res, "This is Total Expenses Templates", "",  HttpStatusCode.NotFound);
+        return _response.Response(false, res, "", "",  HttpStatusCode.OK);
 
     }
     
@@ -233,6 +239,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
             IsNeedApprovalWhenAutoAdd = expenseTemplate.IsNeedApprovalWhenAutoAdd,
             PaymentMethodId = expenseTemplate.PaymentMethodId,
             Description = expenseTemplate.Description,
+            
             
             IsActive = automation.IsActive,
             StartDate = automation.StartDate,
@@ -314,7 +321,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0 && dto.DayOfMonth > 29)
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -413,7 +420,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0 && dto.DayOfMonth > 29)
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -536,6 +543,8 @@ public class ExpenseTemplateService : IExpenseTemplateService
 
     private async Task<ExpenseTemplateDto> MapToExpenseTemplateDto(ExpenseTemplate expenseTemplate)
     {
-        return await MapToExpenseTemplateDto(expenseTemplate, await GetAutomationRuleById(expenseTemplate.AutomationRuleId));
+        var rule = await GetAutomationRuleById(expenseTemplate.AutomationRuleId);
+        return await MapToExpenseTemplateDto(expenseTemplate, rule);
+        //return await MapToExpenseTemplateDto(expenseTemplate, await GetAutomationRuleById(expenseTemplate.AutomationRuleId));
     }
 }

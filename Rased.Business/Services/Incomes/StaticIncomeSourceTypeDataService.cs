@@ -22,11 +22,11 @@ public class StaticIncomeSourceTypeDataService : IStaticIncomeSourceTypeDataServ
     
     public async Task<ApiResponse<object>> GetAllIncomeSources(Expression<Func<StaticIncomeSourceTypeData, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10)
     {
-        var res =  _unitOfWork.StaticIncomeSourceTypeData.GetAllAsync(filter);
+        var res =  await _unitOfWork.StaticIncomeSourceTypeData.GetAllAsync(filter);
         if (res is null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
-        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
     }
 
@@ -36,11 +36,11 @@ public class StaticIncomeSourceTypeDataService : IStaticIncomeSourceTypeDataServ
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res =  _unitOfWork.StaticIncomeSourceTypeData.GetByIdAsync(incomeSourceTypeId);
+        var res =  await _unitOfWork.StaticIncomeSourceTypeData.GetByIdAsync(incomeSourceTypeId);
         if (res is null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
-        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
     }
 
@@ -78,16 +78,16 @@ public class StaticIncomeSourceTypeDataService : IStaticIncomeSourceTypeDataServ
                 HttpStatusCode.BadRequest);
         }
         
-        var res =  _unitOfWork.StaticIncomeSourceTypeData.GetByIdAsync(incomeSourceTypeId);
+        var res =  await _unitOfWork.StaticIncomeSourceTypeData.GetByIdAsync(incomeSourceTypeId);
         if (res is null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
 
         try
         {
-            var updateincomeSource = PrepareUpdateIncomeSource(incomeSourceTypeId, update);
+            res.Name = update.Name;
             
-            _unitOfWork.StaticIncomeSourceTypeData.Update(updateincomeSource);
+            _unitOfWork.StaticIncomeSourceTypeData.Update(res);
             await _unitOfWork.CommitChangesAsync();
             
             return _response.Response(true, update, $"Success Update Income Source Type with id: {update.Id}", $"",

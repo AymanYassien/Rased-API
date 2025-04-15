@@ -10,9 +10,12 @@ namespace Rased.Business.Dtos.Response
     public class ApiResponse<T>
     {
         public bool Succeeded { get; set; }
-        public List<string> Errors { get; set; } = new();
+        public List<string> Errors { get; set; }// = new();
         public string Message { get; set; }
         public HttpStatusCode StatusCode { get; set; }
+
+        public string errors_string { get; set; }
+
 
         public T? Data { get; set; }
 
@@ -48,12 +51,14 @@ namespace Rased.Business.Dtos.Response
 
         public ApiResponse<T> Response(bool isSuccess, T data, string message, string error, HttpStatusCode statusCode)
         {
-            return new ApiResponse<T>()
+            return new ApiResponse<T>
             {
                 Succeeded = isSuccess,
                 Data = data,
                 Message = message,
-                Errors = new List<string> { error },
+
+                errors_string = error,
+
                 StatusCode = statusCode
             };
         }

@@ -19,11 +19,11 @@ public class PaymentMethodsDataService : IPaymentMethodsDataService
     }
     public async Task<ApiResponse<object>> GetAllPayments(Expression<Func<StaticPaymentMethodsData, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10)
     {
-        var res =  _unitOfWork.PaymentMethods.GetAllAsync(filter);
-        if (res is null)
+        IQueryable<StaticPaymentMethodsData> res = await _unitOfWork.PaymentMethods.GetAllAsync(filter);
+        if (!res.Any())
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
-        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
 
     public async Task<ApiResponse<object>> GetPaymentMethodById(int paymentId)
@@ -32,11 +32,11 @@ public class PaymentMethodsDataService : IPaymentMethodsDataService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res =  _unitOfWork.PaymentMethods.GetByIdAsync(paymentId);
+        var res =  await _unitOfWork.PaymentMethods.GetByIdAsync(paymentId);
         if (res is null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
-        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
     }
 
@@ -75,19 +75,18 @@ public class PaymentMethodsDataService : IPaymentMethodsDataService
                 HttpStatusCode.BadRequest);
         }
         
-        var res =  _unitOfWork.PaymentMethods.GetByIdAsync(paymentId);
+        var res = await _unitOfWork.PaymentMethods.GetByIdAsync(paymentId);
         if (res is null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
-
         try
         {
-            var updatePaymentMethod = PrepareUpdatePaymentMethod(paymentId, update);
+            res.Name = update.Name;
             
-            _unitOfWork.PaymentMethods.Update(updatePaymentMethod);
+            _unitOfWork.PaymentMethods.Update(res);
             await _unitOfWork.CommitChangesAsync();
             
-            return _response.Response(true, update, $"Success Update Payment Method with id: {updatePaymentMethod.Id}", $"",
+            return _response.Response(true, update, $"Success Update Payment Method with id: {paymentId}", $"",
                 HttpStatusCode.NoContent);
         }
         catch (Exception ex)
@@ -131,12 +130,13 @@ public class PaymentMethodsDataService : IPaymentMethodsDataService
         };
     }
     
-    private StaticPaymentMethodsData PrepareUpdatePaymentMethod(int paymentId, PaymentMethodsDto dto)
+    private StaticPaymentMethodsData PrepareUpdatePaymentMethod(int paymentId, PaymentMethodsDto dto, StaticPaymentMethodsData paymentMethod)
     {
-        return new StaticPaymentMethodsData()
-        {
-            Name = dto.Name,
-            Id = paymentId
-        };
+        paymentMethod.Name = dto.Name;
+        paymentMethod.Id = paymentId;
+
+        return paymentMethod;
+
     }
+    
 }

@@ -28,7 +28,7 @@ public class ExpenseService : IExpenseService
         
         IQueryable<Expense> res = await _unitOfWork.Expenses.GetUserExpensesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
-        if (res == null)
+        if ( !res.Any() )
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
@@ -38,13 +38,14 @@ public class ExpenseService : IExpenseService
           
     }
 
-    public async Task<ApiResponse<object>> GetUserExpense(int walletId, int ExpenseId, bool isShared = false)
+    public async Task<ApiResponse<object>> GetUserExpense(int expenseId)
     {
-        if (1 > walletId)
+        if (1 > expenseId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
-        
-        var res = await _unitOfWork.Expenses.GetUserExpenseAsync(walletId, ExpenseId, isShared);
+
+        var res = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+        //GetUserExpenseAsync(walletId, ExpenseId, isShared);
         
         if (res == null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
@@ -94,16 +95,16 @@ public class ExpenseService : IExpenseService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+        var expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
         
-        if (res == null)
+        if (expense == null)
             return _response.Response(false, null, "", $"Not Found Expense with id {expenseId}",  HttpStatusCode.NotFound);
 
         
-        var expense = _MapToExpenseDtoFromUpdate(updateExpenseDto);
-
+        _MapToExpenseDtoFromUpdate(updateExpenseDto, expense);
         try
         {
+            
             _unitOfWork.Expenses.Update(expense);
             await _unitOfWork.CommitChangesAsync();
         }
@@ -115,7 +116,7 @@ public class ExpenseService : IExpenseService
         }
         
         return _response.Response(true, expense, $"Success Update Expense with id: {expense.ExpenseId}", $"",
-            HttpStatusCode.NoContent);
+            HttpStatusCode.OK);
     }
 
     public async Task<ApiResponse<object>> DeleteUserExpense(int expenseId)
@@ -125,6 +126,7 @@ public class ExpenseService : IExpenseService
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         var res =  _unitOfWork.Expenses.RemoveById(expenseId);
+        await _unitOfWork.CommitChangesAsync();
         if (res is false)
             return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
         
@@ -230,23 +232,32 @@ public class ExpenseService : IExpenseService
         };
     }
 
-    private Expense _MapToExpenseDtoFromUpdate(UpdateExpenseDto updateExpenseDto)
+    private Expense _MapToExpenseDtoFromUpdate(UpdateExpenseDto updateExpenseDto, Expense expense)
     {
-        return new Expense()
-        {
-            // ExpenseId = updateExpenseDto.ExpenseId,
-            WalletId = updateExpenseDto.WalletId,
-            SharedWalletId = updateExpenseDto.SharedWalletId,
-            Amount = updateExpenseDto.Amount,
-            CategoryName = updateExpenseDto.CategoryName,
-            SubCategoryId = updateExpenseDto.SubCategoryId,
-            Date = updateExpenseDto.Date,
-            PaymentMethodId = updateExpenseDto.PaymentMethodId,
-            IsAutomated = updateExpenseDto.IsAutomated,
-            Description = updateExpenseDto.Description,
-            Title = updateExpenseDto.Title,
-            RelatedBudgetId = updateExpenseDto.RelatedBudgetId
-        };
+        expense.Amount = updateExpenseDto.Amount;
+        expense.CategoryName = updateExpenseDto.CategoryName;
+        expense.SubCategoryId = updateExpenseDto.SubCategoryId;
+        expense.Date = updateExpenseDto.Date;
+        expense.PaymentMethodId = updateExpenseDto.PaymentMethodId;
+        expense.IsAutomated = updateExpenseDto.IsAutomated;
+        expense.Description = updateExpenseDto.Description;
+        expense.Title = updateExpenseDto.Title;
+        expense.RelatedBudgetId = updateExpenseDto.RelatedBudgetId;
+        return expense;
+        // {
+        //     // ExpenseId = updateExpenseDto.ExpenseId,
+        //     //WalletId = updateExpenseDto.WalletId,
+        //     //SharedWalletId = updateExpenseDto.SharedWalletId,
+        //     expense.Amount = updateExpenseDto.Amount;
+        //     expense.CategoryName = updateExpenseDto.CategoryName;
+        //     expense.SubCategoryId = updateExpenseDto.SubCategoryId;
+        //     expense.Date = updateExpenseDto.Date;
+        //     expense.PaymentMethodId = updateExpenseDto.PaymentMethodId;
+        //     expense.IsAutomated = updateExpenseDto.IsAutomated;
+        //     expense.Description = updateExpenseDto.Description;
+        //     expense.Title = updateExpenseDto.Title;
+        //     expense.RelatedBudgetId = updateExpenseDto.RelatedBudgetId;
+        // };
     }
     
     private Expense _MapToExpenseDtoFromAdd(AddExpenseDto addExpenseDto)
@@ -412,12 +423,12 @@ public class ExpenseService : IExpenseService
             
 
             // 6. Check Constraint: WalletId XOR SharedWalletId
-            if ((dto.WalletId.HasValue && dto.SharedWalletId.HasValue) || 
-                (!dto.WalletId.HasValue && !dto.SharedWalletId.HasValue))
-            {
-                errorMessage = "Exactly one of WalletId or SharedWalletId must be provided.";
-                return false;
-            }
+            // if ((dto.WalletId.HasValue && dto.SharedWalletId.HasValue) || 
+            //     (!dto.WalletId.HasValue && !dto.SharedWalletId.HasValue))
+            // {
+            //     errorMessage = "Exactly one of WalletId or SharedWalletId must be provided.";
+            //     return false;
+            // }
             
 
             
