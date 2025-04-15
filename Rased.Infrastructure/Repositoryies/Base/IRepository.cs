@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace Rased.Infrastructure.Repositoryies.Base
 {
@@ -11,20 +6,30 @@ namespace Rased.Infrastructure.Repositoryies.Base
     {
         IQueryable<T> GetAll();
 
-        // ---->>> Testing 
-        IQueryable<T> GetAll(
+        // Usual
+        IQueryable<T> GetData(
         Expression<Func<T, bool>>[]? filters = null,
         Expression<Func<T, object>>[]? includes = null,
-        //int pageNumber = 0,
-        //int pageSize = 10,
         bool track = true);
+        // Generic
+        IQueryable<EType> GetData<EType>(
+        Expression<Func<EType, bool>>[]? filters = null,
+        Expression<Func<EType, object>>[]? includes = null,
+        bool track = true) where EType : class;
 
         Task<T?> GetByIdAsync(U id);
         Task AddAsync(T entity);
+        Task AddAsync<M>(M member) where M : class;
         Task UpdateAsync(T entity);
         Task DeleteByIdAsync(U id);
+        IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression);
+        Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
+        IQueryable<T> FindAll(Expression<Func<T, bool>> predicate);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+        
+        void Remove(T entity);
     }
-    
+
     public interface IRepository_Test<T, TKey> where T : class
     {
         

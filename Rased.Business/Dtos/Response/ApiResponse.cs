@@ -13,7 +13,9 @@ namespace Rased.Business.Dtos.Response
         public List<string> Errors { get; set; }// = new();
         public string Message { get; set; }
         public HttpStatusCode StatusCode { get; set; }
+
         public string errors_string { get; set; }
+
 
         public T? Data { get; set; }
 
@@ -54,7 +56,9 @@ namespace Rased.Business.Dtos.Response
                 Succeeded = isSuccess,
                 Data = data,
                 Message = message,
+
                 errors_string = error,
+
                 StatusCode = statusCode
             };
         }

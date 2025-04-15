@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using Rased.Business.Dtos.Goals;
 using Rased.Business.Dtos.Response;
+using Rased.Business.Dtos.Savings;
 using Rased.Infrastructure.Models.Goals;
 using Rased.Infrastructure.UnitsOfWork;
 using System;
@@ -72,5 +74,52 @@ namespace Rased.Business.Services.Goals
 
             return new ApiResponse<string>(null, "Goal deleted successfully.");
         }
+
+
+        public async Task<ApiResponse<IQueryable<ReadGoalDto>>> GetGoalsByStatusAsync(GoalStatusEnum status)
+        {
+            var goals = _unitOfWork.GoalRepository
+                .GetByCondition(g => g.Status == status) 
+                .AsNoTracking()
+                .ProjectTo<ReadGoalDto>(_mapper.ConfigurationProvider);
+
+            return new ApiResponse<IQueryable<ReadGoalDto>>(goals);
+        }
+
+        public async Task<ApiResponse<IQueryable<ReadGoalDto>>> GetGoalsByWalletIdAndUserIdAsync(int walletId,string  userId)
+
+        {
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+
+            if (!walletExists)
+                return new ApiResponse<IQueryable<ReadGoalDto>>("Wallet not found or doesn't belong to the user.");
+
+            var goals = _unitOfWork.GoalRepository
+                .GetByCondition(g => g.WalletId == walletId && g.Wallet.CreatorId == userId) 
+                .AsNoTracking()
+                .ProjectTo<ReadGoalDto>(_mapper.ConfigurationProvider);
+
+            return new ApiResponse<IQueryable<ReadGoalDto>>(goals);
+        }
+
+        public async Task<ApiResponse<decimal>> GetTotalSavedAmountAsync(int goalId)
+        {
+            var goalExists = await _unitOfWork.GoalRepository.AnyAsync(g => g.Id == goalId);
+            if (!goalExists)
+                return new ApiResponse<decimal>("Goal not found.");
+
+
+            var totalSavedAmount = await _unitOfWork.GoalTransactionRepository
+                .GetByCondition(t => t.GoalId == goalId)
+                .SumAsync(t => t.InsertedAmount);  
+
+            return new ApiResponse<decimal>(totalSavedAmount);
+        }
+
+     
+
+
+
+
     }
 }

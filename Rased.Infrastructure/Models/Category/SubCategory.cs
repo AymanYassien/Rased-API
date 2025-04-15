@@ -9,7 +9,10 @@ namespace Rased.Infrastructure
         public int ParentCategoryId { get; set; }
         public string Name { get; set; }
         public string Icon { get; set; }
+        public string Color { get; set; }
         public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
         public virtual Category ParentCategory { get; set; } = new Category();

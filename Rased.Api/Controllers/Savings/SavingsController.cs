@@ -7,12 +7,12 @@ using Rased.Business.Services.Savings;
 using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Repositoryies.Savings;
 
-namespace Rased.Api.Controllers
+namespace Rased.Api.Controllers.Savings
 {
     [Route("api/[controller]")]
     [ApiController]
-    ////[Authorize(Roles = $"{RasedRolesConstants.Admin},{RasedRolesConstants.User}")]
-    [Authorize]
+    //[Authorize(Roles = $"{RasedRolesConstants.Admin},{RasedRolesConstants.User}")]
+    //[Authorize]
     public class SavingsController : ControllerBase
     {
         private readonly ISavingService _savingService;
@@ -58,6 +58,32 @@ namespace Rased.Api.Controllers
         {
             var response = await _savingService.DeleteSavingAsync(id);
             return response.Succeeded ? Ok(response.Message) : NotFound(response.Errors);
+        }
+
+
+
+
+        [HttpGet("{userId}/{walletId}/savings")]
+        public async Task<IActionResult> GetAllSavingsByWalletAsync(string userId, int walletId)
+        {
+            var response = await _savingService.GetAllSavingsByWalletAsync(userId, walletId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+
+        [HttpGet("{userId}/{walletId}/total-savings")]
+        public async Task<IActionResult> GetTotalSavingsByWalletAsync(string userId, int walletId)
+        {
+            var response = await _savingService.GetTotalSavingsByWalletAsync(userId, walletId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+
+        [HttpGet("{userId}/{walletId}/true-savings")]
+        public async Task<IActionResult> GetAllTrueSavingsByWalletAsync(string userId, int walletId)
+        {
+            var response = await _savingService.GetAllTrueSavingsByWalletAsync(userId, walletId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
         }
     }
 

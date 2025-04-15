@@ -1,6 +1,7 @@
 
 namespace Rased.Infrastructure
 {
+    // To Friend or sharedwallet or Nullable person or his wallet
     public class StaticReceiverTypeData
     {
 

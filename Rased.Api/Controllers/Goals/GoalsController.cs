@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Goals;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Services.Goals;
+using Rased.Infrastructure.Models.Goals;
 
-namespace Rased.Api.Controllers
+namespace Rased.Api.Controllers.Goals
 {
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class GoalsController : ControllerBase
     {
         private readonly IGoalService _goalService;
@@ -21,7 +22,6 @@ namespace Rased.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> GetAllGoalsAsync()
         {
             var response = await _goalService.GetAllGoalsAsync();
@@ -57,6 +57,29 @@ namespace Rased.Api.Controllers
         {
             var response = await _goalService.DeleteGoalAsync(id);
             return response.Succeeded ? Ok(response.Message) : NotFound(response.Errors);
+        }
+
+        [HttpGet("status/{status}")]
+        public async Task<IActionResult> GetGoalsByStatusAsync(GoalStatusEnum status)
+        {
+            var response = await _goalService.GetGoalsByStatusAsync(status);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+        [HttpGet("wallet/{walletId}/user/{userId}")]
+        public async Task<IActionResult> GetGoalsByWalletIdAndUserIdAsync(int walletId, String userId)
+        {
+            var response = await _goalService.GetGoalsByWalletIdAndUserIdAsync(walletId, userId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+        [HttpGet("{goalId}/total-saved")]
+        public async Task<IActionResult> GetTotalSavedAmountAsync(int goalId)
+        {
+            var response = await _goalService.GetTotalSavedAmountAsync(goalId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+
+
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Rased.Infrastructure.Models.Savings
+﻿using Rased.Infrastructure.Models.SharedWallets;
+
+namespace Rased.Infrastructure.Models.Savings
 {
     public class Saving
     {
