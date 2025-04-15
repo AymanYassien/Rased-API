@@ -9,6 +9,9 @@ using Rased.Infrastructure;
 
 namespace Rased.Api.Controllers.Income;
 
+[ApiController]
+[Route("/api/Income")]
+[Authorize]
 public class incomeController : Controller
 {
     
@@ -59,7 +62,7 @@ public class incomeController : Controller
     }
 
     // 5. Delete User Income
-    [HttpDelete("income/{incomeId}}")]
+    [HttpDelete("income/{incomeId}")]
     public async Task<IActionResult> DeleteUserIncome(int incomeId)
     {
         var response = await _incomeService.DeleteUserIncome(incomeId);

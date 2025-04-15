@@ -12,7 +12,10 @@ using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.UnitsOfWork;
 using System.Text;
+using api5.Rased_API.Rased.Business.Services.Incomes;
 using Microsoft.OpenApi.Models;
+using Rased_API.Rased.Business.Services.BudgetService;
+using Rased.Business.Services.ExpenseService;
 using Rased.Business.Services.Wallets;
 
 namespace Rased.Api
@@ -90,6 +93,14 @@ namespace Rased.Api
             builder.Services.AddScoped<ISavingService, SavingService>();
             builder.Services.AddScoped<IGoalService, GoalService>();
             builder.Services.AddScoped<IWalletService, WalletService>();
+            builder.Services.AddScoped<IExpenseService, ExpenseService>();
+            builder.Services.AddScoped<IExpenseTemplateService, ExpenseTemplateService>();
+            builder.Services.AddScoped<IIncomeService, IncomeService>();
+            builder.Services.AddScoped<IIncomeTemplateService, IncomeTemplateService>();
+            builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+            builder.Services.AddScoped<IBudgetService, BudgetService>();
+            builder.Services.AddScoped<IPaymentMethodsDataService, PaymentMethodsDataService>();
+            builder.Services.AddScoped<IStaticIncomeSourceTypeDataService, StaticIncomeSourceTypeDataService>();
 
             //AutoMapping Registeration
             builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));

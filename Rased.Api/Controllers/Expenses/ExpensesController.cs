@@ -19,29 +19,28 @@ public class ExpensesController : ControllerBase
     }
     
     
-    [HttpGet("{walletId}")]
+    [HttpGet("getAllExpenses{walletId}")]
     public async Task<IActionResult> GetUserExpensesByWalletId(
         int walletId, 
-        [FromQuery] int pageNumber = 0, 
-        [FromQuery] int pageSize = 10, 
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
     {
         var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
-        var response = await _expenseService.GetUserExpensesByWalletId(walletId, filters, pageNumber, pageSize, isShared);
+        if (filters.Length == 0) filters = null;
+        var response = await _expenseService.GetUserExpensesByWalletId(walletId, filters, 0,0, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpGet("expense/{expenseId}")]
-    public async Task<IActionResult> GetUserExpense(int walletId, int expenseId, [FromQuery] bool isShared = false)
+    [HttpGet("getExpenseById/{expenseId}")]
+    public async Task<IActionResult> GetUserExpense(int expenseId)
     {
-        var response = await _expenseService.GetUserExpense(walletId, expenseId, isShared);
+        var response = await _expenseService.GetUserExpense(expenseId);
         return StatusCode((int)response.StatusCode, response);
     }
 
     // 3. Add User Expense
-    [HttpPost("expense")]
+    [HttpPost("Add")]
     public async Task<IActionResult> AddUserExpense([FromBody] AddExpenseDto newExpenseDto)
     {
         var response = await _expenseService.AddUserExpense(newExpenseDto);
@@ -51,7 +50,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 4. Update User Expense
-    [HttpPut("expense/{expenseId}")]
+    [HttpPut("Update/{expenseId}")]
     public async Task<IActionResult> UpdateUserExpense(int expenseId, [FromBody] UpdateExpenseDto updateExpenseDto)
     {
         var response = await _expenseService.UpdateUserExpense(expenseId, updateExpenseDto);
@@ -59,7 +58,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 5. Delete User Expense
-    [HttpDelete("expense/{expenseId}")]
+    [HttpDelete("Delete/{expenseId}")]
     public async Task<IActionResult> DeleteUserExpense(int expenseId)
     {
         var response = await _expenseService.DeleteUserExpense(expenseId);
@@ -67,7 +66,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 6. Calculate Total Expenses Amount
-    [HttpGet("wallet/{walletId}/total")]
+    [HttpGet("get-wallet-total-expenses-amount/{walletId}")]
     public async Task<IActionResult> CalculateTotalExpensesAmount(int walletId, [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
     {
@@ -77,7 +76,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 7. Calculate Total Expenses for Last Week
-    [HttpGet("wallet/{walletId}/total/last-week")]
+    [HttpGet("get-wallet-total-expenses-amount-for-last-week/{walletId}")]
     public async Task<IActionResult> CalculateTotalExpensesAmountForLastWeek(int walletId, [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
@@ -87,7 +86,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 8. Calculate Total Expenses for Last Month
-    [HttpGet("wallet/{walletId}/total/last-month")]
+    [HttpGet("get-wallet-total-expenses-amount-for-last-month/{walletId}")]
     public async Task<IActionResult> CalculateTotalExpensesAmountForLastMonth(int walletId, [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
@@ -97,7 +96,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 9. Calculate Total Expenses for Last Year
-    [HttpGet("wallet/{walletId}/total/last-year")]
+    [HttpGet("get-wallet-total-expenses-amount-for-last-year/{walletId}")]
     public async Task<IActionResult> CalculateTotalExpensesAmountForLastYear(int walletId, [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
@@ -107,7 +106,7 @@ public class ExpensesController : ControllerBase
     }
 
     // 10. Calculate Total Expenses for Specific Period
-    [HttpGet("wallet/{walletId}/total/period")]
+    [HttpGet("get-wallet-total-expenses-amount-for-specific-period/{walletId}")]
     public async Task<IActionResult> CalculateTotalExpensesAmountForSpecificPeriod(
         int walletId, 
         [FromQuery] DateTime startDateTime, 
@@ -124,12 +123,10 @@ public class ExpensesController : ControllerBase
     [HttpGet("admin/expenses")]
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> GetAllExpensesForAdmin(
-        [FromQuery] int pageNumber = 0, 
-        [FromQuery] int pageSize = 10,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
     {
         var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
-        var response = await _expenseService.GetAllExpensesForAdmin(filters, null, pageNumber, pageSize);
+        var response = await _expenseService.GetAllExpensesForAdmin(filters, null, 0, 0);
         return StatusCode((int)response.StatusCode, response);
     }
 

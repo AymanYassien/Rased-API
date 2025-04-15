@@ -100,7 +100,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
         Expression<Func<T, bool>>[]? filters = null,
         Expression<Func<T, object>>[]? includes = null,
         int pageNumber = 0,
-        int pageSize = 10)
+        int pageSize = 0)
     {
         IQueryable<T> query =  _dbSet;
         
@@ -115,11 +115,11 @@ namespace Rased.Infrastructure.Repositoryies.Base
         
         
         int totalCount = await query.CountAsync();
-        if (pageSize > 0)
-        {
-            if (pageSize > 100) pageSize = 100; // Cap page size
-            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-        }
+        // if (pageSize > 0)
+        // {
+        //     if (pageSize > 100) pageSize = 100; // Cap page size
+        //     query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        // }
 
         var items =  query;
 
@@ -146,6 +146,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
 
     public async Task<T?> GetByIdAsync(TKey id)
     {
+        _dbSet.AsNoTracking();
         return _dbSet.Find(id);
     }
 
@@ -163,6 +164,9 @@ namespace Rased.Infrastructure.Repositoryies.Base
     public void Update(T entity)
     {
         _dbSet.Update(entity); 
+        // _context.ChangeTracker.Clear();
+        // _context.Set<T>().Attach(entity);
+        // _context.Entry(entity).State = EntityState.Modified;
     }
 
     public void Remove(T entity)
@@ -181,6 +185,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
         if (entity != null)
         {
             _dbSet.Remove(entity);
+            _context.SaveChanges();
             return true;
         }
 

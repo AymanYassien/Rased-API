@@ -13,7 +13,7 @@
         public DateTime EndDate { get; set; }
         public int? DayOfMonth { get; set; }
         public int? DayOfWeek { get; set; }
-        public int TriggerTypeId { get; set; }
+        public int? TriggerTypeId { get; set; }
         
         //public virtual Wallet Wallet { get; set; }
         //public virtual SharedWallet SharedWallet { get; set; } // Assumed class

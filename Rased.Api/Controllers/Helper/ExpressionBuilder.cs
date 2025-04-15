@@ -21,12 +21,15 @@ public static class ExpressionBuilder
         {
             // Split condition into field, operator, and value (e.g., "Amount > 100")
             var parts = condition.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length != 3)
+            if (parts.Length < 3)
                 throw new ArgumentException($"Invalid filter condition: {condition}");
 
             var field = parts[0];
             var op = parts[1];
-            var valueStr = parts[2];
+            var valueStr = String.Empty;
+            for (int i = 2; i < parts.Length; i++)
+                valueStr += parts[i] + ' ';
+            
 
             var property = Expression.Property(parameter, field);
             var value = ConvertValue(valueStr, property.Type);

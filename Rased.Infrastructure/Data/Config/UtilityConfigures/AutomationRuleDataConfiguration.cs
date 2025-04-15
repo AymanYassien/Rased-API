@@ -49,6 +49,6 @@ public class AutomationRuleConfiguration : IEntityTypeConfiguration<AutomationRu
         entity.HasOne(e => e.StaticTriggerTypeData)
             .WithMany() 
             .HasForeignKey(e => e.TriggerTypeId)
-            .IsRequired();
+            .IsRequired(false);
     }
 }

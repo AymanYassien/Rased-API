@@ -1,3 +1,4 @@
+using System.Net;
 using api5.Rased_API.Rased.Business.Services.Incomes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,9 @@ using Rased.Api.Controllers.Helper;
 
 namespace Rased.Api.Controllers.Income;
 
+[ApiController]
+[Route("/api/IncomeSourceType")]
+[Authorize]
 public class StaticIncomeSourceTypesDataController : Controller
 {
     private readonly IStaticIncomeSourceTypeDataService _staticIncomeSource;
@@ -18,20 +22,15 @@ public class StaticIncomeSourceTypesDataController : Controller
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetAllIncomeSources(
-        [FromQuery] int pageNumber = 0,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string filter = null) // e.g., "name=visa"
+    public async Task<IActionResult> GetAll([FromQuery] string filter = null) // e.g., "name=visa"
     {
         var filters = ExpressionBuilder.ParseFilter<StaticIncomeSourceTypeData>(filter);
-        var response = await _staticIncomeSource.GetAllIncomeSources(filters, pageNumber, pageSize);
+        var response = await _staticIncomeSource.GetAllIncomeSources(filters, 0, 0);
         return StatusCode((int)response.StatusCode, response);
     }
-
     
     [HttpGet("{incomeSourceId}")]
-    public async Task<IActionResult> GetIncomeSourceTypeById(
-        [FromRoute] int incomeSourceId)
+    public async Task<IActionResult> GetById([FromRoute] int incomeSourceId)
     {
         var response = await _staticIncomeSource.GetIncomeSourcesById(incomeSourceId);
         return StatusCode((int)response.StatusCode, response);
@@ -39,8 +38,7 @@ public class StaticIncomeSourceTypesDataController : Controller
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> AddIncomeSourceType(
-        [FromBody] StaticIncomeSourceTypeDataDto incomeSource)
+    public async Task<IActionResult> Create([FromBody] StaticIncomeSourceTypeDataDto incomeSource)
     {
         var response = await _staticIncomeSource.AddIncomeSources(incomeSource);
         return StatusCode((int)response.StatusCode, response);
@@ -48,20 +46,21 @@ public class StaticIncomeSourceTypesDataController : Controller
 
     [Authorize(Roles = "Admin")]
     [HttpPut("{incomeSourceId}")]
-    public async Task<IActionResult> UpdateIncomeSourceType(
-        [FromRoute] int incomeSourceId,
-        [FromBody] StaticIncomeSourceTypeDataDto update)
+    public async Task<IActionResult> Update([FromRoute] int incomeSourceId, [FromBody] StaticIncomeSourceTypeDataDto update)
     {
         var response = await _staticIncomeSource.UpdateIncomeSources(incomeSourceId, update);
+        
+        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
+        
         return StatusCode((int)response.StatusCode, response);
     }
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{incomeSourceId}")]
-    public async Task<IActionResult> DeleteIncomeSourceType(
-        [FromRoute] int incomeSourceId)
+    public async Task<IActionResult> Delete([FromRoute] int incomeSourceId)
     {
         var response = await _staticIncomeSource.DeleteIncomeSources(incomeSourceId);
         return StatusCode((int)response.StatusCode, response);
     }
+    
 }

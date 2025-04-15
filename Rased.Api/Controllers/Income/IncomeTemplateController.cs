@@ -7,6 +7,9 @@ using Rased.Infrastructure;
 
 namespace Rased.Api.Controllers.Income;
 
+[ApiController]
+[Route("/api/IncomeTemplate")]
+[Authorize]
 public class IncomeTemplateController : Controller
 {
     private readonly IIncomeTemplateService _incomeTemplateService; 

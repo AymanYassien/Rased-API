@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409083429_updateNullableFields")]
+    partial class updateNullableFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,7 +206,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("TriggerTypeId")
+                    b.Property<int>("TriggerTypeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("WalletId")
@@ -2111,7 +2114,9 @@ namespace Rased.Infrastructure.Migrations
                 {
                     b.HasOne("Rased.Infrastructure.StaticTriggerTypeData", "StaticTriggerTypeData")
                         .WithMany()
-                        .HasForeignKey("TriggerTypeId");
+                        .HasForeignKey("TriggerTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("StaticTriggerTypeData");
                 });
