@@ -43,8 +43,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
             Expression<Func<T, bool>>[]? filters = null,
             Expression<Func<T, object>>[]? includes = null,
             bool asNoTracking = true);
-
-
+        
         Task<T?> GetByIdAsync(TKey id);
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);

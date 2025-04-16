@@ -8,6 +8,8 @@ namespace Rased_API.Rased.Business.Services.BudgetService;
 
 public interface IBudgetService
 {
+    Task<ApiResponse<object>> GetBudgetsById(int budgetId);
+    
     Task<ApiResponse<object>> AddBudgetAsync(AddBudgetDto dto);
     Task<ApiResponse<object>> UpdateBudgetAsync(int budgetId, UpdateBudgetDto dto);
     Task<ApiResponse<object>> DeleteBudgetAsync(int id);

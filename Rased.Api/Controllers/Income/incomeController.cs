@@ -1,3 +1,4 @@
+using System.Net;
 using api5.Rased_API.Rased.Business.Services.Incomes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ using Rased.Infrastructure;
 namespace Rased.Api.Controllers.Income;
 
 [ApiController]
-[Route("/api/Income")]
+[Route("/api/incomes")]
 [Authorize]
 public class incomeController : Controller
 {
@@ -22,117 +23,112 @@ public class incomeController : Controller
     }
     
     
-    [HttpGet("{walletId}")]
+    [HttpGet("get-all-incomes/{walletId}")]
     public async Task<IActionResult> GetUserIncomesByWalletId(
-        int walletId, 
-        [FromQuery] int pageNumber = 0, 
-        [FromQuery] int pageSize = 10, 
+        [FromRoute]int walletId, 
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
-        var response = await _incomeService.GetUserIncomesByWalletId(walletId, filters, pageNumber, pageSize, isShared);
+        var response = await _incomeService.GetUserIncomesByWalletId(walletId, filters, 0, 0, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpGet("income/{IncomeId}")]
-    public async Task<IActionResult> GetUserIncome(int walletId, int incomeId, [FromQuery] bool isShared = false)
+    [HttpGet("{incomeId}")]
+    public async Task<IActionResult> GetById( [FromRoute]int incomeId)
     {
-        var response = await _incomeService.GetUserIncome(walletId, incomeId, isShared);
+        var response = await _incomeService.GetUserIncome(incomeId);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 3. Add User Income
-    [HttpPost("income")]
-    public async Task<IActionResult> AddUserIncome([FromBody] AddIncomeDto newIncomeDto)
+    
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] AddIncomeDto newIncomeDto)
     {
         var response = await _incomeService.AddUserIncome(newIncomeDto);
         if (response.Succeeded)
-            return CreatedAtAction(nameof(GetUserIncome), new { walletId = newIncomeDto.WalletId ?? newIncomeDto.SharedWalletId, incomeId = ((Infrastructure.Income)response.Data).IncomeId }, response);
+            return CreatedAtAction(nameof(GetById), new { walletId = newIncomeDto.WalletId ?? newIncomeDto.SharedWalletId, incomeId = ((Infrastructure.Income)response.Data).IncomeId }, response);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 4. Update User Income
-    [HttpPut("income/{incomeId}")]
-    public async Task<IActionResult> UpdateUserIncome(int incomeId, [FromBody] UpdateIncomeDto updateIncomeDto)
+    
+    [HttpPut("{incomeId}")]
+    public async Task<IActionResult> Update(int incomeId, [FromBody] UpdateIncomeDto updateIncomeDto)
     {
         var response = await _incomeService.UpdateUserIncome(incomeId, updateIncomeDto);
+        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 5. Delete User Income
-    [HttpDelete("income/{incomeId}")]
-    public async Task<IActionResult> DeleteUserIncome(int incomeId)
+    
+    [HttpDelete("{incomeId}")]
+    public async Task<IActionResult> Delete(int incomeId)
     {
         var response = await _incomeService.DeleteUserIncome(incomeId);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 6. Calculate Total Incomes Amount
-    [HttpGet("wallet/{walletId}/total")]
+    
+    [HttpGet("wallets/{walletId}/statistics/total-amount")]
     public async Task<IActionResult> CalculateTotalIncomesAmount(int walletId, [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025")
+        [FromQuery] string filter = null)
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
         var response = await _incomeService.CalculateTotalIncomesAmount(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 7. Calculate Total Incomes for Last Week
-    [HttpGet("wallet/{walletId}/total/last-week")]
+   
+    [HttpGet("wallets/{walletId}/statistics/weekly-expenses")]
     public async Task<IActionResult> CalculateTotalIncomesAmountForLastWeek(int walletId, [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
+        [FromQuery] string filter = null) 
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
         var response = await _incomeService.CalculateTotalIncomesAmountForLastWeek(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 8. Calculate Total Incomes for Last Month
-    [HttpGet("wallet/{walletId}/total/last-month")]
-    public async Task<IActionResult> CalculateTotalIncomesAmountForLastMonth(int walletId, [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
+    
+    [HttpGet("wallets/{walletId}/statistics/monthly-expenses")]
+    public async Task<IActionResult> CalculateTotalIncomesAmountForLastMonth([FromRoute]int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) 
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
         var response = await _incomeService.CalculateTotalIncomesAmountForLastMonth(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 9. Calculate Total Incomes for Last Year
-    [HttpGet("wallet/{walletId}/total/last-year")]
-    public async Task<IActionResult> CalculateTotalIncomesAmountForLastYear(int walletId, [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
+    
+    [HttpGet("wallets/{walletId}/statistics/yearly-expenses")]
+    public async Task<IActionResult> CalculateTotalIncomesAmountForLastYear([FromRoute]int walletId, [FromQuery] bool isShared = false,
+        [FromQuery] string filter = null) 
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
         var response = await _incomeService.CalculateTotalIncomesAmountForLastYear(walletId, isShared, filters);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 10. Calculate Total Incomes for Specific Period
-    [HttpGet("wallet/{walletId}/total/period")]
+    
+    [HttpGet("wallets/{walletId}/period-summary")]
     public async Task<IActionResult> CalculateTotalIncomesAmountForSpecificPeriod(
-        int walletId, 
-        [FromQuery] DateTime startDateTime, 
-        [FromQuery] DateTime endDateTime, 
+        [FromRoute] int walletId,
+        [FromQuery] DateTime startDate, [FromQuery] DateTime endDate, 
         [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
+        [FromQuery] string filter = null) 
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
-        var response = await _incomeService.CalculateTotalIncomesAmountForSpecificPeriod(walletId, startDateTime, endDateTime, filters, isShared);
+        var response = await _incomeService.CalculateTotalIncomesAmountForSpecificPeriod(walletId, startDate, endDate, filters, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
 
-    // 11. Get All Incomes for Admin
-    [HttpGet("admin/incomes")]
+    
+    [HttpGet]
     [Authorize(Roles = "Admin")] 
-    public async Task<IActionResult> GetAllIncomesForAdmin(
-        [FromQuery] int pageNumber = 0, 
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string filter = null) // e.g., "Amount > 100, Date = 12-01-2025"))
+    public async Task<IActionResult> GetAll([FromQuery] string filter = null) 
     {
         var filters = ExpressionBuilder.ParseFilter<Infrastructure.Income>(filter);
-        var response = await _incomeService.GetAllIncomesForAdmin(filters, null, pageNumber, pageSize);
+        var response = await _incomeService.GetAllIncomesForAdmin(filters, null, 0, 0);
         return StatusCode((int)response.StatusCode, response);
     }
 

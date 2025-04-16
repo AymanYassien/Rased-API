@@ -40,13 +40,13 @@ public class BudgetRepository : Repository_Test<Budget, int>, IBudgetRepository
             return await GetAllAsync(new Expression<Func<Budget, bool>>[]
             {
                 x => x.SharedWalletId == walletId,
-                x => x.EndDate < DateTime.UtcNow
+                x => x.EndDate > DateTime.UtcNow
             });
         
         return await GetAllAsync(new Expression<Func<Budget, bool>>[]
         {
             x => x.WalletId == walletId,
-            x => x.EndDate < DateTime.UtcNow
+            x => x.EndDate > DateTime.UtcNow
         });
     }
 
@@ -57,32 +57,31 @@ public class BudgetRepository : Repository_Test<Budget, int>, IBudgetRepository
             return await GetAllAsync(new Expression<Func<Budget, bool>>[]
             {
                 x => x.SharedWalletId == walletId,
-                x => x.EndDate ==  endDate,
-                x => x.StartDate ==  startDate,
+                x => x.EndDate <  endDate,
+                x => x.StartDate >  startDate
             });
         
         return await GetAllAsync(new Expression<Func<Budget, bool>>[]
         {
             x => x.WalletId == walletId,
-            x => x.EndDate ==  endDate,
-            x => x.StartDate ==  startDate,
+            x => x.EndDate <  endDate,
+            x => x.StartDate >  startDate
         });
     }
 
     public async Task<int> CountValidBudgetsByWalletIdAsync(int walletId, bool isShared = false)
     {
         if (isShared)
-            return await _dbSet.Where(x => x.SharedWalletId == walletId).CountAsync();
+            return await _dbSet.Where(x => x.SharedWalletId == walletId).Select(x => x.EndDate > DateTime.UtcNow).CountAsync();
         
-        return await _dbSet.Where(x => x.WalletId == walletId).CountAsync();
-        
+        return await _dbSet.Where(x => x.SharedWalletId == walletId).Select(x => x.EndDate > DateTime.UtcNow).CountAsync();
     }
 
     public async Task<bool> IsBudgetValidAsync(int budgetId)
     {
-        var res =  _dbSet.Where(x => x.BudgetId == budgetId && x.EndDate < DateTime.UtcNow);
+        var res =  _dbSet.Where(x => x.BudgetId == budgetId && x.EndDate > DateTime.UtcNow);
 
-        return res != null;
+        return res.Any();
     }
 
     public async Task<decimal> GetBudgetAmountAsync(int budgetId)

@@ -11,7 +11,7 @@ public interface IIncomeService
 {
     // Basic CRUD
     public Task<ApiResponse<object>> GetUserIncomesByWalletId(int walletId, Expression<Func<Income, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
-    public Task<ApiResponse<object>> GetUserIncome(int walletId, int IncomeId, bool isShared = false );
+    public Task<ApiResponse<object>> GetUserIncome(int incomeId);
     public Task<ApiResponse<object>> AddUserIncome(AddIncomeDto newIncomeDto);
     public Task<ApiResponse<object>> UpdateUserIncome(int incomeId,UpdateIncomeDto updateIncomeDto);
     public Task<ApiResponse<object>> DeleteUserIncome(int incomeId);

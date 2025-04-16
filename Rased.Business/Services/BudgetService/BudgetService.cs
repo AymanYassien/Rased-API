@@ -20,6 +20,29 @@ public class BudgetService : IBudgetService
     }
 
 
+    public async Task<ApiResponse<object>> GetBudgetsById(int budgetId)
+    {
+        if (1 > budgetId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        try
+        {
+            var res = await _unitOfWork.Budget.GetByIdAsync(budgetId);
+            if (res is null)
+                return _response.Response(false, null, "", "Not Found",
+                    HttpStatusCode.NotFound);
+
+            var mapped = MapToBudgetDto(res);
+            return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
+
+        }
+        catch (Exception e)
+        {
+            return _response.Response(false, null, "", $"Internal Server Error : {e.Message}", HttpStatusCode.InternalServerError);
+        }
+    }
+    
     public async Task<ApiResponse<object>> AddBudgetAsync(AddBudgetDto dto)
     {
         if (!IsAddDtoValid(dto, out var errorMessage))
@@ -90,7 +113,7 @@ public class BudgetService : IBudgetService
         if (res is false)
             return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
         
-        return _response.Response(true, null, "Success", "",  HttpStatusCode.OK);
+        return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
 
     }
 
@@ -99,7 +122,7 @@ public class BudgetService : IBudgetService
         try
         {
             var res = await _unitOfWork.Budget.GetAllAsync(filter, null, pageNumber, pageSize);
-            if (res is null)
+            if (!res.Any())
                 return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
                     HttpStatusCode.NotFound);
 
@@ -121,7 +144,7 @@ public class BudgetService : IBudgetService
         try
         {
             var res = await _unitOfWork.Budget.GetBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
-            if (res is null)
+            if (!res.Any())
                 return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
                     HttpStatusCode.NotFound);
             
@@ -147,7 +170,7 @@ public class BudgetService : IBudgetService
         {
             
             var res = await _unitOfWork.Budget.GetValidBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
-            if (res is null)
+            if (!res.Any())
                 return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
                     HttpStatusCode.NotFound);
 
@@ -170,8 +193,8 @@ public class BudgetService : IBudgetService
         try
         {
             var res = await _unitOfWork.Budget.GetBudgetsByWalletIdCategorizedAtSpecificPeriodAsync(walletId, startDate, endDate, filter, pageNumber, pageSize, isShared);
-            if (res is null)
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+            if (!res.Any())
+                return _response.Response(false, null, "", "Not Found, or Nothing to Fetch",
                     HttpStatusCode.NotFound);
 
             var mapped = MapToBudgetDto(res);
@@ -215,7 +238,7 @@ public class BudgetService : IBudgetService
         {
             var res = await _unitOfWork.Budget.IsBudgetValidAsync(budgetId);
             if (res is false)
-                return _response.Response(false, null, "", "Not Found, or Nothing to Update", HttpStatusCode.NotFound);
+                return _response.Response(false, null, "", "Not Found, or Not Valid Budget with this Id", HttpStatusCode.NotFound);
             return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
         }
         catch (Exception e)
@@ -246,9 +269,9 @@ public class BudgetService : IBudgetService
         try
         {
             var res = await _unitOfWork.Budget.IsBudgetRolloverAsync(budgetId);
-            if (res is false)
-                return _response.Response(false, null, "", "Not Found, or Nothing to Update", HttpStatusCode.NotFound);
-            return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+            // if (res i)
+                return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
+                //return _response.Response(false, null, "", "Not Found", HttpStatusCode.NotFound);
         }
         catch (Exception e)
         {
@@ -332,7 +355,7 @@ public class BudgetService : IBudgetService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;
@@ -340,7 +363,7 @@ public class BudgetService : IBudgetService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0  &&  dto.DayOfMonth > 29)
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -348,7 +371,7 @@ public class BudgetService : IBudgetService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek  < 0  &&  dto.DayOfWeek > 7)
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;
@@ -425,7 +448,7 @@ public class BudgetService : IBudgetService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;
@@ -433,7 +456,7 @@ public class BudgetService : IBudgetService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0  &&  dto.DayOfMonth > 29)
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -441,7 +464,7 @@ public class BudgetService : IBudgetService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        if (dto.DayOfWeek.HasValue && dto.DayOfWeek  < 0  &&  dto.DayOfWeek > 7)
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;
@@ -543,7 +566,7 @@ public class BudgetService : IBudgetService
             BudgetAmount = dto.BudgetAmount,
             DayOfWeek = dto.DayOfWeek,
             DayOfMonth = dto.DayOfMonth,
-            BudgetTypeId = null,
+            BudgetTypeId = 1,
             RolloverUnspent = dto.RolloverUnspent,
             RemainingAmount = dto.BudgetAmount,
             StartDate = dto.StartDate,
@@ -560,9 +583,9 @@ public class BudgetService : IBudgetService
         budget.BudgetAmount = dto.BudgetAmount;
         budget.DayOfWeek = dto.DayOfWeek;
         budget.DayOfMonth = dto.DayOfMonth;
-        budget.BudgetTypeId = null;
+        budget.BudgetTypeId = 1;
         budget.RolloverUnspent = dto.RolloverUnspent;
-        budget.RemainingAmount = dto.BudgetAmount - budget.RemainingAmount;
+        budget.RemainingAmount += dto.BudgetAmount - budget.RemainingAmount;
         budget.StartDate = dto.StartDate;
         budget.EndDate = dto.EndDate;
         

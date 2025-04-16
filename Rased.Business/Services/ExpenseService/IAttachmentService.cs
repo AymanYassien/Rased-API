@@ -9,6 +9,8 @@ public interface IAttachmentService
 {
     // Basic CRUD
     //public Task<ApiResponse<object>> GetAllAttachmentsByWalletId(int walletId, Expression<Func<Attachment, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
+
+    public Task<ApiResponse<object>> GetAttachmentById(int id);
     public Task<ApiResponse<object>> GetAttachmentByExpenseId(int expenseId, Expression<Func<Attachment, bool>>[]? filter = null);
     public Task<ApiResponse<object>> AddAttachment(AddAttachmentDto newAttachment);
     public Task<ApiResponse<object>> UpdateAttachment(int attachmentId,UpdateAttachmentDto updateAttachment);
