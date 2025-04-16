@@ -31,7 +31,7 @@ namespace Rased.Business
                 .IsRequired();
 
             builder.Property(b => b.BudgetTypeId)
-                .IsRequired();
+                .IsRequired(false);
 
 
             builder.Property(b => b.SpentAmount)

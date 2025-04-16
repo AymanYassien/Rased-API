@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rased.Api.Controllers.Helper;
@@ -8,7 +9,7 @@ using Rased.Business.Services.ExpenseService;
 namespace Rased.Api.Controllers.Expenses;
 
 [ApiController]
-[Route("api/user/wallet/attachment")]
+[Route("api/expense/attachment")]
 [Authorize]
 public class AttachmentController : ControllerBase
 {
@@ -20,20 +21,22 @@ public class AttachmentController : ControllerBase
     }
 
     
-    [HttpGet]
-    public async Task<IActionResult> GetAttachmentByExpenseId(
-        [FromQuery] int expenseId,
-        [FromQuery] string filter = null) // e.g., "fileType=pdf,size>1024"
+    [HttpGet("/get-by-expense-id/{expenseId}")]
+    public async Task<IActionResult> GetByExpenseId([FromRoute] int expenseId)
     {
-        var filters = ExpressionBuilder.ParseFilter<Infrastructure.Attachment>(filter);
-        var response = await _attachmentService.GetAttachmentByExpenseId(expenseId, filters);
+        //var filters = ExpressionBuilder.ParseFilter<Infrastructure.Attachment>(filter);
+        var response = await _attachmentService.GetAttachmentByExpenseId(expenseId, null);
         return StatusCode((int)response.StatusCode, response);
     }
-
     
+    [HttpGet("{attachmentId}")]
+    public async Task<IActionResult> GetById([FromRoute] int attachmentId)
+    {
+        var response = await _attachmentService.GetAttachmentById(attachmentId);
+        return StatusCode((int)response.StatusCode, response);
+    }
     [HttpPost]
-    public async Task<IActionResult> AddAttachment(
-        [FromBody] AddAttachmentDto newAttachment)
+    public async Task<IActionResult> Create([FromBody] AddAttachmentDto newAttachment)
     {
         var response = await _attachmentService.AddAttachment(newAttachment);
         return StatusCode((int)response.StatusCode, response);
@@ -41,18 +44,18 @@ public class AttachmentController : ControllerBase
 
     
     [HttpPut("{attachmentId}")]
-    public async Task<IActionResult> UpdateAttachment(
-        [FromRoute] int attachmentId,
-        [FromBody] UpdateAttachmentDto updateAttachment)
+    public async Task<IActionResult> Update([FromRoute] int attachmentId, [FromBody] UpdateAttachmentDto updateAttachment)
     {
         var response = await _attachmentService.UpdateAttachment(attachmentId, updateAttachment);
+        
+        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
+        
         return StatusCode((int)response.StatusCode, response);
     }
-
+    
     
     [HttpDelete("{attachmentId}")]
-    public async Task<IActionResult> DeleteAttachment(
-        [FromRoute] int attachmentId)
+    public async Task<IActionResult> Delete([FromRoute] int attachmentId)
     {
         var response = await _attachmentService.DeleteAttachment(attachmentId);
         return StatusCode((int)response.StatusCode, response);
@@ -60,8 +63,7 @@ public class AttachmentController : ControllerBase
 
     
     [HttpGet("{attachmentId}/size")]
-    public async Task<IActionResult> GetFileSize(
-        [FromRoute] int attachmentId)
+    public async Task<IActionResult> GetFileSize([FromRoute] int attachmentId)
     {
         var response = await _attachmentService.GetFileSize(attachmentId);
         return StatusCode((int)response.StatusCode, response);
@@ -69,8 +71,7 @@ public class AttachmentController : ControllerBase
 
     
     [HttpGet("{attachmentId}/path")]
-    public async Task<IActionResult> GetFilePath(
-        [FromRoute] int attachmentId)
+    public async Task<IActionResult> GetFilePath([FromRoute] int attachmentId)
     {
         var response = await _attachmentService.GetFilePath(attachmentId);
         return StatusCode((int)response.StatusCode, response);
@@ -78,8 +79,7 @@ public class AttachmentController : ControllerBase
 
     
     [HttpGet("{attachmentId}/type")]
-    public async Task<IActionResult> GetFileType(
-        [FromRoute] int attachmentId)
+    public async Task<IActionResult> GetFileType([FromRoute] int attachmentId)
     {
         var response = await _attachmentService.GetFileType(attachmentId);
         return StatusCode((int)response.StatusCode, response);
@@ -87,8 +87,7 @@ public class AttachmentController : ControllerBase
     
     
     [HttpGet("{attachmentId}/upload-date")]
-    public async Task<IActionResult> GetFileUploadDate(
-        [FromRoute] int attachmentId)
+    public async Task<IActionResult> GetFileUploadDate([FromRoute] int attachmentId)
     {
         var response = await _attachmentService.GetFileUploadDate(attachmentId);
         return StatusCode((int)response.StatusCode, response);

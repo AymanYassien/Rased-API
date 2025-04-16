@@ -109,7 +109,7 @@ public class IncomeRepository : Repository_Test<Income, int>, IIncomeRepository
 
     public async Task<decimal> CalculateTotalIncomesAmountForLastWeekAsync(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
-        DateTime lastWeek = DateTime.UtcNow.AddDays(-7);
+        DateTime lastWeek = DateTime.Now.Date.AddDays(-7);
         IQueryable<Income> query = BuildBaseQuery(walletId, isShared, filter);
         
         query = query.Where(e => e.CreatedDate >= lastWeek);
@@ -120,7 +120,7 @@ public class IncomeRepository : Repository_Test<Income, int>, IIncomeRepository
 
     public async Task<decimal> CalculateTotalIncomesAmountForLastMonthAsync(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
-        DateTime lastMonth = DateTime.Now.AddMonths(-1); 
+        DateTime lastMonth = DateTime.UtcNow.Date.AddMonths(-1); 
         IQueryable<Income> query = BuildBaseQuery(walletId, isShared, filter);
 
         
@@ -132,7 +132,7 @@ public class IncomeRepository : Repository_Test<Income, int>, IIncomeRepository
 
     public async Task<decimal> CalculateTotalIncomesAmountForLastYearAsync(int walletId, bool isShared = false, Expression<Func<Income, bool>>[]? filter = null)
     {
-        DateTime lastYear = DateTime.Now.AddYears(-1); 
+        DateTime lastYear = DateTime.UtcNow.Date.AddYears(-1); 
         IQueryable<Income> query = BuildBaseQuery(walletId, isShared, filter);
         
         

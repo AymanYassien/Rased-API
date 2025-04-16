@@ -29,7 +29,7 @@ public class IncomeService : IIncomeService
         
         IQueryable<Income> res = await _unitOfWork.Income.GetUserIncomesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
-        if (res == null)
+        if (!res.Any())
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable < IncomeDto > newResult = MapToIncomeDto(res);
@@ -38,13 +38,13 @@ public class IncomeService : IIncomeService
 
     }
 
-    public async Task<ApiResponse<object>> GetUserIncome(int walletId, int IncomeId, bool isShared = false)
+    public async Task<ApiResponse<object>> GetUserIncome(int incomeId)
     {
-        if (1 > walletId)
+        if (1 > incomeId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.Income.GetUserIncomesAsync(walletId, IncomeId, isShared);
+        var res = await _unitOfWork.Income.GetByIdAsync( incomeId);
         
         if (res == null)
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
@@ -99,12 +99,11 @@ public class IncomeService : IIncomeService
         if (res == null)
             return _response.Response(false, null, "", $"Not Found Income with id {incomeId}",  HttpStatusCode.NotFound);
 
-        
-        var income = _MapToIncomeFromUpdate(updateIncomeDto);
+        _MapToIncomeFromUpdate(updateIncomeDto, res);
 
         try
         {
-            _unitOfWork.Income.Update(income);
+            _unitOfWork.Income.Update(res);
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -114,7 +113,7 @@ public class IncomeService : IIncomeService
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, income, $"Success Update Income with id: {income.IncomeId}", $"",
+        return _response.Response(true, res, $"Success Update Income with id: {res.IncomeId}", $"",
             HttpStatusCode.NoContent);
     }
 
@@ -208,7 +207,7 @@ public class IncomeService : IIncomeService
     {
         IQueryable<Income> res = await _unitOfWork.Income.GetAllAsync(filter, includes, pageNumber, pageSize);
         
-        if (res == null)
+        if (!res.Any())
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable<IncomeDto> newResult = MapToIncomeDto(res);
@@ -235,23 +234,23 @@ public class IncomeService : IIncomeService
         };
     }
 
-    private Income _MapToIncomeFromUpdate(UpdateIncomeDto updateIncomeDto)
+    private void _MapToIncomeFromUpdate(UpdateIncomeDto updateIncomeDto, Income income )
     {
-        return new Income()
-        {
+        
             //IncomeId = income.IncomeId,
-            WalletId = updateIncomeDto.WalletId,
-            SharedWalletId = updateIncomeDto.SharedWalletId,
-            Amount = updateIncomeDto.Amount,
-            CategoryName = updateIncomeDto.CategoryName,
-            SubCategoryId = updateIncomeDto.SubCategoryId,
-            CreatedDate = updateIncomeDto.CreatedDate,
-            IncomeSourceTypeId = updateIncomeDto.IncomeSourceTypeId,
-            IsAutomated = updateIncomeDto.IsAutomated,
-            Description = updateIncomeDto.Description,
-            Title = updateIncomeDto.Title,
-            IncomeTemplateId = updateIncomeDto.IncomeTemplateId
-        };
+            income.WalletId = updateIncomeDto.WalletId ;
+            income.SharedWalletId = updateIncomeDto.SharedWalletId;
+            income.Amount = updateIncomeDto.Amount;
+            income.CategoryName = updateIncomeDto.CategoryName;
+            income.SubCategoryId = updateIncomeDto.SubCategoryId;
+            income.CreatedDate = updateIncomeDto.CreatedDate;
+            income.IncomeSourceTypeId = updateIncomeDto.IncomeSourceTypeId;
+            income.IsAutomated = updateIncomeDto.IsAutomated;
+            income.Description = updateIncomeDto.Description;
+            income.Title = updateIncomeDto.Title;
+            income.IncomeTemplateId = updateIncomeDto.IncomeTemplateId;
+
+
     }
     
     private Income _MapToIncomeFromAdd(AddIncomeDto addIncomeDto)

@@ -18,6 +18,22 @@ public class AttachmentService : IAttachmentService
         _response = new ApiResponse<object>();
     }
     
+    public async Task<ApiResponse<object>> GetAttachmentById(int id)
+    {
+        if (1 > id)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res =  await _unitOfWork.Attachments.GetByIdAsync(id);
+        if (res is null)
+            return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
+
+        var mapped = MapAttachmentToAttachmentDTO(res);
+        
+        return _response.Response(true, mapped, "Success", "",  HttpStatusCode.OK);
+
+    }
+    
     public async Task<ApiResponse<object>> GetAttachmentByExpenseId(int expenseId, Expression<Func<Infrastructure.Attachment, bool>>[]? filter = null)
     {
         if (1 > expenseId)
@@ -80,11 +96,11 @@ public class AttachmentService : IAttachmentService
             return _response.Response(false, null, "", $"Not Found Attachment with id {attachmentId}",  HttpStatusCode.NotFound);
 
         
-        var attach = UpdateAttachment(updateAttachment);
+        UpdateAttachment(updateAttachment, res);
 
         try
         {
-            _unitOfWork.Attachments.Update(attach);
+            _unitOfWork.Attachments.Update(res);
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -94,7 +110,7 @@ public class AttachmentService : IAttachmentService
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, attach, $"Success Update Attachment with id: {attach.AttachmentId}", $"",
+        return _response.Response(true, res, $"Success Update Attachment with id: {res.AttachmentId}", $"",
             HttpStatusCode.NoContent);
     }
 
@@ -119,7 +135,7 @@ public class AttachmentService : IAttachmentService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
 
-        var res = _unitOfWork.Attachments.GetFileSize(attachmentId);
+        var res = await _unitOfWork.Attachments.GetFileSize(attachmentId);
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
@@ -133,7 +149,7 @@ public class AttachmentService : IAttachmentService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
 
-        var res = _unitOfWork.Attachments.GetFilePath(attachmentId);
+        var res = await _unitOfWork.Attachments.GetFilePath(attachmentId);
         if (res is null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
@@ -147,7 +163,7 @@ public class AttachmentService : IAttachmentService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
 
-        var res = _unitOfWork.Attachments.GetFileType(attachmentId);
+        var res = await _unitOfWork.Attachments.GetFileType(attachmentId);
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
@@ -160,7 +176,7 @@ public class AttachmentService : IAttachmentService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
 
-        var res = _unitOfWork.Attachments.GetUploadDate(attachmentId);
+        var res = await _unitOfWork.Attachments.GetUploadDate(attachmentId);
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
         
@@ -197,22 +213,22 @@ public class AttachmentService : IAttachmentService
         };
     }
     
-    private Attachment MapUpdateToAttachment(UpdateAttachmentDto dto)
+    private Attachment MapUpdateToAttachment(UpdateAttachmentDto dto, Attachment attachment)
     {
-        return new Attachment()
-        {
-            AttachmentId = dto.AttachmentId,
-            ExpenseId = dto.ExpenseId,
-            FileName = dto.FileName,
-            FilePath = dto.FilePath,
-            FileSize = dto.FileSize,
-            FileType = dto.FileType
-        };
+        attachment.AttachmentId = dto.AttachmentId;
+        attachment.ExpenseId = dto.ExpenseId;
+        attachment.FileName = dto.FileName;
+        attachment.FilePath = dto.FilePath;
+        attachment.FileSize = dto.FileSize;
+        attachment.FileType = dto.FileType;
+
+        return attachment;
+
     }
 
-    private Attachment UpdateAttachment(UpdateAttachmentDto dto)
+    private void UpdateAttachment(UpdateAttachmentDto dto, Attachment attachment)
     {
-        Attachment attachment = MapUpdateToAttachment(dto);
+        attachment = MapUpdateToAttachment(dto, attachment);
         
         if (dto.FilePath != attachment.FilePath)
             attachment.UploadDate = DateTime.UtcNow;
@@ -221,7 +237,7 @@ public class AttachmentService : IAttachmentService
         attachment.FileName = dto.FileName;
         attachment.FileSize = dto.FileSize;
         
-        return attachment;
+        //return attachment;
     }
 
     private Attachment addAttachment(AddAttachmentDto dto)

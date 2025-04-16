@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rased.Api.Controllers.Helper;
@@ -8,7 +9,7 @@ using Rased.Infrastructure;
 namespace Rased.Api.Controllers.Expenses;
 
 [ApiController]
-[Route("api/ExpensesTemplate")]
+[Route("api/expense-templates")]
 [Authorize]
 public class ExpensesTemplateController : ControllerBase
 {
@@ -20,11 +21,8 @@ public class ExpensesTemplateController : ControllerBase
     }
 
     
-    [HttpGet("get-user-expenses-template-by-WalletId")]
-    public async Task<IActionResult> GetUserExpenseTemplatesByWalletId(
-        [FromQuery] int walletId,
-        [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
+    [HttpGet("get-total-expenses-template-by-WalletId/{walletId}")]
+    public async Task<IActionResult> GetTotalByWalletId([FromQuery] int walletId, [FromQuery] bool isShared = false, [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
     {
         var filters = ExpressionBuilder.ParseFilter<ExpenseTemplate>(filter);
         var response = await _expenseService.GetUserExpenseTemplatesByWalletId(walletId, filters, 0, 0, isShared);
@@ -32,44 +30,43 @@ public class ExpensesTemplateController : ControllerBase
     }
 
     
-    [HttpGet("get-expense-by-id{expenseTemplateId}")]
-    public async Task<IActionResult> GetUserExpenseTemplate([FromRoute] int expenseTemplateId)
+    [HttpGet("{expenseTemplateId}")]
+    public async Task<IActionResult> GetUserById([FromRoute] int expenseTemplateId)
     {
         var response = await _expenseService.GetUserExpenseTemplate(expenseTemplateId);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpPost("add")]
-    public async Task<IActionResult> AddUserExpenseTemplate(
-        [FromBody] AddExpenseTemplateDto newExpenseTemplate)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] AddExpenseTemplateDto newExpenseTemplate)
     {
         var response = await _expenseService.AddUserExpenseTemplate(newExpenseTemplate);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpPut("update{expenseTemplateId}")]
-    public async Task<IActionResult> UpdateUserExpenseTemplate(
-        [FromRoute] int expenseTemplateId, [FromBody] UpdateExpenseTemplateDto updateExpenseTemplateDto)
+    [HttpPut("{expenseTemplateId}")]
+    public async Task<IActionResult> Update([FromRoute] int expenseTemplateId, [FromBody] UpdateExpenseTemplateDto updateExpenseTemplateDto)
     {
         var response = await _expenseService.UpdateUserExpenseTemplate( expenseTemplateId, updateExpenseTemplateDto);
+        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
+
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpDelete("delete{expenseTemplateId}")]
-    public async Task<IActionResult> DeleteUserExpenseTemplate(
-        [FromRoute] int expenseTemplateId)
+    [HttpDelete("{expenseTemplateId}")]
+    public async Task<IActionResult> Delete([FromRoute] int expenseTemplateId)
     {
         var response = await _expenseService.DeleteUserExpenseTemplate(expenseTemplateId);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpGet("count-wallet-expenseTemplate")]
-    public async Task<IActionResult> CountExpensesTemplate(
-        [FromQuery] int walletId,
+    [HttpGet("wallets/{walletId}/count")]
+    public async Task<IActionResult> GetWalletTemplateCount(
+        [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null)
     {
@@ -79,9 +76,9 @@ public class ExpensesTemplateController : ControllerBase
     }
 
     
-    [HttpGet("wallet-total-amount-for-expense-template")]
-    public async Task<IActionResult> CalculateTotalExpensesTemplateAmount(
-        [FromQuery] int walletId,
+    [HttpGet("wallets/{walletId}/total")]
+    public async Task<IActionResult> GetWalletTemplateTotal(
+        [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) 
     {
@@ -91,9 +88,9 @@ public class ExpensesTemplateController : ControllerBase
     }
 
     // GET: Admin - Get all expenses templates
-    [HttpGet("admin/all")]
+    [HttpGet]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllExpensesTemplatesForAdmin([FromQuery] string filter = null)
+    public async Task<IActionResult> GetAllTemplate([FromQuery] string filter = null)
     {
         var filters = ExpressionBuilder.ParseFilter<ExpenseTemplate>(filter);
         var response = await _expenseService.GetAllExpensesTemplatesForAdmin(filters);

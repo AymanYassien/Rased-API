@@ -66,10 +66,19 @@ public class ExpenseService : IExpenseService
         }
 
         var expense = _MapToExpenseDtoFromAdd(newExpenseDto);
-
+        bool isSuccessUpdateRelatedBudget = true;
         try
         {
             await _unitOfWork.Expenses.AddAsync(expense);
+            
+            if (expense.RelatedBudgetId is not null)
+                isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount );
+
+            if (isSuccessUpdateRelatedBudget == false)
+            {
+                return _response.Response(false, newExpenseDto, "", $"Failed to Update Related Budget, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -102,10 +111,23 @@ public class ExpenseService : IExpenseService
 
         
         _MapToExpenseDtoFromUpdate(updateExpenseDto, expense);
+        bool isSuccessUpdateRelatedBudget = true;
         try
         {
             
             _unitOfWork.Expenses.Update(expense);
+
+            if (expense.RelatedBudgetId is not null && updateExpenseDto.Amount != expense.Amount)
+            {
+                decimal spentAmount = (updateExpenseDto.Amount - expense.Amount) * -1;
+                isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, spentAmount );
+            }
+            
+            if (isSuccessUpdateRelatedBudget == false)
+            {
+                return _response.Response(false, updateExpenseDto, "", $"Failed to Update Related Budget, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -115,7 +137,7 @@ public class ExpenseService : IExpenseService
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, expense, $"Success Update Expense with id: {expense.ExpenseId}", $"",
+        return _response.Response(true, updateExpenseDto, $"Success Update Expense with id: {expense.ExpenseId}", $"",
             HttpStatusCode.OK);
     }
 
@@ -124,6 +146,17 @@ public class ExpenseService : IExpenseService
         if (1 > expenseId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
+
+        Expense expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+        bool isSuccessUpdateRelatedBudget = true;
+        if (expense.RelatedBudgetId is not null)
+            isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount );
+
+        if (isSuccessUpdateRelatedBudget == false)
+        {
+            return _response.Response(false, expenseId, "", $"Failed to Delete Related Budget",
+                HttpStatusCode.InternalServerError);
+        }
         
         var res =  _unitOfWork.Expenses.RemoveById(expenseId);
         await _unitOfWork.CommitChangesAsync();
@@ -435,6 +468,12 @@ public class ExpenseService : IExpenseService
 
             return true;
         }
+
+    private async Task<bool> UpdateRelatedBudget(int? budgetId, decimal spentAmount)
+    {
+        var res = await _unitOfWork.Budget.UpdateBudgetSpentAmountAsync((int)budgetId, spentAmount);
+        return res;
+    }
 
     
 
