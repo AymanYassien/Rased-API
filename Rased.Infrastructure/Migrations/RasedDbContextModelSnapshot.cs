@@ -1228,10 +1228,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("CurrencyId")
                         .HasColumnType("int");
 
@@ -1270,8 +1266,6 @@ namespace Rased.Infrastructure.Migrations
 
                     b.HasIndex("ColorTypeId");
 
-                    b.HasIndex("CreatorId");
-
                     b.HasIndex("CurrencyId");
 
                     b.HasIndex("StaticWalletStatusDataId");
@@ -1289,11 +1283,12 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipId"));
 
-                    b.Property<int>("AccessLevelId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(100)");
 
                     b.Property<int>("SharedWalletId")
                         .HasColumnType("int");
@@ -1304,35 +1299,11 @@ namespace Rased.Infrastructure.Migrations
 
                     b.HasKey("MembershipId");
 
-                    b.HasIndex("SharedWalletId")
-                        .HasDatabaseName("IX_SharedWalletMembers_SharedWalletId");
+                    b.HasIndex("SharedWalletId");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_SharedWalletMembers_UserId");
-
-                    b.HasIndex("UserId", "SharedWalletId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SharedWalletMembers_UserId_SharedWalletId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("SharedWalletMembers");
-                });
-
-            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.StaticSharedWalletAccessLevelData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StaticSharedWalletAccessLevels");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.Plan", b =>
@@ -2643,12 +2614,6 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Creator")
-                        .WithMany("SharedWallets")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Rased.Infrastructure.Models.Extras.Currency", "Currency")
                         .WithMany("SharedWallets")
                         .HasForeignKey("CurrencyId")
@@ -2665,8 +2630,6 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Creator");
-
                     b.Navigation("Currency");
 
                     b.Navigation("StaticColorTypeData");
@@ -2676,29 +2639,21 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWalletMembers", b =>
                 {
-                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.StaticSharedWalletAccessLevelData", "StaticSharedWalletAccessLevelData")
-                        .WithMany()
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
+                        .WithMany("SWMembers")
                         .HasForeignKey("SharedWalletId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
-                        .WithMany("Members")
-                        .HasForeignKey("SharedWalletId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Member")
-                        .WithMany()
+                        .WithMany("SWMembers")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Member");
 
                     b.Navigation("SharedWallet");
-
-                    b.Navigation("StaticSharedWalletAccessLevelData");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.PlanDetail", b =>
@@ -2985,11 +2940,11 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Navigation("Loans");
 
-                    b.Navigation("Members");
-
                     b.Navigation("ReceivedTransactions");
 
                     b.Navigation("SWInvitations");
+
+                    b.Navigation("SWMembers");
 
                     b.Navigation("Savings");
 
@@ -3011,9 +2966,9 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Navigation("Receivers");
 
-                    b.Navigation("Senders");
+                    b.Navigation("SWMembers");
 
-                    b.Navigation("SharedWallets");
+                    b.Navigation("Senders");
 
                     b.Navigation("Subscriptions");
 

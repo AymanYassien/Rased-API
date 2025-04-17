@@ -70,7 +70,6 @@ namespace Rased.Infrastructure.Data
         public DbSet<SharedWallet> SharedWallets { get; set; }
         public DbSet<SWInvitation> SWInvitations { get; set; }
         public DbSet<SharedWalletMembers> SharedWalletMembers { get; set; }
-        public DbSet<StaticSharedWalletAccessLevelData> StaticSharedWalletAccessLevels { get; set; }
 
         public DbSet<Plan> Plans { get; set; }
         public DbSet<PlanDetail> PlanDetails { get; set; }

@@ -12,9 +12,16 @@
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         // Relations
-        public string? UserAccessLvl { get; set; }
+        public List<SWMembersDto>? Members { get; set; }
         public string? Status { get; set; }
         public string? Color { get; set; }
         public string? Currency { get; set; }
+    }
+
+    public class SWMembersDto
+    {
+        public string? Email { get; set; }
+        public string? FullName { get; set; }
+        public string? Role { get; set; }
     }
 }

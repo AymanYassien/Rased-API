@@ -20,6 +20,7 @@ using Rased.Business.Services.Wallets;
 using Rased.Business.Services.Categories;
 using Rased.Business.Services.SubCategories;
 using Rased.Business.Services.Transfer;
+using Rased.Business.Services.SharedWallets;
 
 namespace Rased.Api
 {
@@ -95,7 +96,9 @@ namespace Rased.Api
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<ISavingService, SavingService>();
             builder.Services.AddScoped<IGoalService, GoalService>();
+
             builder.Services.AddScoped<IWalletService, WalletService>();
+            builder.Services.AddScoped<ISharedWalletService, SharedWalletService>();
 
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();

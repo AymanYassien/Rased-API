@@ -118,10 +118,13 @@ namespace Rased.Business.Services.Wallets
                 if (wallet == null)
                     return new ApiResponse<string>("Wallet Not Found");
 
+                decimal totalBalance = (model.InitialBalance - wallet.InitialBalance) + wallet.TotalBalance;
+
                 wallet.Name = model.Name;
                 wallet.Description = model.Description;
                 wallet.Icon = model.Icon;
                 wallet.InitialBalance = model.InitialBalance;
+                wallet.TotalBalance = totalBalance;
                 wallet.ExpenseLimit = model.ExpenseLimit;
                 wallet.CreatorId = userId;
                 wallet.CurrencyId = model.CurrencyId;

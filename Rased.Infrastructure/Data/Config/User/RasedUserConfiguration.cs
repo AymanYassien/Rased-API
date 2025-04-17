@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.User;
 
 namespace Rased.Infrastructure.Data.Config.User
@@ -37,10 +38,13 @@ namespace Rased.Infrastructure.Data.Config.User
                    .WithOne(x => x.Creator)
                    .HasForeignKey(x => x.CreatorId)
                    .IsRequired();
+            // M User => N SW
             builder.HasMany(x => x.SharedWallets)
-                   .WithOne(x => x.Creator)
-                   .HasForeignKey(x => x.CreatorId)
-                   .IsRequired();
+                   .WithMany(x => x.Members)
+                   .UsingEntity<SharedWalletMembers>(
+                        l => l.HasOne(c => c.SharedWallet).WithMany(c => c.SWMembers).HasForeignKey(c => c.SharedWalletId),
+                        r => r.HasOne(c => c.Member).WithMany(c => c.SWMembers).HasForeignKey(c => c.UserId)
+                   );
         }
     }
 }

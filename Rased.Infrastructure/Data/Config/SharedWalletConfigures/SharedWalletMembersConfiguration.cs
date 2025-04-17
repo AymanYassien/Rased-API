@@ -11,44 +11,38 @@ namespace Rased.Business
         {
             builder.HasKey(swm => swm.MembershipId);
 
-            builder.Property(swm => swm.SharedWalletId)
-                .IsRequired();
+            builder.Property(x => x.Role)
+                   .HasColumnType("NVARCHAR(100)")
+                   .IsRequired();
 
-            builder.Property(swm => swm.UserId)
-                .IsRequired();
+            //builder.Property(swm => swm.SharedWalletId)
+            //    .IsRequired();
 
-            builder.Property(swm => swm.AccessLevelId)
-                .IsRequired();
+            //builder.Property(swm => swm.UserId)
+            //    .IsRequired();
+
+            //builder.Property(swm => swm.AccessLevelId)
+            //    .IsRequired();
 
             builder.Property(swm => swm.JoinedAt)
                 .IsRequired();
 
 
-            builder.HasOne(swm => swm.SharedWallet)
-                .WithMany(sw => sw.Members)
-                .HasForeignKey(swm => swm.SharedWalletId)
-                .OnDelete(DeleteBehavior.NoAction);
+            //builder.HasOne(swm => swm.SharedWallet)
+            //    .WithMany(sw => sw.Members)
+            //    .HasForeignKey(swm => swm.SharedWalletId)
+            //    .OnDelete(DeleteBehavior.NoAction)
+            //    .IsRequired();
 
-            builder.HasOne(swm => swm.Member)
-                .WithMany()
-                .HasForeignKey(swm => swm.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-            
-            builder.HasOne(swm => swm.StaticSharedWalletAccessLevelData)
-                .WithMany()
-                .HasForeignKey(swm => swm.SharedWalletId)
-                .OnDelete(DeleteBehavior.Cascade);
-            
+            //builder.HasOne(swm => swm.Member)
+            //    .WithMany(x => x.SWMembers)
+            //    .HasForeignKey(swm => swm.UserId)
+            //    .IsRequired();
 
-            builder.HasIndex(swm => swm.SharedWalletId)
-                .HasDatabaseName("IX_SharedWalletMembers_SharedWalletId");
-
-            builder.HasIndex(swm => swm.UserId)
-                .HasDatabaseName("IX_SharedWalletMembers_UserId");
-
-            builder.HasIndex(swm => new { swm.UserId, swm.SharedWalletId })
-                .HasDatabaseName("IX_SharedWalletMembers_UserId_SharedWalletId")
-                .IsUnique(); // Prevents duplicate memberships
+            //builder.HasOne(swm => swm.StaticSharedWalletAccessLevelData)
+            //    .WithMany(x => x.Members)
+            //    .HasForeignKey(swm => swm.SharedWalletId)
+            //    .IsRequired();
         }
     }
 }

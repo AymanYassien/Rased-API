@@ -39,8 +39,8 @@ namespace Rased.Business
                 .HasColumnType("decimal(8,2)")
                 .IsRequired();
 
-            builder.Property(sw => sw.CreatorId)
-                .IsRequired();
+            //builder.Property(sw => sw.CreatorId)
+            //    .IsRequired();
 
             builder.Property(sw => sw.CreatedAt)
                 .IsRequired();
