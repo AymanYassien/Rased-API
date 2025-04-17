@@ -30,7 +30,12 @@ namespace Rased.Infrastructure.Models.User
         public virtual UserPreference? Preference { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
         public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
+
+        // Has Many Shared Wallet with different access level
         public virtual ICollection<SharedWallet> SharedWallets { get; set; } = new List<SharedWallet>();
+        // Has Many Membership
+        public virtual ICollection<SharedWalletMembers> SWMembers { get; set; } = new List<SharedWalletMembers>();
+
         public virtual ICollection<SWInvitation> Senders { get; set; } = new List<SWInvitation>();
         public virtual ICollection<SWInvitation> Receivers { get; set; } = new List<SWInvitation>();
         public virtual ICollection<Notification>? Notifications { get; set; }

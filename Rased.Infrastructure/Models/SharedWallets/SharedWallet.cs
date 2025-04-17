@@ -20,15 +20,17 @@ namespace Rased.Infrastructure.Models.SharedWallets
         public int WalletStatusId { get; set; }
         public int ColorTypeId { get; set; }
         public int CurrencyId { get; set; }
-        public string CreatorId { get; set; } = null!;
 
         // Navigation Properties
         public virtual Currency Currency { get; set; } = new Currency();
-        public virtual RasedUser Creator { get; set; } = new RasedUser();
         public virtual StaticWalletStatusData StaticWalletStatusData { get; set; } = new StaticWalletStatusData();
         public virtual StaticColorTypeData StaticColorTypeData { get; set; } = new StaticColorTypeData();
 
-        public virtual ICollection<SharedWalletMembers> Members { get; set; } = new List<SharedWalletMembers>();
+        // Has Many Members
+        public virtual ICollection<RasedUser> Members { get; set; } = new List<RasedUser>();
+        // Has SharedWallet Members
+        public virtual ICollection<SharedWalletMembers> SWMembers { get; set; } = new List<SharedWalletMembers>();
+        // Has Many invitations
         public virtual ICollection<SWInvitation> SWInvitations { get; set; } = new List<SWInvitation>();
 
         public virtual ICollection<Income>? Incomes { get; set; }

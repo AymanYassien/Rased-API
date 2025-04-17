@@ -20,7 +20,10 @@ namespace Rased.Infrastructure.Repositoryies.Base
         Task<T?> GetByIdAsync(U id);
         Task AddAsync(T entity);
         Task AddAsync<M>(M member) where M : class;
+        
         Task UpdateAsync(T entity);
+        Task UpdateAsync<Key>(Key entity) where Key : class;
+
         Task DeleteByIdAsync(U id);
         IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression);
         Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
@@ -28,6 +31,7 @@ namespace Rased.Infrastructure.Repositoryies.Base
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         
         void Remove(T entity);
+        void Remove<Key>(Key entity) where Key : class;
     }
 
     public interface IRepository_Test<T, TKey> where T : class

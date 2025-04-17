@@ -105,6 +105,12 @@ namespace Rased.Infrastructure.Repositoryies.Base
             _context.Entry(entity).State = EntityState.Modified;
         }
 
+        public async Task UpdateAsync<Key>(Key entity) where Key : class
+        {
+            _context.Attach(entity);
+            _context.Entry(entity).State = EntityState.Modified;
+        }
+
         // Delete an entity by ID asynchronously
         public async Task DeleteByIdAsync(U id)
         {
@@ -119,6 +125,12 @@ namespace Rased.Infrastructure.Repositoryies.Base
         public void Remove(T entity)
         {
             _dbSet.Remove(entity);
+        }
+
+        // Generic Remove
+        public void Remove<Key>(Key entity) where Key : class
+        {
+            _context.Set<Key>().Remove(entity);
         }
     }
 
