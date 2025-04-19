@@ -23,21 +23,22 @@ namespace Rased.Infrastructure.Models.User
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
-
-
-
         // Navigation Properties
         public virtual UserPreference? Preference { get; set; }
-        public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
-        public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
+        public virtual ICollection<Notification>? Notifications { get; set; }
 
+        public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        // Has Many Individual Wallets
+        public virtual ICollection<Wallet> Wallets { get; set; } = new List<Wallet>();
         // Has Many Shared Wallet with different access level
         public virtual ICollection<SharedWallet> SharedWallets { get; set; } = new List<SharedWallet>();
         // Has Many Membership
         public virtual ICollection<SharedWalletMembers> SWMembers { get; set; } = new List<SharedWalletMembers>();
-
+        // Shared Wallets Invitaions
         public virtual ICollection<SWInvitation> Senders { get; set; } = new List<SWInvitation>();
         public virtual ICollection<SWInvitation> Receivers { get; set; } = new List<SWInvitation>();
-        public virtual ICollection<Notification>? Notifications { get; set; }
+        // Friendships requests 
+        public virtual ICollection<Friendship> FriendSenders { get; set; } = new List<Friendship>();
+        public virtual ICollection<Friendship> FriendReceivers { get; set; } = new List<Friendship>();
     }
 }

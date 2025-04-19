@@ -32,7 +32,15 @@ namespace Rased.Business.Services.AuthServices
             //subject for Email
             emailMessage.Subject = subject;
             // plain  : This creates a new text part for the email body (Message : the actual message you want to send.)
-            emailMessage.Body = new TextPart("plain") { Text = message };
+            //emailMessage.Body = new TextPart("plain") { Text = message };
+            emailMessage.Body = new TextPart("html")
+            {
+                Text = $@"
+                <div dir='rtl' style='font-family: Tahoma, sans-serif; font-size: 15px; color: #333; padding: 10px; line-height: 1.6;'>
+                    {message}
+                </div>"
+            };
+
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
                 try

@@ -3,12 +3,8 @@ using Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
 using Rased_API.Rased.Infrastructure.Repositoryies.IncomeRepository;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Repositoryies.Utility;
-using Rased.Infrastructure.Models.Goals;
-using Rased.Infrastructure.Models.Savings;
 using Rased.Infrastructure.Repositoryies.Base;
 using Rased.Infrastructure.Repositoryies.Savings;
-
-using Rased.Infrastructure.UnitsOfWork;
 using Microsoft.AspNetCore.Identity;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Repositoryies.Wallets;
@@ -17,6 +13,7 @@ using Rased.Infrastructure.Repositoryies.SubCategories;
 using Rased.Infrastructure.Repositoryies.Goals;
 using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.Repositoryies.SharedWallets;
+using Rased.Infrastructure.Repositoryies.Friendships;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -31,6 +28,7 @@ namespace Rased.Infrastructure.UnitsOfWork
         public ISharedWalletRepository SharedWallets { get; private set; }
         public ICategoryRepository Categories { get; private set; }
         public ISubCategoryRepository SubCategories { get; private set; }
+        public IFriendshipRepository Friendships { get; private set; }
 
         public IPaymentMethodRepository PaymentMethods { get; private set; }      
         public IAttachmentRepository Attachments { get; private set; }
@@ -45,7 +43,6 @@ namespace Rased.Infrastructure.UnitsOfWork
 
 
         // All System IRepositoryies to be instantiated by the constructor
-     
         public ISavingRepository SavingRepository { get; private set; }
 
         public IGoalRepository GoalRepository { get; private set; }
@@ -79,6 +76,7 @@ namespace Rased.Infrastructure.UnitsOfWork
             SharedWallets = new SharedWalletRepository(_context, _userManager);
             Categories = new CategoryRepository(_context);
             SubCategories = new SubCategoryRepository(_context);
+            Friendships = new FriendshipRepository(_context, _userManager);
             Expenses = new ExpenseRepository(_context);
             ExpenseTemplates = new ExpenseTemplateRepository(_context);
             AutomationRules = new AutomationRuleRepository(_context);
@@ -101,9 +99,6 @@ namespace Rased.Infrastructure.UnitsOfWork
             IncomeTemplate = new IncomeTemplateRepository(_context);
             StaticIncomeSourceTypeData = new StaticIncomeSourceTypeDataRepository(_context);
         }
-
-
-
 
         // Save All System Changes and return the number of affected rows
         public async Task<int> CommitChangesAsync()
