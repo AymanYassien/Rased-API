@@ -87,16 +87,6 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
             return result;
         }
 
-        // Get the Access Level
-        /*public async Task<StaticSharedWalletAccessLevelData> GetAccessLevelAsync(string accessName)
-        {
-            var level = await _context.StaticSharedWalletAccessLevels.FirstOrDefaultAsync(x => x.Name == accessName);
-            if (level is null)
-                return null!;
-
-            return level;
-        }*/
-
         // Get the user Id by its email
         public async Task<string> GetUserIdByEmailAsync(string email)
         {
@@ -113,41 +103,6 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
                 return string.Empty;
             }
         }
-
-        // Add New Member
-        /*public async Task<StatusDto> AddNewMember(RasedUser user, SharedWallet sw, StaticSharedWalletAccessLevelData accessLevel)
-        {
-            var result = new StatusDto();
-
-            try
-            {
-                await _context.SharedWallets.AddAsync(sw);
-                await _context.SaveChangesAsync();
-
-                var newMember = new SharedWalletMembers
-                {
-                    UserId = user.Id,
-                    SharedWalletId = sw.SharedWalletId,
-                    AccessLevelId = accessLevel.Id,
-                    JoinedAt = DateTime.Now,
-                    SharedWallet = sw,
-                    Member = user,
-                    StaticSharedWalletAccessLevelData = accessLevel
-                };
-
-                await _context.SharedWalletMembers.AddAsync(newMember);
-                await _context.SaveChangesAsync();
-
-                result.IsSucceeded = true;
-            }
-            catch(Exception ex)
-            {
-                result.Message = ex.Message;
-            }
-
-            return result;
-        }*/
-
 
         // Required Related Entities
         public async Task<RasedUser> RasedUser(string userId)

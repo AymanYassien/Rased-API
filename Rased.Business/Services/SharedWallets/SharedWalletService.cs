@@ -1,4 +1,5 @@
-﻿using Rased.Business.Dtos.Response;
+﻿using Microsoft.EntityFrameworkCore;
+using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.SharedWallets;
 using Rased.Business.Services.AuthServices;
 using Rased.Infrastructure.Helpers.Constants;
@@ -285,33 +286,42 @@ namespace Rased.Business.Services.SharedWallets
                 var ownerMember = swMembers.FirstOrDefault(x => x.Role == AccessLevelConstants.OWNER);
                 string ownerName = ownerMember == null ? "UnKnown" : $"{ownerMember!.Member.FirstName} {ownerMember.Member.LastName}";
                 var senderName = $"{sender.Member.FirstName} {sender.Member.LastName}";
-
                 // Send an Email
                 string emailSubject = $"📩 دعوة للانضمام إلى المحفظة المشتركة: {sw.Name}";
                 string emailBody = $@"
-                مرحبًا،
+                <p>مرحبًا،</p>
 
-                لقد قام {senderName} بدعوتك للانضمام إلى المحفظة المشتركة ( {sw.Name} ).
+                <p>
+                    قام <strong>{senderName}</strong> بدعوتك للانضمام إلى المحفظة المشتركة 
+                    <strong>({sw.Name})</strong>.
+                </p>
 
-                📌 تفاصيل المحفظة:
-                - الميزانية: {sw.TotalBalance}
-                - المالك: {ownerName}
-                - عدد الأعضاء: {swMembers.Count()}
-                - تاريخ الإنشاء: {sw.CreatedAt:d}
+                <p style='margin-top: 15px;'>📌 <strong>تفاصيل المحفظة:</strong></p>
+                <ul style='list-style: none; padding: 0;'>
+                    <li>💰 <strong>الميزانية:</strong> {sw.TotalBalance}</li>
+                    <li>👤 <strong>المالك:</strong> {ownerName}</li>
+                    <li>👥 <strong>عدد الأعضاء:</strong> {swMembers.Count()}</li>
+                    <li>📅 <strong>تاريخ الإنشاء:</strong> {sw.CreatedAt:d}</li>
+                </ul>
 
-                إذا كنت مهتمًا بالانضمام، يُرجى التحقق من قسم الإشعارات في حسابك والموافقة على الدعوة.
+                <p>
+                    إذا كنت مهتمًا بالانضمام، يُرجى التحقق من قسم <strong>الإشعارات</strong> في حسابك والموافقة على الدعوة.
+                </p>
 
-
-                مع تحيات فريق راصِــــــد. 💰
+                <p style='margin-top: 25px; color: #555; font-size: 14px;'>
+                    مع تحيات فريق <strong>راصِــــــد</strong> 💰
+                </p>
                 ";
-                await SendEmail(model.ReceiverEmail, emailSubject, emailBody);
+                var sendEmail = await _emailService.SendEmailAsync(model.ReceiverEmail, emailSubject, emailBody);
+                if(!sendEmail.successed)
+                    return new ApiResponse<string>(null, "تم إرسال الدعوة بنجاح .. خطأ تقني في إرسال إيميل بالدعوة!");
+
+                return new ApiResponse<string>(null, "تم إرسال الدعوة بنجاح!");
             }
             catch (Exception ex)
             {
                 return new ApiResponse<string>(ex.Message);
             }
-
-            return new ApiResponse<string>(null, "تم إرسال الدعوة بنجاح!");
         }
 
         // Update the invitation status
@@ -326,18 +336,8 @@ namespace Rased.Business.Services.SharedWallets
                 if (invite == null)
                     return new ApiResponse<string>("الدعوة غير موجودة!");
 
-                // If declined
-                if (!model.Status)
-                {
-                    // Update Invitation Data
-                    invite.Status = InvitationStatusConstants.DECLINED;
-                    await _unitOfWork.SharedWallets.UpdateAsync<SWInvitation>(invite); // From Base
-                    await _unitOfWork.CommitChangesAsync();
-
-                    return new ApiResponse<string>(null, "تم إلغاء الدعوة بنجاح!");
-                }
                 // If Accepted
-                else
+                if (model.Status)
                 {
                     // Update Invitation Data
                     invite.Status = InvitationStatusConstants.ACCEPTED;
@@ -351,11 +351,57 @@ namespace Rased.Business.Services.SharedWallets
                         JoinedAt = DateTime.Now
                     };
                     await _unitOfWork.SharedWallets.AddAsync<SharedWalletMembers>(newMember); // From Base
-
                     // Save Changes
                     await _unitOfWork.CommitChangesAsync();
 
+                    // Get the OWNER of the shared wallet and Send Email to him
+                    var ownerFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.SharedWalletId == model.SWId && x.Role == AccessLevelConstants.OWNER };
+                    var ownerIncludes = new Expression<Func<SharedWalletMembers, object>>[] { x => x.Member };
+                    var ownerMember = await _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, ownerIncludes, false).FirstOrDefaultAsync();
+                    if (ownerMember is not null)
+                    {
+                        string memberName = $"{invite.Receiver.FirstName} {invite.Receiver.LastName}";
+                        string memberEmail = invite.Receiver.Email!;
+                        string swName = invite.SharedWallet.Name;
+                        string emailSubject = $"عضو جديد في المحفظة المشتركة ’{swName}’ ✅";
+                        string emailBody = $@"
+                        <p>مرحبًا،</p>
+
+                        <p>
+                            قام المستخدم <strong>{memberName}</strong> بقبول الدعوة والانضمام إلى المحفظة المشتركة 
+                            <strong>({swName})</strong>.
+                        </p>
+
+                        <p style='margin-top: 15px;'>🎉 <strong>تفاصيل العضو الجديد:</strong></p>
+                        <ul style='list-style: none; padding: 0;'>
+                            <li>👤 <strong>الاسم:</strong> {memberName}</li>
+                            <li>📧 <strong>البريد الإلكتروني:</strong> {memberEmail}</li>
+                            <li>📅 <strong>تاريخ القبول:</strong> {newMember.JoinedAt:d}</li>
+                        </ul>
+
+                        <p>
+                            يمكنك الآن إدارة إعدادات المحفظة ومشاركة الصلاحيات مع الأعضاء الجدد حسب الحاجة.
+                        </p>
+
+                        <p style='margin-top: 25px; color: #555; font-size: 14px;'>
+                            مع تحيات فريق <strong>راصِــــــد</strong> 💰
+                        </p>
+                        ";
+
+                        var sendEmail = await _emailService.SendEmailAsync(ownerMember.Member.Email!, emailSubject, emailBody);
+                        if(!sendEmail.successed)
+                            return new ApiResponse<string>(null, "تم قبول الدعوة بنجاح .. خطأ في إرسال إيميل للمالك");
+                    }
+
                     return new ApiResponse<string>(null, "تم قبول الدعوة بنجاح!");
+                }
+                else // If Canceled
+                {
+                    // Delete the invite record
+                    _unitOfWork.SharedWallets.Remove<SWInvitation>(invite); // From Base
+                    await _unitOfWork.CommitChangesAsync();
+
+                    return new ApiResponse<string>(null, "تم إلغاء الدعوة بنجاح!");
                 }
             }
             catch (Exception ex)
@@ -407,32 +453,36 @@ namespace Rased.Business.Services.SharedWallets
         {
             try
             {
-                // Ensure that the userId is either Owner or SuperVisor
-                var ownerFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == userId && x.SharedWalletId == model.SWId };
-                var ownerMember = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, null, false).FirstOrDefault();
-                if (ownerMember == null || (ownerMember.Role != AccessLevelConstants.OWNER && ownerMember.Role != AccessLevelConstants.SUPERVISOR))
-                    return new ApiResponse<string>("لا يمكنك الوصول!");
-
-                // Check if the userId == receiverId
-                if (userId == model.MemberId)
-                    return new ApiResponse<string>("خطأ ما حدث، لا يمكنك حذف نفسك 😂");
-
                 // Check if the shared wallet exists
                 var swFilter = new Expression<Func<SharedWallet, bool>>[] { x => x.SharedWalletId == model.SWId };
                 var sw = _unitOfWork.SharedWallets.GetData(swFilter, null, false).FirstOrDefault();
                 if (sw == null)
                     return new ApiResponse<string>("المحفظة المشتركة غير موجودة!");
 
-                // Check if the MemberId is the Owner
-                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == model.MemberId && x.SharedWalletId == model.SWId };
-                var member = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(memberFilter, null, true).FirstOrDefault();
-                if (member == null)
-                    return new ApiResponse<string>("هذا المستخدم ليس عضوًا في هذه المحفظة المشتركة!");
-                if (member.Role == AccessLevelConstants.OWNER)
-                    return new ApiResponse<string>("خطأ، عملية غير صحيحة!");
+                // Ensure that the target Member is not the OWNER
+                var ownerFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == model.MemberId && x.SharedWalletId == model.SWId };
+                var ownerMember = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, null, false).FirstOrDefault();
+                if (ownerMember == null)
+                    return new ApiResponse<string>("هذا العضو غير موجود!");
+                if(ownerMember.Role == AccessLevelConstants.OWNER)
+                    return new ApiResponse<string>("لا يمكن حذف مالك المحفظة المشتركة!");
 
-                // Remove The Member
+                // Ensure that the userId is either Owner or SuperVisor or the user himself (Leave the shared wallet)
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == userId && x.SharedWalletId == model.SWId };
+                var member = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(memberFilter, null, false).FirstOrDefault();
+                if (member == null || (model.MemberId != userId && member.Role == AccessLevelConstants.PARTICIPANT))
+                    return new ApiResponse<string>("لا يمكنك الوصول!");
+
+                // [1] Remove the Invitations for the target deleted user
+                var inviteFilter = new Expression<Func<SWInvitation, bool>>[] { x => (x.SenderId == model.MemberId || x.ReceiverId == model.MemberId) && x.SharedWalletId == model.SWId };
+                var invites = _unitOfWork.SharedWallets.GetData<SWInvitation>(inviteFilter, null, true).AsEnumerable();
+                foreach (var invitation in invites)
+                {
+                    _unitOfWork.SharedWallets.Remove<SWInvitation>(invitation);
+                }
+                // [2] Remove The Member
                 _unitOfWork.SharedWallets.Remove<SharedWalletMembers>(member);
+                // Save Changes
                 await _unitOfWork.CommitChangesAsync();
 
                 return new ApiResponse<string>(null, "تم حذف العضو بنجاح");
@@ -471,21 +521,6 @@ namespace Rased.Business.Services.SharedWallets
                 Status = sw.StaticWalletStatusData.Name,
                 Members = membersList
             };
-        }
-
-        // Send an Email
-        private async Task SendEmail(string email, string emailSubject, string emailBody)
-        {
-            try
-            {
-                var sendEmail = await _emailService.SendEmailAsync(email, emailSubject, emailBody);
-            }
-            catch (Exception)
-            {
-                return;
-            }
-
-            return;
         }
     }
 }
