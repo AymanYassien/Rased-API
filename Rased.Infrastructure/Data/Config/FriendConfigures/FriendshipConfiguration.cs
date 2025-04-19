@@ -22,7 +22,7 @@ namespace Rased.Business
                    .IsRequired();
             builder.Property(x => x.UpdatedAt)
                    .HasColumnType("DATETIME2")
-                   .IsRequired();
+                   .IsRequired(false);
 
             // Relationships
             builder.HasOne(x => x.Sender)

@@ -453,32 +453,36 @@ namespace Rased.Business.Services.SharedWallets
         {
             try
             {
-                // Ensure that the userId is either Owner or SuperVisor
-                var ownerFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == userId && x.SharedWalletId == model.SWId };
-                var ownerMember = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, null, false).FirstOrDefault();
-                if (ownerMember == null || (ownerMember.Role != AccessLevelConstants.OWNER && ownerMember.Role != AccessLevelConstants.SUPERVISOR))
-                    return new ApiResponse<string>("لا يمكنك الوصول!");
-
-                // Check if the userId == receiverId
-                if (userId == model.MemberId)
-                    return new ApiResponse<string>("خطأ ما حدث، لا يمكنك حذف نفسك 😂");
-
                 // Check if the shared wallet exists
                 var swFilter = new Expression<Func<SharedWallet, bool>>[] { x => x.SharedWalletId == model.SWId };
                 var sw = _unitOfWork.SharedWallets.GetData(swFilter, null, false).FirstOrDefault();
                 if (sw == null)
                     return new ApiResponse<string>("المحفظة المشتركة غير موجودة!");
 
-                // Check if the MemberId is the Owner
-                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == model.MemberId && x.SharedWalletId == model.SWId };
-                var member = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(memberFilter, null, true).FirstOrDefault();
-                if (member == null)
-                    return new ApiResponse<string>("هذا المستخدم ليس عضوًا في هذه المحفظة المشتركة!");
-                if (member.Role == AccessLevelConstants.OWNER)
-                    return new ApiResponse<string>("خطأ، عملية غير صحيحة!");
+                // Ensure that the target Member is not the OWNER
+                var ownerFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == model.MemberId && x.SharedWalletId == model.SWId };
+                var ownerMember = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, null, false).FirstOrDefault();
+                if (ownerMember == null)
+                    return new ApiResponse<string>("هذا العضو غير موجود!");
+                if(ownerMember.Role == AccessLevelConstants.OWNER)
+                    return new ApiResponse<string>("لا يمكن حذف مالك المحفظة المشتركة!");
 
-                // Remove The Member
+                // Ensure that the userId is either Owner or SuperVisor or the user himself (Leave the shared wallet)
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[] { x => x.UserId == userId && x.SharedWalletId == model.SWId };
+                var member = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(memberFilter, null, false).FirstOrDefault();
+                if (member == null || (model.MemberId != userId && member.Role == AccessLevelConstants.PARTICIPANT))
+                    return new ApiResponse<string>("لا يمكنك الوصول!");
+
+                // [1] Remove the Invitations for the target deleted user
+                var inviteFilter = new Expression<Func<SWInvitation, bool>>[] { x => (x.SenderId == model.MemberId || x.ReceiverId == model.MemberId) && x.SharedWalletId == model.SWId };
+                var invites = _unitOfWork.SharedWallets.GetData<SWInvitation>(inviteFilter, null, true).AsEnumerable();
+                foreach (var invitation in invites)
+                {
+                    _unitOfWork.SharedWallets.Remove<SWInvitation>(invitation);
+                }
+                // [2] Remove The Member
                 _unitOfWork.SharedWallets.Remove<SharedWalletMembers>(member);
+                // Save Changes
                 await _unitOfWork.CommitChangesAsync();
 
                 return new ApiResponse<string>(null, "تم حذف العضو بنجاح");

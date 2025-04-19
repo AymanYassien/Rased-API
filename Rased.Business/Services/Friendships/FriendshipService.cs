@@ -30,6 +30,10 @@ namespace Rased.Business.Services.Friendships
                 if (string.IsNullOrEmpty(receiverId))
                     return new ApiResponse<string>("هذا المستخدم غير موجود!");
 
+                // Check if the user send a request to himself hahaha
+                if(receiverId == senderId)
+                    return new ApiResponse<string>("عملية خاطئة، حاول مرة أخري!");
+
                 // Check if they are friends
                 var filters = new Expression<Func<Friendship, bool>>[] { x => x.SenderId == senderId && x.ReceiverId == receiverId && x.Status == InvitationStatusConstants.ACCEPTED };
                 var checkFriend = await _unitOfWork.Friendships.GetData(filters, null, false).FirstOrDefaultAsync();
@@ -41,6 +45,15 @@ namespace Rased.Business.Services.Friendships
                 checkFriend = await _unitOfWork.Friendships.GetData(filters, null, false).FirstOrDefaultAsync();
                 if (checkFriend is not null)
                     return new ApiResponse<string>("لقد أرسلت طلب صداقة لهذا المستخدم بالفعل!");
+
+                // Check if the receiver user send a friend request which is already sent to him
+                filters = new Expression<Func<Friendship, bool>>[] { x => x.SenderId == receiverId && x.ReceiverId == senderId && x.Status == InvitationStatusConstants.PENDING };
+                checkFriend = await _unitOfWork.Friendships.GetData(filters, null, false).FirstOrDefaultAsync();
+                if (checkFriend is not null)
+                    return new ApiResponse<string>("هذا المستخدم طلب منك الصداقة بالفعل، يمكنك مراجعته في قسم الأصدقاء!");
+
+                // Get the sender data
+                var sender = await _unitOfWork.Friendships.GetUserByIdAsync(senderId);
 
                 // Add New Friendship record into Database
                 var newFriendship = new Friendship
@@ -54,7 +67,6 @@ namespace Rased.Business.Services.Friendships
                 await _unitOfWork.CommitChangesAsync();
 
                 // Send an Email to the receiver about a new friend request
-                var sender = await _unitOfWork.Friendships.GetUserByIdAsync(senderId);
                 var senderName = $"{sender.FirstName} {sender.LastName}";
                 string emailSubject = $"📩 {senderName} أرسل لك طلب صداقة";
                 string emailBody = $@"
@@ -110,7 +122,6 @@ namespace Rased.Business.Services.Friendships
                     var receiver = await _unitOfWork.Friendships.GetUserByIdAsync(receiverId);
                     string receiverName = $"{receiver.FirstName} {receiver.LastName}";
                     string senderName = $"{sender.FirstName} {sender.LastName}";
-
                     // Send an Email to the sender friend
                     string emailSubject = $"🎉 تم قبول طلب الصداقة الخاص بك!";
                     string emailBody = $@"
@@ -193,7 +204,8 @@ namespace Rased.Business.Services.Friendships
                 {
                     foreach (var friend in friends)
                     {
-                        int friendsSince = (DateTime.Now - friend.UpdatedAt!.Value).Days;
+                        var friendsDate = friend.UpdatedAt ?? DateTime.Now;
+                        int friendsSince = (DateTime.Now - friendsDate).Days;
 
                         userFriends.Add(new UserFriendDto
                         {
@@ -216,7 +228,8 @@ namespace Rased.Business.Services.Friendships
                 {
                     foreach (var friend in friends)
                     {
-                        int friendsSince = (DateTime.Now - friend.UpdatedAt!.Value).Days;
+                        var friendsDate = friend.UpdatedAt ?? DateTime.Now;
+                        int friendsSince = (DateTime.Now - friendsDate).Days;
 
                         userFriends.Add(new UserFriendDto
                         {
