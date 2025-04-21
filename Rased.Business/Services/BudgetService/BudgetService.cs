@@ -363,7 +363,7 @@ public class BudgetService : IBudgetService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0  &&  dto.DayOfMonth > 29)
+        if (dto.DayOfMonth.HasValue && (dto.DayOfMonth < 1 || dto.DayOfMonth > 29))
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -371,7 +371,7 @@ public class BudgetService : IBudgetService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek  < 0  &&  dto.DayOfWeek > 7)
+        if (dto.DayOfWeek.HasValue && (dto.DayOfWeek < 0 || dto.DayOfWeek > 6))
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;
@@ -456,7 +456,7 @@ public class BudgetService : IBudgetService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth < 0  &&  dto.DayOfMonth > 29)
+        if (dto.DayOfMonth.HasValue && (dto.DayOfMonth < 1 || dto.DayOfMonth > 29))
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -464,7 +464,7 @@ public class BudgetService : IBudgetService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek  < 0  &&  dto.DayOfWeek > 7)
+        if (dto.DayOfWeek.HasValue && (dto.DayOfWeek < 0 || dto.DayOfWeek > 6))
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;

@@ -32,7 +32,7 @@ public class IncomeTemplateService : IIncomeTemplateService
         
         IQueryable<IncomeTemplate> res = await _unitOfWork.IncomeTemplate.GetUserIncomesTemplateByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
         
-        if (res == null)
+        if (!res.Any())
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
         IQueryable<IncomeTemplateDto> newResult = MapToIncomeTemplatesDto(res);
@@ -41,18 +41,18 @@ public class IncomeTemplateService : IIncomeTemplateService
 
     }
 
-    public async Task<ApiResponse<object>> GetUserIncomeTemplate(int walletId, int incomeTemplateId, bool isShared = false)
+    public async Task<ApiResponse<object>> GetTemplateById( int incomeTemplateId)
     {
-        if (1 > walletId)
+        if (1 > incomeTemplateId)
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.IncomeTemplate.GetUserIncomesAsync(walletId, incomeTemplateId, isShared);
-        
-        if (res == null)
+        var res = await _unitOfWork.IncomeTemplate.GetByIdAsync(incomeTemplateId);
+
+        if (res == null) 
             return _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        var newResult = MapToIncomeTemplateDto(res);
+        var newResult = await MapToIncomeTemplateDto(res);
         
         return _response.Response(true, newResult, "Success", "",  HttpStatusCode.OK);
 
@@ -70,6 +70,7 @@ public class IncomeTemplateService : IIncomeTemplateService
         {
             var automationRule = FillAutomationByAddDto(newIncomeTemplate);
             await _unitOfWork.AutomationRules.AddAsync(automationRule);
+            await _unitOfWork.CommitChangesAsync();
             
             var incomeTemplate = FillIncomeTemplateByAddDto(newIncomeTemplate, automationRule.AutomationRuleId);
             await _unitOfWork.IncomeTemplate.AddAsync(incomeTemplate);
@@ -88,8 +89,7 @@ public class IncomeTemplateService : IIncomeTemplateService
         }
     }
 
-    public async Task<ApiResponse<object>> UpdateUserIncomeTemplate(int walletId, int incomeTemplateId, UpdateIncomeTemplateDto updateIncomeTemplateDto,
-        bool isShared = false)
+    public async Task<ApiResponse<object>> UpdateUserIncomeTemplate( int incomeTemplateId, UpdateIncomeTemplateDto updateIncomeTemplateDto)
     {
         if (!IsUpdateDtoValid(updateIncomeTemplateDto, out var errorMessage))
         {
@@ -98,17 +98,19 @@ public class IncomeTemplateService : IIncomeTemplateService
         }
         try
         {
-            var incomeTemplate =
-                await _unitOfWork.IncomeTemplate.GetUserIncomesAsync(walletId, incomeTemplateId, isShared);
+            var incomeTemplate = await _unitOfWork.IncomeTemplate.GetByIdAsync( incomeTemplateId);
 
             if (incomeTemplate.IncomeTemplateId == incomeTemplateId && incomeTemplate.AutomationRuleId == updateIncomeTemplateDto.AutomationRuleId)
             {
                 var automationRule = await _unitOfWork.AutomationRules.GetByIdAsync(updateIncomeTemplateDto.AutomationRuleId);
                 if (automationRule is not null)
                 {
-                    _unitOfWork.AutomationRules.Update(UpdateAutomationRule(updateIncomeTemplateDto, automationRule));
-                } 
-                _unitOfWork.IncomeTemplate.Update(UpdateIncomeTemplate(incomeTemplate, updateIncomeTemplateDto));
+                    UpdateAutomationRule(updateIncomeTemplateDto, automationRule);
+                    _unitOfWork.AutomationRules.Update(automationRule);
+                }
+
+                UpdateIncomeTemplate(incomeTemplate, updateIncomeTemplateDto);
+                _unitOfWork.IncomeTemplate.Update(incomeTemplate);
                 await _unitOfWork.CommitChangesAsync();
                 
                 return _response.Response(true, null, $"Success Update Income Template with id: {incomeTemplate.IncomeTemplateId}", $"",
@@ -147,28 +149,38 @@ public class IncomeTemplateService : IIncomeTemplateService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
-        var res = await _unitOfWork.IncomeTemplate.CountIncomesTemplateAsync(walletId, null);
+        var res = await _unitOfWork.IncomeTemplate.CountIncomesTemplateAsync(walletId, null, isShared);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        return _response.Response(false, res, "This is Number of Income Templates", "",  HttpStatusCode.NotFound);
+        return _response.Response(true, res, "This is Number of Income Templates", "",  HttpStatusCode.OK);
 
     }
 
     public async Task<ApiResponse<object>> CalculateTotalIncomeTemplateAmount(int walletId, bool isShared = false, Expression<Func<IncomeTemplate, bool>>[]? filter = null)
     {
-        throw new NotImplementedException();
-    }
-
-    public async Task<ApiResponse<object>> GetAllIncomeTemplatesForAdmin(bool isShared = false, Expression<Func<IncomeTemplate, bool>>[]? filter = null)
-    {
-        var res = await _unitOfWork.IncomeTemplate.GetAllAsync(filter);
+        if (1 > walletId)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+        var res = await _unitOfWork.IncomeTemplate.CalculateTotalIncomesTemplateAmountAsync(walletId, isShared);
         
         if (res == null)
             return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
 
-        return _response.Response(false, res, "This is Total Incomes Templates", "",  HttpStatusCode.NotFound);
+        return _response.Response(true, res, "This is Number of Income Templates", "",  HttpStatusCode.OK);
+
+    }
+
+    public async Task<ApiResponse<object>> GetAllIncomeTemplatesForAdmin( Expression<Func<IncomeTemplate, bool>>[]? filter = null)
+    {
+        var res = await _unitOfWork.IncomeTemplate.GetAllAsync(filter);
+        
+        if (!res.Any())
+            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+
+        return _response.Response(true, res, "This is Total Incomes Templates", "",  HttpStatusCode.OK);
 
     }
     
@@ -177,7 +189,7 @@ public class IncomeTemplateService : IIncomeTemplateService
         return await _unitOfWork.AutomationRules.GetByIdAsync(automationRoleId);
     }
 
-    private  IncomeTemplate UpdateIncomeTemplate(IncomeTemplate incomeTemplate, UpdateIncomeTemplateDto dto )
+    private  void UpdateIncomeTemplate(IncomeTemplate incomeTemplate, UpdateIncomeTemplateDto dto )
     {
         // update some fields
 
@@ -188,10 +200,10 @@ public class IncomeTemplateService : IIncomeTemplateService
         incomeTemplate.Description = dto.Description;
         incomeTemplate.IncomeSourceTypeId = dto.IncomeSourceTypeId;
 
-        return incomeTemplate;
+        // return incomeTemplate;
     }
     
-    private  AutomationRule UpdateAutomationRule(UpdateIncomeTemplateDto dto, AutomationRule automationRule)
+    private  void UpdateAutomationRule(UpdateIncomeTemplateDto dto, AutomationRule automationRule)
     {
         automationRule.Title = dto.Name;
         automationRule.Description = dto.Description;
@@ -201,7 +213,7 @@ public class IncomeTemplateService : IIncomeTemplateService
         automationRule.DayOfMonth = dto.DayOfMonth;
         automationRule.DayOfWeek = dto.DayOfWeek;
 
-        return automationRule;
+        // return automationRule;
     }
     
     private async Task<IncomeTemplateDto> MapToIncomeTemplateDto(IncomeTemplate incomeTemplate, AutomationRule automation)
@@ -293,7 +305,7 @@ public class IncomeTemplateService : IIncomeTemplateService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;
@@ -301,7 +313,7 @@ public class IncomeTemplateService : IIncomeTemplateService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && (dto.DayOfMonth < 1 || dto.DayOfMonth > 29))
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -309,7 +321,7 @@ public class IncomeTemplateService : IIncomeTemplateService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        if (dto.DayOfWeek.HasValue && (dto.DayOfWeek < 0 || dto.DayOfWeek > 6))
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;
@@ -389,7 +401,7 @@ public class IncomeTemplateService : IIncomeTemplateService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;
@@ -397,7 +409,7 @@ public class IncomeTemplateService : IIncomeTemplateService
 
         // 6. DayOfMonth: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 1-31)
-        if (dto.DayOfMonth.HasValue && dto.DayOfMonth is > 0 and < 29)
+        if (dto.DayOfMonth.HasValue && (dto.DayOfMonth < 1 || dto.DayOfMonth > 29))
         {
             errorMessage = "DayOfMonth must be between 1 and 28.";
             return false;
@@ -405,7 +417,7 @@ public class IncomeTemplateService : IIncomeTemplateService
 
         // 7. DayOfWeek: Optional, no specific range in Fluent API
         // Add custom range check if needed (e.g., 0-6 for Sunday-Saturday)
-        if (dto.DayOfWeek.HasValue && dto.DayOfWeek is > 0 and < 8)
+        if (dto.DayOfWeek.HasValue && (dto.DayOfWeek < 0 || dto.DayOfWeek > 6))
         {
             errorMessage = "DayOfWeek must be between 0 and 7.";
             return false;

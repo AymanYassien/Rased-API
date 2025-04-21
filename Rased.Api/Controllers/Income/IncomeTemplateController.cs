@@ -1,3 +1,4 @@
+using System.Net;
 using api5.Rased_API.Rased.Business.Services.Incomes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ using Rased.Infrastructure;
 namespace Rased.Api.Controllers.Income;
 
 [ApiController]
-[Route("/api/IncomeTemplate")]
+[Route("api/income-templates")]
 [Authorize]
 public class IncomeTemplateController : Controller
 {
@@ -19,64 +20,52 @@ public class IncomeTemplateController : Controller
         _incomeTemplateService = incomeTemplateService;
     }
     
-    [HttpGet]
-    public async Task<IActionResult> GetUserIncomeTemplatesByWalletId(
-        [FromQuery] int walletId,
-        [FromQuery] int pageNumber = 0,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
+    [HttpGet("get-total-income-template-by-WalletId/{walletId}")]
+    public async Task<IActionResult> GetTotalByWalletId([FromRoute] int walletId, [FromQuery] bool isShared = false, [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
     {
         var filters = ExpressionBuilder.ParseFilter<IncomeTemplate>(filter);
-        var response = await _incomeTemplateService.GetUserIncomeTemplatesByWalletId(walletId, filters, pageNumber, pageSize, isShared);
+        var response = await _incomeTemplateService.GetUserIncomeTemplatesByWalletId(walletId, filters, 0, 0, isShared);
         
         return StatusCode((int)response.StatusCode, response);
     }
-
     
     [HttpGet("{incomeTemplateId}")]
-    public async Task<IActionResult> GetUserIncomeTemplate(
-        [FromRoute] int walletId,
-        [FromRoute] int expenseTemplateId,
-        [FromQuery] bool isShared = false)
+    public async Task<IActionResult> GetById([FromRoute] int incomeTemplateId )
     {
-        var response = await _incomeTemplateService.GetUserIncomeTemplate(walletId, expenseTemplateId, isShared);
+        var response = await _incomeTemplateService.GetTemplateById(incomeTemplateId );
         return StatusCode((int)response.StatusCode, response);
     }
 
     
     [HttpPost]
-    public async Task<IActionResult> AddUserIncomeTemplate(
-        [FromBody] AddIncomeTemplateDto  newIncomeTemplate)
+    public async Task<IActionResult> Create([FromBody] AddIncomeTemplateDto  newIncomeTemplate)
     {
         var response = await _incomeTemplateService.AddUserIncomeTemplate(newIncomeTemplate);
         return StatusCode((int)response.StatusCode, response);
     }
 
     [HttpPut("{incomeTemplateId}")]
-    public async Task<IActionResult> UpdateUserIncomeTemplate(
-        [FromRoute] int walletId,
-        [FromRoute] int incomeTemplateId,
-        [FromBody] UpdateIncomeTemplateDto updateIncomeTemplateDto,
-        [FromQuery] bool isShared = false)
+    public async Task<IActionResult> Update( [FromRoute] int incomeTemplateId, [FromBody] UpdateIncomeTemplateDto updateIncomeTemplateDto)
     {
-        var response = await _incomeTemplateService.UpdateUserIncomeTemplate(walletId, incomeTemplateId, updateIncomeTemplateDto, isShared);
+        var response = await _incomeTemplateService.UpdateUserIncomeTemplate( incomeTemplateId, updateIncomeTemplateDto);
+        
+        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
+        
         return StatusCode((int)response.StatusCode, response);
     }
 
     
     [HttpDelete("{incomeTemplateId}")]
-    public async Task<IActionResult> DeleteUserIncomeTemplate(
-        [FromRoute] int incomeTemplateId)
+    public async Task<IActionResult> Delete([FromRoute] int incomeTemplateId)
     {
         var response = await _incomeTemplateService.DeleteUserIncomeTemplate(incomeTemplateId);
         return StatusCode((int)response.StatusCode, response);
     }
 
     
-    [HttpGet("count")]
-    public async Task<IActionResult> CountIncomeTemplate(
-        [FromQuery] int walletId,
+    [HttpGet("wallets/{walletId}/count")]
+    public async Task<IActionResult> GetWalletIncomeTemplatesCount(
+        [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null)
     {
@@ -85,9 +74,9 @@ public class IncomeTemplateController : Controller
         return StatusCode((int)response.StatusCode, response);
     }
     
-    [HttpGet("totals")]
-    public async Task<IActionResult> CalculateTotalIncomesTemplateAmount(
-        [FromQuery] int walletId,
+    [HttpGet("wallets/{walletId}/total")]
+    public async Task<IActionResult> GetWalletIncomeTemplateTotal(
+        [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) 
     {
@@ -97,14 +86,12 @@ public class IncomeTemplateController : Controller
     }
 
     // GET: Admin - Get all Incomes templates
-    [HttpGet("admin/all")]
+    [HttpGet]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllIncomesTemplatesForAdmin(
-        [FromQuery] bool isShared = false,
-        [FromQuery] string filter = null)
+    public async Task<IActionResult> GetAllTemplate([FromQuery] string filter = null)
     {
         var filters = ExpressionBuilder.ParseFilter<IncomeTemplate>(filter);
-        var response = await _incomeTemplateService.GetAllIncomeTemplatesForAdmin(isShared, filters);
+        var response = await _incomeTemplateService.GetAllIncomeTemplatesForAdmin(filters);
         return StatusCode((int)response.StatusCode, response);
     }
 

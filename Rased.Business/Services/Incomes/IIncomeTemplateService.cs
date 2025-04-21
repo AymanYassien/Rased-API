@@ -10,9 +10,9 @@ public interface IIncomeTemplateService
 {
     // Basic CRUD
     public Task<ApiResponse<object>> GetUserIncomeTemplatesByWalletId(int walletId, Expression<Func<IncomeTemplate, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
-    public Task<ApiResponse<object>> GetUserIncomeTemplate(int walletId, int incomeTemplateId, bool isShared = false );
+    public Task<ApiResponse<object>> GetTemplateById(int incomeTemplateId);
     public Task<ApiResponse<object>> AddUserIncomeTemplate(AddIncomeTemplateDto newIncomeTemplate);
-    public Task<ApiResponse<object>> UpdateUserIncomeTemplate(int walletId, int incomeTemplateId, UpdateIncomeTemplateDto updateIncomeTemplateDto , bool isShared = false);
+    public Task<ApiResponse<object>> UpdateUserIncomeTemplate( int incomeTemplateId, UpdateIncomeTemplateDto updateIncomeTemplateDto );
     public Task<ApiResponse<object>> DeleteUserIncomeTemplate(int incomeTemplateId);
     
     // Count
@@ -27,6 +27,6 @@ public interface IIncomeTemplateService
     // Filter Income 
     
     // For Admin 
-    public Task<ApiResponse<object>> GetAllIncomeTemplatesForAdmin(bool isShared = false, Expression<Func<IncomeTemplate, bool>>[]? filter = null);
+    public Task<ApiResponse<object>> GetAllIncomeTemplatesForAdmin( Expression<Func<IncomeTemplate, bool>>[]? filter = null);
     
 }
