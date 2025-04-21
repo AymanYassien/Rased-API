@@ -34,14 +34,14 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
             // check if the wallet exists
             if (!isAdd)
             {
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(x => x.WalletId == walletId);
+                var wallet = await _context.SharedWallets.FirstOrDefaultAsync(x => x.SharedWalletId == walletId);
                 if (wallet is null)
                 {
                     result.Message = "المحفظة غير موجودة";
                     return result;
                 }
                 // Check if the Name exists
-                var checkName = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
+                var checkName = await _context.SharedWallets.FirstOrDefaultAsync(x => x.Name == walletName);
                 if (checkName is not null && checkName.Name != walletName)
                 {
                     result.Message = "يجب أن يكون اسم المحفظة فريدًا!";
@@ -51,7 +51,7 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
             else
             {
                 // check if the wallet name is unique
-                var walletUnique = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
+                var walletUnique = await _context.SharedWallets.FirstOrDefaultAsync(x => x.Name == walletName);
                 if (walletUnique is not null)
                 {
                     result.Message = "يجب أن يكون اسم المحفظة فريدًا!";
@@ -87,33 +87,21 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
             return result;
         }
 
-        // Get the Access Level
-        public async Task<StaticSharedWalletAccessLevelData> GetAccessLevelAsync(string accessName)
+        // Get the user Id by its email
+        public async Task<string> GetUserIdByEmailAsync(string email)
         {
-            var level = await _context.StaticSharedWalletAccessLevels.FirstOrDefaultAsync(x => x.Name == accessName);
-            if (level is null)
-                return null!;
-
-            return level;
-        }
-
-        // Add a new member
-        public async Task<StatusDto> AddMemberAsync<TMember>(TMember member) where TMember : class
-        {
-            var result = new StatusDto();
-
             try
             {
-                await _context.AddAsync<TMember>(member);
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user is null)
+                    return string.Empty;
 
-                result.IsSucceeded = true;
+                return user.Id;
             }
-            catch(Exception ex)
+            catch
             {
-                result.Message = $"EXCEPTION -- {ex.Message}";
+                return string.Empty;
             }
-
-            return result;
         }
 
         // Required Related Entities

@@ -24,10 +24,12 @@ namespace Rased.Infrastructure.Data.Config.Goals
             builder.Property(x => x.Description)
                     .HasConversion<string>()
                    .IsRequired(false);
+
             builder.Property(x => x.Status)
-              .HasColumnType("NVARCHAR(50)")
-              .HasDefaultValue(GoalStatusEnum.InProgress) 
-              .IsRequired();
+               .HasColumnType("NVARCHAR(50)")
+               .HasConversion<string>()
+               .IsRequired();
+
 
             builder.Property(x => x.StartedAmount)
                    .IsRequired()

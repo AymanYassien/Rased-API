@@ -4,6 +4,6 @@
     {
         public const string PENDING = "معلق";
         public const string ACCEPTED = "مقبول";
-        public const string DECLINED = "مرفوض";
+        public const string CANCELED = "ملغي";
     }
 }

@@ -47,11 +47,6 @@ namespace Rased.Infrastructure.Data
         public DbSet<Currency> Currencies { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
-        public DbSet<FriendRequest> FriendRequests { get; set; }
-        public DbSet<Friendship> Friendships { get; set; }
-        public DbSet<StaticFriendRequestStatusData> StaticFriendRequestStatus { get; set; }
-        public DbSet<StaticFriendshipStatusData> StaticFriendshipStatus { get; set; }
-
         public DbSet<Goal> Goals { get; set; }
         public DbSet<GoalTransaction> GoalTransactions { get; set; }
 
@@ -70,7 +65,8 @@ namespace Rased.Infrastructure.Data
         public DbSet<SharedWallet> SharedWallets { get; set; }
         public DbSet<SWInvitation> SWInvitations { get; set; }
         public DbSet<SharedWalletMembers> SharedWalletMembers { get; set; }
-        public DbSet<StaticSharedWalletAccessLevelData> StaticSharedWalletAccessLevels { get; set; }
+
+        public DbSet<Friendship> Friendships { get; set; }
 
         public DbSet<Plan> Plans { get; set; }
         public DbSet<PlanDetail> PlanDetails { get; set; }
@@ -101,7 +97,7 @@ namespace Rased.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(LoanConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ExpenseConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(CurrencyConfiguration).Assembly);
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FriendRequestConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FriendshipConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(GoalConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(IncomeConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserPreferenceConfiguration).Assembly);
@@ -130,13 +126,6 @@ namespace Rased.Infrastructure.Data
                 new StaticTransactionStatusData { Id = 3, Name = "Canceled" },
                 new StaticTransactionStatusData { Id = 4, Name = "Deleted" }
             );
-
         }
-
-
-
-
-
-
     }
 }

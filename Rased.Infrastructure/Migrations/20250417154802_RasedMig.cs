@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Rased.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class RasedFirstMig : Migration
+    public partial class RasedMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +18,7 @@ namespace Rased.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -35,9 +38,14 @@ namespace Rased.Infrastructure.Migrations
                     DateOfBirth = table.Column<DateOnly>(type: "DATE", nullable: true),
                     ProfilePic = table.Column<byte[]>(type: "IMAGE", nullable: true),
                     Country = table.Column<string>(type: "NVARCHAR(255)", nullable: true),
-                    Address = table.Column<string>(type: "NVARCHAR(MAX)", nullable: true ),
+                    Address = table.Column<string>(type: "NVARCHAR(MAX)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "DATETIME2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "DATETIME2", nullable: true),
+                    OTP = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OtpExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsBanned = table.Column<bool>(type: "bit", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -67,7 +75,8 @@ namespace Rased.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Color = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    CategoryTypeId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
@@ -126,13 +135,13 @@ namespace Rased.Infrastructure.Migrations
                 name: "StaticColorTypes",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StaticColorTypes", x => x.id);
+                    table.PrimaryKey("PK_StaticColorTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,19 +223,6 @@ namespace Rased.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StaticSharedWalletAccessLevels",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StaticSharedWalletAccessLevels", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StaticThresholdTypes",
                 columns: table => new
                 {
@@ -269,13 +265,13 @@ namespace Rased.Infrastructure.Migrations
                 name: "StaticWalletStatus",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StaticWalletStatus", x => x.id);
+                    table.PrimaryKey("PK_StaticWalletStatus", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -446,7 +442,10 @@ namespace Rased.Infrastructure.Migrations
                     ParentCategoryId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Color = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -597,7 +596,7 @@ namespace Rased.Infrastructure.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DayOfMonth = table.Column<int>(type: "int", nullable: true),
                     DayOfWeek = table.Column<int>(type: "int", nullable: true),
-                    TriggerTypeId = table.Column<int>(type: "int", nullable: false)
+                    TriggerTypeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -606,8 +605,7 @@ namespace Rased.Infrastructure.Migrations
                         name: "FK_AutomationRules_StaticTriggerTypes_TriggerTypeId",
                         column: x => x.TriggerTypeId,
                         principalTable: "StaticTriggerTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -617,25 +615,21 @@ namespace Rased.Infrastructure.Migrations
                     SharedWalletId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 200, nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 200, nullable: true),
+                    Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    InitialBalance = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
                     TotalBalance = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
+                    ExpenseLimit = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
                     WalletStatusId = table.Column<int>(type: "int", nullable: false),
+                    ColorTypeId = table.Column<int>(type: "int", nullable: false),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
-                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    StaticWalletStatusDataId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SharedWallets", x => x.SharedWalletId);
-                    table.ForeignKey(
-                        name: "FK_SharedWallets_AspNetUsers_CreatorId",
-                        column: x => x.CreatorId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SharedWallets_Currencies_CurrencyId",
                         column: x => x.CurrencyId,
@@ -643,10 +637,21 @@ namespace Rased.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_SharedWallets_StaticColorTypes_ColorTypeId",
+                        column: x => x.ColorTypeId,
+                        principalTable: "StaticColorTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SharedWallets_StaticWalletStatus_StaticWalletStatusDataId",
+                        column: x => x.StaticWalletStatusDataId,
+                        principalTable: "StaticWalletStatus",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_SharedWallets_StaticWalletStatus_WalletStatusId",
                         column: x => x.WalletStatusId,
                         principalTable: "StaticWalletStatus",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -656,14 +661,14 @@ namespace Rased.Infrastructure.Migrations
                 {
                     WalletId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    TotalBalance = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: false),
-                    ExpenseLimit = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Icon = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    InitialBalance = table.Column<decimal>(type: "decimal(11,2)", precision: 8, scale: 2, nullable: false),
+                    TotalBalance = table.Column<decimal>(type: "decimal(11,2)", precision: 8, scale: 2, nullable: false),
+                    ExpenseLimit = table.Column<decimal>(type: "decimal(11,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
                     WalletStatusId = table.Column<int>(type: "int", nullable: false),
                     ColorTypeId = table.Column<int>(type: "int", nullable: false),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
@@ -688,13 +693,13 @@ namespace Rased.Infrastructure.Migrations
                         name: "FK_Wallets_StaticColorTypes_ColorTypeId",
                         column: x => x.ColorTypeId,
                         principalTable: "StaticColorTypes",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Wallets_StaticWalletStatus_WalletStatusId",
                         column: x => x.WalletStatusId,
                         principalTable: "StaticWalletStatus",
-                        principalColumn: "id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -728,10 +733,10 @@ namespace Rased.Infrastructure.Migrations
                 {
                     MembershipId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Role = table.Column<string>(type: "NVARCHAR(100)", nullable: false),
+                    JoinedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SharedWalletId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    AccessLevelId = table.Column<int>(type: "int", nullable: false),
-                    JoinedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -740,17 +745,46 @@ namespace Rased.Infrastructure.Migrations
                         name: "FK_SharedWalletMembers_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_SharedWalletMembers_SharedWallets_SharedWalletId",
                         column: x => x.SharedWalletId,
                         principalTable: "SharedWallets",
-                        principalColumn: "SharedWalletId");
+                        principalColumn: "SharedWalletId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SWInvitations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SharedWalletId = table.Column<int>(type: "int", nullable: false),
+                    SenderId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<string>(type: "NVARCHAR(50)", nullable: false, defaultValue: "معلق"),
+                    InvitedAt = table.Column<DateTime>(type: "DATETIME2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SWInvitations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SharedWalletMembers_StaticSharedWalletAccessLevels_SharedWalletId",
+                        name: "FK_SWInvitations_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SWInvitations_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SWInvitations_SharedWallets_SharedWalletId",
                         column: x => x.SharedWalletId,
-                        principalTable: "StaticSharedWalletAccessLevels",
-                        principalColumn: "Id",
+                        principalTable: "SharedWallets",
+                        principalColumn: "SharedWalletId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -766,7 +800,7 @@ namespace Rased.Infrastructure.Migrations
                     ReceiverWalletId = table.Column<int>(type: "int", nullable: true),
                     ReceiverTypeId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(8,2)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     TransactionStatusId = table.Column<int>(type: "int", nullable: false),
@@ -828,7 +862,7 @@ namespace Rased.Infrastructure.Migrations
                     SpentAmount = table.Column<decimal>(type: "decimal(8,2)", nullable: false, defaultValue: 0.00m),
                     RemainingAmount = table.Column<decimal>(type: "decimal(8,2)", precision: 8, scale: 2, nullable: false),
                     RolloverUnspent = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    BudgetTypeId = table.Column<int>(type: "int", nullable: false),
+                    BudgetTypeId = table.Column<int>(type: "int", nullable: true),
                     DayOfMonth = table.Column<int>(type: "int", nullable: true),
                     DayOfWeek = table.Column<int>(type: "int", nullable: true)
                 },
@@ -922,16 +956,16 @@ namespace Rased.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "NVARCHAR(255)", nullable: false),
                     CategoryName = table.Column<string>(type: "NVARCHAR(255)", nullable: true),
-                    Description = table.Column<string>(type: "NVARCHAR(MAX)", nullable: true),
-                    Status = table.Column<string>(type: "NVARCHAR(50)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "NVARCHAR(50)", nullable: false, defaultValue: "InProgress"),
                     StartedDate = table.Column<DateTime>(type: "DATETIME2", nullable: false),
                     DesiredDate = table.Column<DateTime>(type: "DATETIME2", nullable: false),
-                    StartedAmount = table.Column<decimal>(type: "DECIMAL(12,9)", nullable: false),
-                    CurrentAmount = table.Column<decimal>(type: "DECIMAL(12,9)", nullable: false),
-                    TargetAmount = table.Column<decimal>(type: "DECIMAL(12,9)", nullable: false),
+                    StartedAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    CurrentAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    TargetAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     IsTemplate = table.Column<bool>(type: "BIT", nullable: false, defaultValue: false),
                     Frequency = table.Column<string>(type: "NVARCHAR(50)", nullable: true),
-                    FrequencyAmount = table.Column<decimal>(type: "DECIMAL(12,9)", nullable: true),
+                    FrequencyAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "DATETIME2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "DATETIME2", nullable: true),
                     WalletId = table.Column<int>(type: "int", nullable: true),
@@ -1173,6 +1207,34 @@ namespace Rased.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TransactionRejection",
+                columns: table => new
+                {
+                    RejectionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TransactionId = table.Column<int>(type: "int", nullable: false),
+                    RejectedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RejectedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RejectionReason = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TransactionRejection", x => x.RejectionId);
+                    table.ForeignKey(
+                        name: "FK_TransactionRejection_AspNetUsers_RejectedById",
+                        column: x => x.RejectedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TransactionRejection_Transactions_TransactionId",
+                        column: x => x.TransactionId,
+                        principalTable: "Transactions",
+                        principalColumn: "TransactionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Expenses",
                 columns: table => new
                 {
@@ -1283,7 +1345,7 @@ namespace Rased.Infrastructure.Migrations
                     isDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IncomeSpecificData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    IncomeSpecificData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1319,7 +1381,8 @@ namespace Rased.Infrastructure.Migrations
                     ApprovalId = table.Column<int>(type: "int", nullable: false),
                     isDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IncomeSpecificData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1378,7 +1441,7 @@ namespace Rased.Infrastructure.Migrations
                     isDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ExpenseSpecificData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    ExpenseSpecificData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1395,6 +1458,27 @@ namespace Rased.Infrastructure.Migrations
                         principalTable: "Transactions",
                         principalColumn: "TransactionId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "StaticReceiverTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Friend" },
+                    { 2, "SharedWallet" },
+                    { 3, "UnknownPerson" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "StaticTransactionStatus",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Pending" },
+                    { 2, "Approved" },
+                    { 3, "Canceled" },
+                    { 4, "Deleted" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -1739,20 +1823,19 @@ namespace Rased.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SharedWalletMembers_UserId_SharedWalletId",
-                table: "SharedWalletMembers",
-                columns: new[] { "UserId", "SharedWalletId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SharedWallets_CreatorId",
+                name: "IX_SharedWallets_ColorTypeId",
                 table: "SharedWallets",
-                column: "CreatorId");
+                column: "ColorTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SharedWallets_CurrencyId",
                 table: "SharedWallets",
                 column: "CurrencyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SharedWallets_StaticWalletStatusDataId",
+                table: "SharedWallets",
+                column: "StaticWalletStatusDataId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SharedWallets_WalletStatusId",
@@ -1775,6 +1858,21 @@ namespace Rased.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SWInvitations_ReceiverId",
+                table: "SWInvitations",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SWInvitations_SenderId",
+                table: "SWInvitations",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SWInvitations_SharedWalletId",
+                table: "SWInvitations",
+                column: "SharedWalletId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TransactionApproval_ApproverId",
                 table: "TransactionApprovals",
                 column: "ApproverId");
@@ -1788,6 +1886,22 @@ namespace Rased.Infrastructure.Migrations
                 name: "IX_TransactionApproval_TransactionId_ApproverId",
                 table: "TransactionApprovals",
                 columns: new[] { "TransactionId", "ApproverId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionRejection_RejectedById",
+                table: "TransactionRejection",
+                column: "RejectedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionRejection_TransactionId",
+                table: "TransactionRejection",
+                column: "TransactionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TransactionRejection_TransactionId_RejectedById",
+                table: "TransactionRejection",
+                columns: new[] { "TransactionId", "RejectedById" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1920,6 +2034,12 @@ namespace Rased.Infrastructure.Migrations
                 name: "Subscriptions");
 
             migrationBuilder.DropTable(
+                name: "SWInvitations");
+
+            migrationBuilder.DropTable(
+                name: "TransactionRejection");
+
+            migrationBuilder.DropTable(
                 name: "WalletStatistics");
 
             migrationBuilder.DropTable(
@@ -1951,9 +2071,6 @@ namespace Rased.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransactionApprovals");
-
-            migrationBuilder.DropTable(
-                name: "StaticSharedWalletAccessLevels");
 
             migrationBuilder.DropTable(
                 name: "Plans");
@@ -1995,13 +2112,13 @@ namespace Rased.Infrastructure.Migrations
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "StaticColorTypes");
-
-            migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Currencies");
+
+            migrationBuilder.DropTable(
+                name: "StaticColorTypes");
 
             migrationBuilder.DropTable(
                 name: "StaticWalletStatus");

@@ -13,6 +13,7 @@ using Rased.Infrastructure.Repositoryies.SubCategories;
 using Rased.Infrastructure.Repositoryies.Goals;
 using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.Repositoryies.SharedWallets;
+using Rased.Infrastructure.Repositoryies.Friendships;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -31,24 +32,17 @@ namespace Rased.Infrastructure.UnitsOfWork
         public IRepository<TransactionApproval, int> TransactionApprovals { get; }
         public IRepository<TransactionRejection, int> TransactionRejections { get; }
 
-
-        // All System IServices ..
-        // IAuthService RasedAuth { get; }
-        // ....
-        
-
-
         public IPaymentMethodRepository PaymentMethods { get; }                
-        public IAttachmentRepository Attachments { get; }                
-
-
-        public IWalletRepository Wallets { get; }
-        public ISharedWalletRepository SharedWallets { get; }
-        public IExpensesRepository Expenses { get; }
-        public IIncomeRepository Income { get; }
+        public IAttachmentRepository Attachments { get; }
 
         public ICategoryRepository Categories { get; }
         public ISubCategoryRepository SubCategories { get; }
+        public IWalletRepository Wallets { get; }
+        public ISharedWalletRepository SharedWallets { get; }
+        public IFriendshipRepository Friendships { get; }
+
+        public IExpensesRepository Expenses { get; }
+        public IIncomeRepository Income { get; }
 
                     
         public IExpenseTemplateRepository ExpenseTemplates{ get; }                

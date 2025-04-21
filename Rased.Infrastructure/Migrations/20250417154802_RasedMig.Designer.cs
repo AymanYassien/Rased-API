@@ -12,8 +12,8 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    [Migration("20250409012613_FawzyMakeTransferAndAddTransactionRejectionAndModifySpecificdataMakeItNullable")]
-    partial class FawzyMakeTransferAndAddTransactionRejectionAndModifySpecificdataMakeItNullable
+    [Migration("20250417154802_RasedMig")]
+    partial class RasedMig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -206,7 +206,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("TriggerTypeId")
+                    b.Property<int?>("TriggerTypeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("WalletId")
@@ -230,7 +230,7 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<decimal>("BudgetAmount")
                         .HasColumnType("decimal(8,2)");
 
-                    b.Property<int>("BudgetTypeId")
+                    b.Property<int?>("BudgetTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("CategoryName")
@@ -303,13 +303,13 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
-                    b.Property<int>("CategoryTypeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Color")
                         .HasMaxLength(20)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Icon")
                         .HasMaxLength(100)
@@ -326,6 +326,9 @@ namespace Rased.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CategoryId");
 
@@ -1175,6 +1178,137 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("Savings", (string)null);
                 });
 
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SWInvitation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("InvitedAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SharedWalletId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR(50)")
+                        .HasDefaultValue("معلق");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.HasIndex("SharedWalletId");
+
+                    b.ToTable("SWInvitations", (string)null);
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWallet", b =>
+                {
+                    b.Property<int>("SharedWalletId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SharedWalletId"));
+
+                    b.Property<int>("ColorTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrencyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("ExpenseLimit")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("InitialBalance")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("StaticWalletStatusDataId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalBalance")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<int>("WalletStatusId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SharedWalletId");
+
+                    b.HasIndex("ColorTypeId");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("StaticWalletStatusDataId");
+
+                    b.HasIndex("WalletStatusId");
+
+                    b.ToTable("SharedWallets");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWalletMembers", b =>
+                {
+                    b.Property<int>("MembershipId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipId"));
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(100)");
+
+                    b.Property<int>("SharedWalletId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("MembershipId");
+
+                    b.HasIndex("SharedWalletId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SharedWalletMembers");
+                });
+
             modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.Plan", b =>
                 {
                     b.Property<int>("Id")
@@ -1474,64 +1608,6 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("PersonalIncomeTrasactionRecords");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.SharedWallet", b =>
-                {
-                    b.Property<int>("SharedWalletId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SharedWalletId"));
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Icon")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("TotalBalance")
-                        .HasColumnType("decimal(8,2)");
-
-                    b.Property<int>("WalletStatusId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SharedWalletId");
-
-                    b.HasIndex("CreatorId");
-
-                    b.HasIndex("CurrencyId");
-
-                    b.HasIndex("WalletStatusId");
-
-                    b.ToTable("SharedWallets");
-                });
-
             modelBuilder.Entity("Rased.Infrastructure.SharedWalletIncomeTransaction", b =>
                 {
                     b.Property<int>("SharedWalletIncomeTransactionId")
@@ -1584,42 +1660,6 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("SharedWalletIncomeTransactions");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.SharedWalletMembers", b =>
-                {
-                    b.Property<int>("MembershipId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipId"));
-
-                    b.Property<int>("AccessLevelId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("SharedWalletId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("MembershipId");
-
-                    b.HasIndex("SharedWalletId")
-                        .HasDatabaseName("IX_SharedWalletMembers_SharedWalletId");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_SharedWalletMembers_UserId");
-
-                    b.HasIndex("UserId", "SharedWalletId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_SharedWalletMembers_UserId_SharedWalletId");
-
-                    b.ToTable("SharedWalletMembers");
-                });
-
             modelBuilder.Entity("Rased.Infrastructure.StaticBudgetTypesData", b =>
                 {
                     b.Property<int>("Id")
@@ -1639,18 +1679,18 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.StaticColorTypeData", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("StaticColorTypes");
                 });
@@ -1780,24 +1820,6 @@ namespace Rased.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.StaticSharedWalletAccessLevelData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StaticSharedWalletAccessLevels");
-                });
-
             modelBuilder.Entity("Rased.Infrastructure.StaticThresholdTypeData", b =>
                 {
                     b.Property<int>("Id")
@@ -1876,18 +1898,18 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.StaticWalletStatusData", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("StaticWalletStatus");
                 });
@@ -1902,6 +1924,14 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Icon")
                         .HasMaxLength(100)
@@ -1921,6 +1951,9 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int>("ParentCategoryId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("SubCategoryId");
 
@@ -2061,7 +2094,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -2069,7 +2101,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("decimal(11,2)");
 
                     b.Property<string>("Icon")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -2077,7 +2108,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasPrecision(8, 2)
                         .HasColumnType("decimal(11,2)");
 
-                    b.Property<DateTime>("LastModified")
+                    b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -2193,9 +2224,7 @@ namespace Rased.Infrastructure.Migrations
                 {
                     b.HasOne("Rased.Infrastructure.StaticTriggerTypeData", "StaticTriggerTypeData")
                         .WithMany()
-                        .HasForeignKey("TriggerTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TriggerTypeId");
 
                     b.Navigation("StaticTriggerTypeData");
                 });
@@ -2205,10 +2234,9 @@ namespace Rased.Infrastructure.Migrations
                     b.HasOne("Rased.Infrastructure.StaticBudgetTypesData", "StaticBudgetTypesData")
                         .WithMany()
                         .HasForeignKey("BudgetTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Budgets")
                         .HasForeignKey("SharedWalletId");
 
@@ -2242,7 +2270,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasForeignKey("RelatedBudgetId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Expenses")
                         .HasForeignKey("SharedWalletId");
 
@@ -2279,7 +2307,7 @@ namespace Rased.Infrastructure.Migrations
                         .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("ExpensesTemplates")
                         .HasForeignKey("SharedWalletId");
 
@@ -2384,7 +2412,7 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Incomes")
                         .HasForeignKey("SharedWalletId");
 
@@ -2419,7 +2447,7 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("IncomeTemplates")
                         .HasForeignKey("SharedWalletId");
 
@@ -2444,7 +2472,7 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Debts.Loan", b =>
                 {
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Loans")
                         .HasForeignKey("SharedWalletId");
 
@@ -2481,7 +2509,7 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Goals.Goal", b =>
                 {
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Goals")
                         .HasForeignKey("SharedWalletId");
 
@@ -2535,7 +2563,7 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Savings.Saving", b =>
                 {
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
                         .WithMany("Savings")
                         .HasForeignKey("SharedWalletId");
 
@@ -2552,6 +2580,83 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("SubCategory");
 
                     b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SWInvitation", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Receiver")
+                        .WithMany("Receivers")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Sender")
+                        .WithMany("Senders")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
+                        .WithMany("SWInvitations")
+                        .HasForeignKey("SharedWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+
+                    b.Navigation("SharedWallet");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWallet", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.StaticColorTypeData", "StaticColorTypeData")
+                        .WithMany("SharedWallets")
+                        .HasForeignKey("ColorTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.Extras.Currency", "Currency")
+                        .WithMany("SharedWallets")
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.StaticWalletStatusData", null)
+                        .WithMany("SharedWallets")
+                        .HasForeignKey("StaticWalletStatusDataId");
+
+                    b.HasOne("Rased.Infrastructure.StaticWalletStatusData", "StaticWalletStatusData")
+                        .WithMany()
+                        .HasForeignKey("WalletStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("StaticColorTypeData");
+
+                    b.Navigation("StaticWalletStatusData");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWalletMembers", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
+                        .WithMany("SWMembers")
+                        .HasForeignKey("SharedWalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Member")
+                        .WithMany("SWMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("SharedWallet");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.PlanDetail", b =>
@@ -2630,33 +2735,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("TransactionApproval");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.SharedWallet", b =>
-                {
-                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Creator")
-                        .WithMany("SharedWallets")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Rased.Infrastructure.Models.Extras.Currency", "Currency")
-                        .WithMany("SharedWallets")
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Rased.Infrastructure.StaticWalletStatusData", "StaticWalletStatusData")
-                        .WithMany()
-                        .HasForeignKey("WalletStatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-
-                    b.Navigation("Currency");
-
-                    b.Navigation("StaticWalletStatusData");
-                });
-
             modelBuilder.Entity("Rased.Infrastructure.SharedWalletIncomeTransaction", b =>
                 {
                     b.HasOne("Rased.Infrastructure.TransactionApproval", "TransactionApproval")
@@ -2684,33 +2762,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("TransactionApproval");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.SharedWalletMembers", b =>
-                {
-                    b.HasOne("Rased.Infrastructure.StaticSharedWalletAccessLevelData", "StaticSharedWalletAccessLevelData")
-                        .WithMany()
-                        .HasForeignKey("SharedWalletId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SharedWallet")
-                        .WithMany("Members")
-                        .HasForeignKey("SharedWalletId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "UserProfile")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("SharedWallet");
-
-                    b.Navigation("StaticSharedWalletAccessLevelData");
-
-                    b.Navigation("UserProfile");
-                });
-
             modelBuilder.Entity("Rased.Infrastructure.SubCategory", b =>
                 {
                     b.HasOne("Rased.Infrastructure.Category", "ParentCategory")
@@ -2735,7 +2786,7 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "ReceiverWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "ReceiverWallet")
                         .WithMany("ReceivedTransactions")
                         .HasForeignKey("ReceiverWalletId")
                         .OnDelete(DeleteBehavior.NoAction);
@@ -2746,7 +2797,7 @@ namespace Rased.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Rased.Infrastructure.SharedWallet", "SenderWallet")
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SenderWallet")
                         .WithMany("SentTransactions")
                         .HasForeignKey("SenderWalletId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -2876,27 +2927,7 @@ namespace Rased.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.Plan", b =>
-                {
-                    b.Navigation("PlanDetails");
-
-                    b.Navigation("Subscriptions");
-                });
-
-            modelBuilder.Entity("Rased.Infrastructure.Models.User.RasedUser", b =>
-                {
-                    b.Navigation("Notifications");
-
-                    b.Navigation("Preference");
-
-                    b.Navigation("SharedWallets");
-
-                    b.Navigation("Subscriptions");
-
-                    b.Navigation("Wallets");
-                });
-
-            modelBuilder.Entity("Rased.Infrastructure.SharedWallet", b =>
+            modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWallet", b =>
                 {
                     b.Navigation("Budgets");
 
@@ -2912,22 +2943,52 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Navigation("Loans");
 
-                    b.Navigation("Members");
-
                     b.Navigation("ReceivedTransactions");
+
+                    b.Navigation("SWInvitations");
+
+                    b.Navigation("SWMembers");
 
                     b.Navigation("Savings");
 
                     b.Navigation("SentTransactions");
                 });
 
+            modelBuilder.Entity("Rased.Infrastructure.Models.Subscriptions.Plan", b =>
+                {
+                    b.Navigation("PlanDetails");
+
+                    b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.User.RasedUser", b =>
+                {
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Preference");
+
+                    b.Navigation("Receivers");
+
+                    b.Navigation("SWMembers");
+
+                    b.Navigation("Senders");
+
+                    b.Navigation("Subscriptions");
+
+                    b.Navigation("Wallets");
+                });
+
             modelBuilder.Entity("Rased.Infrastructure.StaticColorTypeData", b =>
                 {
+                    b.Navigation("SharedWallets");
+
                     b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.StaticWalletStatusData", b =>
                 {
+                    b.Navigation("SharedWallets");
+
                     b.Navigation("Wallets");
                 });
 
