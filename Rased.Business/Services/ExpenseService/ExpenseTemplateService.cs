@@ -313,7 +313,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;
@@ -412,7 +412,7 @@ public class ExpenseTemplateService : IExpenseTemplateService
             return false;
         }
     
-        if ( dto.StartDate < dto.EndDate )
+        if ( dto.StartDate > dto.EndDate )
         {
             errorMessage = "Ensure End Date.";
             return false;

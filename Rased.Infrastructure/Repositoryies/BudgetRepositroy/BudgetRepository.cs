@@ -116,7 +116,7 @@ public class BudgetRepository : Repository_Test<Budget, int>, IBudgetRepository
     {
         var obj = await GetByIdAsync(budgetId);
         
-
+        // -50 : 90
         if (obj is not null)
         {
             obj.SpentAmount += newSpent;

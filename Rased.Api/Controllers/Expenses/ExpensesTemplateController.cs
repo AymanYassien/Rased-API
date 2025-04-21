@@ -22,7 +22,7 @@ public class ExpensesTemplateController : ControllerBase
 
     
     [HttpGet("get-total-expenses-template-by-WalletId/{walletId}")]
-    public async Task<IActionResult> GetTotalByWalletId([FromQuery] int walletId, [FromQuery] bool isShared = false, [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
+    public async Task<IActionResult> GetTotalByWalletId([FromRoute] int walletId, [FromQuery] bool isShared = false, [FromQuery] string filter = null) // e.g., "name=rent,amount>100,categoryName=household"
     {
         var filters = ExpressionBuilder.ParseFilter<ExpenseTemplate>(filter);
         var response = await _expenseService.GetUserExpenseTemplatesByWalletId(walletId, filters, 0, 0, isShared);
@@ -31,7 +31,7 @@ public class ExpensesTemplateController : ControllerBase
 
     
     [HttpGet("{expenseTemplateId}")]
-    public async Task<IActionResult> GetUserById([FromRoute] int expenseTemplateId)
+    public async Task<IActionResult> GetById([FromRoute] int expenseTemplateId)
     {
         var response = await _expenseService.GetUserExpenseTemplate(expenseTemplateId);
         return StatusCode((int)response.StatusCode, response);
@@ -65,7 +65,7 @@ public class ExpensesTemplateController : ControllerBase
 
     
     [HttpGet("wallets/{walletId}/count")]
-    public async Task<IActionResult> GetWalletTemplateCount(
+    public async Task<IActionResult> GetWalletExpenseTemplatesCount(
         [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null)
@@ -77,7 +77,7 @@ public class ExpensesTemplateController : ControllerBase
 
     
     [HttpGet("wallets/{walletId}/total")]
-    public async Task<IActionResult> GetWalletTemplateTotal(
+    public async Task<IActionResult> GetWalletExpenseTemplateTotal(
         [FromRoute] int walletId,
         [FromQuery] bool isShared = false,
         [FromQuery] string filter = null) 

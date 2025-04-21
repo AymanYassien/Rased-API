@@ -110,18 +110,19 @@ public class ExpenseService : IExpenseService
             return _response.Response(false, null, "", $"Not Found Expense with id {expenseId}",  HttpStatusCode.NotFound);
 
         
-        _MapToExpenseDtoFromUpdate(updateExpenseDto, expense);
         bool isSuccessUpdateRelatedBudget = true;
         try
         {
             
-            _unitOfWork.Expenses.Update(expense);
-
             if (expense.RelatedBudgetId is not null && updateExpenseDto.Amount != expense.Amount)
             {
-                decimal spentAmount = (updateExpenseDto.Amount - expense.Amount) * -1;
+                decimal spentAmount = (updateExpenseDto.Amount - expense.Amount) ;
                 isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, spentAmount );
             }
+            _MapToExpenseDtoFromUpdate(updateExpenseDto, expense);
+            
+            
+            _unitOfWork.Expenses.Update(expense);
             
             if (isSuccessUpdateRelatedBudget == false)
             {
@@ -149,8 +150,8 @@ public class ExpenseService : IExpenseService
 
         Expense expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
         bool isSuccessUpdateRelatedBudget = true;
-        if (expense.RelatedBudgetId is not null)
-            isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount );
+        if (expense?.RelatedBudgetId is not null)
+            isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount  * -1);
 
         if (isSuccessUpdateRelatedBudget == false)
         {
@@ -261,7 +262,8 @@ public class ExpenseService : IExpenseService
             PaymentMethodId = expense.PaymentMethodId,
             IsAutomated = expense.IsAutomated,
             Description = expense.Description,
-            Title = expense.Title
+            Title = expense.Title, 
+            RelatedBudgetId = expense.RelatedBudgetId
         };
     }
 

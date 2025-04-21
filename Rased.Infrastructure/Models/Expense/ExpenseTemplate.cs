@@ -16,7 +16,7 @@ namespace Rased.Infrastructure
         public string? CategoryName { get; set; }
         public decimal Amount { get; set; }
         public bool IsNeedApprovalWhenAutoAdd { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public int? PaymentMethodId { get; set; }
 
         // Navigation properties
