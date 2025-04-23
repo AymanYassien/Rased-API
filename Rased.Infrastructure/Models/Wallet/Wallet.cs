@@ -1,4 +1,5 @@
-﻿using Rased.Infrastructure.Models.Debts;
+﻿using Rased.Infrastructure.Models.Bills;
+using Rased.Infrastructure.Models.Debts;
 using Rased.Infrastructure.Models.Extras;
 using Rased.Infrastructure.Models.Goals;
 using Rased.Infrastructure.Models.Savings;
@@ -38,5 +39,6 @@ namespace Rased.Infrastructure
         public virtual ICollection<Loan>? Loans { get; set; }
         public virtual ICollection<Goal>? Goals { get; set; }
         public virtual ICollection<Saving>? Savings { get; set; }
+        public virtual ICollection<BillDraft>? BillDrafts { get; set; }
     }
 }

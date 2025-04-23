@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rased.Api.Controllers.Helper;
 using Rased.Business.Dtos;
+using Rased.Business.Dtos.Response;
 using Rased.Business.Services.ExpenseService;
 
 
@@ -28,7 +29,10 @@ public class AttachmentController : ControllerBase
         var response = await _attachmentService.GetAttachmentByExpenseId(expenseId, null);
         return StatusCode((int)response.StatusCode, response);
     }
-    
+
+  
+
+
     [HttpGet("{attachmentId}")]
     public async Task<IActionResult> GetById([FromRoute] int attachmentId)
     {

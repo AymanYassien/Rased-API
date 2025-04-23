@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Http;
 using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
 using Rased.Infrastructure;
@@ -12,10 +13,12 @@ public interface IAttachmentService
 
     public Task<ApiResponse<object>> GetAttachmentById(int id);
     public Task<ApiResponse<object>> GetAttachmentByExpenseId(int expenseId, Expression<Func<Attachment, bool>>[]? filter = null);
+    public Task<ApiResponse<object>> GetAttachmentByDraftId(int draftId, Expression<Func<Infrastructure.Attachment, bool>>[]? filter = null);
     public Task<ApiResponse<object>> AddAttachment(AddAttachmentDto newAttachment);
     public Task<ApiResponse<object>> UpdateAttachment(int attachmentId,UpdateAttachmentDto updateAttachment);
     public Task<ApiResponse<object>> DeleteAttachment(int attachmentId);
-    
+  
+
     // Own Methods
     public Task<ApiResponse<object>> GetFileSize(int attachmentId);
     public Task<ApiResponse<object>> GetFilePath(int attachmentId);

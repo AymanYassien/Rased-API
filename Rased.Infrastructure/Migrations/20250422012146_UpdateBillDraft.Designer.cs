@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250422012146_UpdateBillDraft")]
+    partial class UpdateBillDraft
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,10 +139,10 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttachmentId"));
 
-                    b.Property<int?>("BillDraftId")
+                    b.Property<int>("BillDraftId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ExpenseId")
+                    b.Property<int>("ExpenseId")
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
@@ -163,8 +166,7 @@ namespace Rased.Infrastructure.Migrations
 
                     b.HasKey("AttachmentId");
 
-                    b.HasIndex("BillDraftId")
-                        .HasDatabaseName("IX_Attachment_BillDraftId");
+                    b.HasIndex("BillDraftId");
 
                     b.HasIndex("ExpenseId")
                         .HasDatabaseName("IX_Attachment_ExpenseId");
@@ -788,6 +790,10 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int?>("SharedWalletId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(255)");
 
                     b.Property<int?>("WalletId")
                         .HasColumnType("int");
@@ -2247,12 +2253,14 @@ namespace Rased.Infrastructure.Migrations
                     b.HasOne("Rased.Infrastructure.Models.Bills.BillDraft", "BillDraft")
                         .WithMany("Attachments")
                         .HasForeignKey("BillDraftId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Rased.Infrastructure.Expense", "Expense")
                         .WithMany("Attachments")
                         .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BillDraft");
 

@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using System.Net;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
 using Rased.Infrastructure;
@@ -10,11 +12,13 @@ namespace Rased.Business.Services.ExpenseService;
 public class AttachmentService : IAttachmentService
 {
     private IUnitOfWork _unitOfWork;
+    private readonly IWebHostEnvironment _env;
     private ApiResponse<object> _response;
     
-    public AttachmentService(IUnitOfWork unitOfWork)
+    public AttachmentService(IUnitOfWork unitOfWork , IWebHostEnvironment env)
     {
         _unitOfWork = unitOfWork;
+        _env = env;
         _response = new ApiResponse<object>();
     }
     
@@ -33,7 +37,26 @@ public class AttachmentService : IAttachmentService
         return _response.Response(true, mapped, "Success", "",  HttpStatusCode.OK);
 
     }
-    
+
+    public async Task<ApiResponse<object>> GetAttachmentByDraftId(int draftId, Expression<Func<Infrastructure.Attachment, bool>>[]? filter = null)
+    {
+        if (1 > draftId)
+            return _response.Response(false, null, "",
+                "Bad Request", HttpStatusCode.BadRequest);
+
+        // «·»ÕÀ ⁄‰ «·‹ Attachments »«” Œœ«„ «·‹ DraftId
+        var res = await _unitOfWork.Attachments.GetAttachmentByDraftId(draftId, filter);
+        if (res is null)
+            return _response.Response(false, null, "", "Not Found, or fail to delete", HttpStatusCode.NotFound);
+
+        //  ÕÊÌ· «·»Ì«‰«  „‰ Attachment ≈·Ï DTO
+        var mapped = MapAttachmentToAttachmentDTO(res);
+
+        return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
+    }
+
+
+
     public async Task<ApiResponse<object>> GetAttachmentByExpenseId(int expenseId, Expression<Func<Infrastructure.Attachment, bool>>[]? filter = null)
     {
         if (1 > expenseId)
@@ -336,6 +359,9 @@ public class AttachmentService : IAttachmentService
         
 
     }
+
+
+
 
 
 }

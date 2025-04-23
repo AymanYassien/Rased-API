@@ -18,6 +18,8 @@ using Rased.Infrastructure.Models.Subscriptions;
 using Rased.Infrastructure.Models.User;
 using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Models.SharedWallets;
+using Rased.Infrastructure.Models.Bills;
+using Rased.Infrastructure.Data.Config.UtilityConfigures;
 
 namespace Rased.Infrastructure.Data
 {
@@ -90,6 +92,10 @@ namespace Rased.Infrastructure.Data
         public DbSet<StaticTriggerTypeData> StaticTriggerTypes { get; set; }
         public DbSet<StaticWalletStatusData> StaticWalletStatus { get; set; }
 
+        public DbSet<BillDraft> BillDrafts { get; set; }
+
+
+
 
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,6 +117,7 @@ namespace Rased.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RasedUserConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AutomationRuleConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WalletConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(BillDraftConfiguration).Assembly);
 
 
 

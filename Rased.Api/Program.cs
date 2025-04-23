@@ -21,6 +21,8 @@ using Rased.Business.Services.Categories;
 using Rased.Business.Services.SubCategories;
 using Rased.Business.Services.Transfer;
 using Rased.Business.Services.SharedWallets;
+using Rased.Business.Services.Bills;
+using Rased.Infrastructure.Helpers;
 
 namespace Rased.Api
 {
@@ -112,8 +114,10 @@ namespace Rased.Api
             builder.Services.AddScoped<ITransactionRejectionService, TransactionRejectionService>();
             builder.Services.AddScoped<IStaticReceiverTypeDataService, StaticReceiverTypeDataService>();
             builder.Services.AddScoped<IStaticTransactionStatusService, StaticTransactionStatusService>();
-           
-          
+            builder.Services.AddScoped<IBillService, BillService>();
+            builder.Services.AddHttpClient();
+
+
             builder.Services.AddScoped<IExpenseService, ExpenseService>();
             builder.Services.AddScoped<IExpenseTemplateService, ExpenseTemplateService>();
             builder.Services.AddScoped<IIncomeService, IncomeService>();
@@ -146,6 +150,7 @@ namespace Rased.Api
             //builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(c =>
             {
+                // ≈⁄œ«œ JWT Bearer
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -167,10 +172,14 @@ namespace Rased.Api
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            new string[] {}
         }
     });
+
+                // ? Â‰«  ÷Ì› «·›· — «··Ì ÌŒ·¯Ì Swagger Ì›Â„ «·‹ IFormFile
+                //c.OperationFilter<FileUploadOperationFilter>();
             });
+
 
 
             var app = builder.Build();

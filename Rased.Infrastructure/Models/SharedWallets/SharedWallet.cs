@@ -1,3 +1,4 @@
+using Rased.Infrastructure.Models.Bills;
 using Rased.Infrastructure.Models.Debts;
 using Rased.Infrastructure.Models.Extras;
 using Rased.Infrastructure.Models.Goals;
@@ -43,6 +44,8 @@ namespace Rased.Infrastructure.Models.SharedWallets
         public virtual ICollection<Saving>? Savings { get; set; }
         public virtual ICollection<Transaction> SentTransactions { get; set; }
         public virtual ICollection<Transaction> ReceivedTransactions { get; set; }
+        public virtual ICollection<BillDraft>? BillDrafts { get; set; }
+
 
     }
 }
