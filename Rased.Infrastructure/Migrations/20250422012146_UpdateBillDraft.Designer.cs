@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250422012146_UpdateBillDraft")]
+    partial class UpdateBillDraft
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,10 +139,10 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttachmentId"));
 
-                    b.Property<int?>("BillDraftId")
+                    b.Property<int>("BillDraftId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ExpenseId")
+                    b.Property<int>("ExpenseId")
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
@@ -163,8 +166,7 @@ namespace Rased.Infrastructure.Migrations
 
                     b.HasKey("AttachmentId");
 
-                    b.HasIndex("BillDraftId")
-                        .HasDatabaseName("IX_Attachment_BillDraftId");
+                    b.HasIndex("BillDraftId");
 
                     b.HasIndex("ExpenseId")
                         .HasDatabaseName("IX_Attachment_ExpenseId");
@@ -526,13 +528,16 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("ExpenseTransactionRecords");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.Friendship", b =>
+            modelBuilder.Entity("Rased.Infrastructure.FriendRequest", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RequestId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
+
+                    b.Property<int>("FriendRequestStatusId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ReceiverId")
                         .IsRequired()
@@ -543,22 +548,69 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("SentAt")
-                        .HasColumnType("DATETIME2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(100)");
+                        .HasColumnType("datetime");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("DATETIME2");
+                        .HasColumnType("datetime");
 
-                    b.HasKey("Id");
+                    b.HasKey("RequestId");
 
-                    b.HasIndex("ReceiverId");
+                    b.HasIndex("FriendRequestStatusId");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("ReceiverId")
+                        .HasDatabaseName("IX_FriendRequest_ReceiverId");
 
-                    b.ToTable("Friendships", (string)null);
+                    b.HasIndex("SenderId")
+                        .HasDatabaseName("IX_FriendRequest_SenderId");
+
+                    b.ToTable("FriendRequests");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Friendship", b =>
+                {
+                    b.Property<int>("FriendshipId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FriendshipId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("FriendshipStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nickname1")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Nickname2")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UserId1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId2")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FriendshipId");
+
+                    b.HasIndex("FriendshipStatusId");
+
+                    b.HasIndex("UserId1")
+                        .HasDatabaseName("IX_Friendship_UserId1");
+
+                    b.HasIndex("UserId2")
+                        .HasDatabaseName("IX_Friendship_UserId2");
+
+                    b.HasIndex("UserId1", "UserId2")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Friendship_UserId1_UserId2");
+
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Helpers.Constants.CustomRole", b =>
@@ -738,6 +790,10 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<int?>("SharedWalletId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR(255)");
 
                     b.Property<int?>("WalletId")
                         .HasColumnType("int");
@@ -1696,6 +1752,42 @@ namespace Rased.Infrastructure.Migrations
                     b.ToTable("StaticDaysOfWeekNames");
                 });
 
+            modelBuilder.Entity("Rased.Infrastructure.StaticFriendRequestStatusData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StaticFriendRequestStatus");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.StaticFriendshipStatusData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StaticFriendshipStatus");
+                });
+
             modelBuilder.Entity("Rased.Infrastructure.StaticIncomeSourceTypeData", b =>
                 {
                     b.Property<int>("Id")
@@ -2161,12 +2253,14 @@ namespace Rased.Infrastructure.Migrations
                     b.HasOne("Rased.Infrastructure.Models.Bills.BillDraft", "BillDraft")
                         .WithMany("Attachments")
                         .HasForeignKey("BillDraftId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Rased.Infrastructure.Expense", "Expense")
                         .WithMany("Attachments")
                         .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BillDraft");
 
@@ -2303,23 +2397,58 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("Rased.Infrastructure.Friendship", b =>
+            modelBuilder.Entity("Rased.Infrastructure.FriendRequest", b =>
                 {
+                    b.HasOne("Rased.Infrastructure.StaticFriendRequestStatusData", "StaticFriendRequestStatusData")
+                        .WithMany()
+                        .HasForeignKey("FriendRequestStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Receiver")
-                        .WithMany("FriendReceivers")
+                        .WithMany()
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "Sender")
-                        .WithMany("FriendSenders")
+                        .WithMany()
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+
+                    b.Navigation("StaticFriendRequestStatusData");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Friendship", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.StaticFriendshipStatusData", "StaticFriendshipStatusData")
+                        .WithMany()
+                        .HasForeignKey("FriendshipStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "User1Profile")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Rased.Infrastructure.Models.User.RasedUser", "User2Profile")
+                        .WithMany()
+                        .HasForeignKey("UserId2")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("StaticFriendshipStatusData");
+
+                    b.Navigation("User1Profile");
+
+                    b.Navigation("User2Profile");
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Income", b =>
@@ -2905,10 +3034,6 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.User.RasedUser", b =>
                 {
-                    b.Navigation("FriendReceivers");
-
-                    b.Navigation("FriendSenders");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("Preference");

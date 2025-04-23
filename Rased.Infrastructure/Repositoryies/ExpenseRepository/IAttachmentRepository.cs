@@ -9,6 +9,7 @@ namespace Rased_API.Rased.Infrastructure.Repositoryies.ExpenseRepository;
 public interface IAttachmentRepository : IRepository_Test<Attachment, int>
 {
     Task<Attachment?> GetAttachmentByExpenseId(int expenseId, Expression<Func<Attachment, bool>>[]? filter = null);
+    Task<Attachment> GetAttachmentByDraftId(int draftId, Expression<Func<Attachment, bool>>[]? filter = null);
     Task<string?> GetFilePath(int attachmentId);
     Task<string?> GetFileType(int attachmentId);
     Task<long?> GetFileSize(int attachmentId);
