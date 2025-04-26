@@ -11,6 +11,7 @@ namespace Rased.Business.Services.AuthServices
         Task<ApiResponse<string>> ResendOtpAsync(ResendOtpDto resendOtpDto);
         Task<ApiResponse<string>> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
         Task<ApiResponse<string>> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
+        Task<ApiResponse<string>> LogoutAsync(LogoutDto model);
 
         //Task<LoginResponce> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
     }

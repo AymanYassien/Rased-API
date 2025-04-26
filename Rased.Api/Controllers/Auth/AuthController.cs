@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Auths;
 using Rased.Business.Services.AuthServices;
-using Rased.Infrastructure.UnitsOfWork;
 
 namespace Rased.Api.Controllers.Auth
 {
@@ -19,106 +17,109 @@ namespace Rased.Api.Controllers.Auth
 
 
         // Register
-        [HttpPost("register")]
-        public async Task<IActionResult> Register( [FromBody] RegisterDto registerDto)
+        [HttpPost("Register", Name = "AuthRegister")]
+        public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             var result = await _authService.RegisterAsync(registerDto);
+
             if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                return BadRequest(result);
 
             return Ok(result);
         }
 
-        //[HttpPost("verify-otp")]
-        //public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto verifyOtpDto)
-        //{
-        //    var result = await _authService.VerifyOtpAsync(verifyOtpDto);
+        // Account Verification
+        [HttpPost("Otp/Verify", Name = "AuthVerify")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpDto verifyOtpDto)
+        {
+            var result = await _authService.VerifyOtpAsync(verifyOtpDto);
 
-        //    if (!result.successed)
-        //        return BadRequest(result.Errors);
+            if (!result.Succeeded)
+                return BadRequest(result);
 
-        //    return Ok(new
-        //    {
-        //        result.successed,
-        //        Message = "OTP verification successful! Your account is now verified."
-        //    });
-        //}
+            return Ok(result);
+        }
 
+        // Login
+        [HttpPost("Login", Name = "AuthLogin")]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            var result = await _authService.LoginAsync(loginDto);
 
+            if (!result.Succeeded)
+                return BadRequest(result);
 
+            return Ok(result);
+        }
 
-        //// Login
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login( [FromBody] LoginDto loginDto)
-        //{
-        //    var response = await _authService.LoginAsync(loginDto);
+        // Resend OTP
+        [HttpPost("Otp/Resend", Name = "AuthResendOtp")]
+        public async Task<IActionResult> ResendOtp(ResendOtpDto resendOtpDto)
+        {
 
-        //    if (!response.successed)
-        //        return BadRequest(response.Errors);
+            var result = await _authService.ResendOtpAsync(resendOtpDto);
 
-        //    return Ok(new
-        //    {
-        //        response.successed,
-        //        response.Token,
-        //        response.RefreshToken,
-        //        Message = "Login successful! Welcome back to your account."
-        //    });
-        //}
+            if (!result.Succeeded)
+                return BadRequest(result);
 
-        //    [HttpPost("refresh-token")]
-        //public async Task<IActionResult> RefreshToken( [FromBody] RefreshTokenDto refreshTokenDto)
-        //{
-        //    var response = await _authService.RefreshTokenAsync(refreshTokenDto);
+            return Ok(result);
+        }
 
-        //    if (!response.successed)
-        //        return BadRequest(response.Errors);
+        // Forgot Password
+        [HttpPost("Password/Forgot", Name = "AuthForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var result = await _authService.ForgotPasswordAsync(forgotPasswordDto);
 
-        //    return Ok(new
-        //    {
-        //        response.successed,
-        //        token = response.Token,
-        //        refreshToken = response.RefreshToken,
-        //        Message = "Token refresh successful!"
-        //    });
-        //}
+            if (!result.Succeeded)
+                return BadRequest(result);
 
+            return Ok(result);
+        }
 
-        //// Reset Password
-        //[HttpPost("forgot-password")]
-        //public async Task<IActionResult> ForgotPassword( [FromBody] ForgotPasswordDto forgotPasswordDto)
-        //{
-        //    var result = await _authService.ForgotPasswordAsync(forgotPasswordDto);
-        //    if (!result.successed)
-        //        return BadRequest( result.Errors );
+        // Reset Password
+        [HttpPost("Password/Reset", Name = "AuthResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto);
 
-        //    return Ok(new { success = true, message = "OTP has been sent successfully to your email." });
-        //}
+            if (!result.Succeeded)
+                return BadRequest(result);
 
-        //[HttpPost("reset-password")]
-        //public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
-        //{
-        //    var result = await _authService.ResetPasswordAsync(resetPasswordDto);
-        //    if (!result.successed)
-        //        return BadRequest(result.Errors );
+            return Ok(result);
+        }
 
-        //    return Ok(new { success = true, message = "Your password has been reset successfully." });
-        //}
+        // Logout
+        [HttpPost("Logout", Name = "AuthLogout")]
+        public async Task<IActionResult> Logout(LogoutDto model)
+        {
+            var result = await _authService.LogoutAsync(model);
 
-        //// Resend OTP
-        //[HttpPost("ResendOtp")]
-        //public async Task<IActionResult> ResendOtp( [FromBody] ResendOtpDto resendOtpDto)
-        //{
-      
-        //    var result = await _authService.ResendOtpAsync(resendOtpDto);
+            if (!result.Succeeded)
+                return BadRequest(result);
 
-        //    if (!result.successed)
-        //    {
-        //        return BadRequest(new { errors = result.Errors });
-        //    }
-
-        //    return Ok(new { message = "OTP has been resent successfully." });
-        //}
+            return Ok(result);
+        }
 
 
+        // RefreshToken
+        /*
+         [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var response = await _authService.RefreshTokenAsync(refreshTokenDto);
+
+            if (!response.successed)
+                return BadRequest(response.Errors);
+
+            return Ok(new
+            {
+                response.successed,
+                token = response.Token,
+                refreshToken = response.RefreshToken,
+                Message = "Token refresh successful!"
+            });
+        }
+         */
     }
 }

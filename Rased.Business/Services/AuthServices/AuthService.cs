@@ -10,7 +10,6 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Rased.Business.Services.AuthServices
 {
@@ -46,7 +45,7 @@ namespace Rased.Business.Services.AuthServices
                 }
 
                 // Generate New UserName
-                string userName = GenerateUserName(registerDto.FullName);
+                string userName = GenerateUserName();
                 // Generate New OTP
                 string otp = GenerateOTP();
                 // Add New user To Database
@@ -98,13 +97,18 @@ namespace Rased.Business.Services.AuthServices
                 var user = await _userManager.FindByEmailAsync(loginDto.Email);
                 if (user == null)
                 {
-                    return new ApiResponse<string>("خطأ في البريد الإلكتروني أو الرقم السري!");
+                    return new ApiResponse<string>("خطأ في البريد الإلكتروني أو رقم المرور!");
                 }
                 // Check the password
                 var checkPwd = await _userManager.CheckPasswordAsync(user, loginDto.Password);
                 if (!checkPwd)
                 {
-                    return new ApiResponse<string>("خطأ في البريد الإلكتروني أو الرقم السري!");
+                    return new ApiResponse<string>("خطأ في البريد الإلكتروني أو رقم المرور!");
+                }
+                // Check if the account is active
+                if (user.AccountStatus == AccountStatusConstants.ACTIVE)
+                {
+                    return new ApiResponse<string>(null!, "يمكنك الإستمتاع الآن، اذهب إلي الصفحة الرئيسية!");
                 }
                 // Check if the account already suspended
                 if (user.AccountStatus == AccountStatusConstants.SUSPENDED)
@@ -117,7 +121,7 @@ namespace Rased.Business.Services.AuthServices
                     // Check if the Broke Date has value
                     if (user.BanBrokeAt == null || user.BanBrokeAt.Value > DateTime.Now)
                     {
-                        return new ApiResponse<string>("حسابك محظور، يرجي فحص البريد الإلكتروني لتفاصيل أكثر");
+                        return new ApiResponse<string>("تم حظر حسابك، يرجي فحص البريد الإلكتروني لتفاصيل أكثر");
                     }
                     else
                     {
@@ -178,7 +182,7 @@ namespace Rased.Business.Services.AuthServices
                 if (user.IsBanned)
                 {
                     result.IsBanned = true;
-                    return new ApiResponse<AuthResponseDto>(result, "حسابك محظور، يرجى التواصل مع الدعم الفني.");
+                    return new ApiResponse<AuthResponseDto>(result, "تم حظر حسابك، يرجى فحص البريد الإلكتروني لتفاصيل أكثر.");
                 }
                 // Check the user OTP
                 if (string.IsNullOrEmpty(user.OTP) || !user.OtpExpiryTime.HasValue)
@@ -197,7 +201,7 @@ namespace Rased.Business.Services.AuthServices
                     if (blockResult.IsBanned)
                     {
                         result.IsBanned = true;
-                        return new ApiResponse<AuthResponseDto>(result, "حسابك محظور، يرجى فحص البريد الإلكتروني لتفاصيل أكثر.");
+                        return new ApiResponse<AuthResponseDto>(result, "تم حظر حسابك، يرجى فحص البريد الإلكتروني لتفاصيل أكثر.");
                     }
 
                     // The Attempts incremented by one
@@ -219,38 +223,47 @@ namespace Rased.Business.Services.AuthServices
                 user.BannedReason = null;
                 user.OTP = null;
                 user.OtpExpiryTime = null;
-                // Check the Account Status
-                if(user.AccountStatus == AccountStatusConstants.SUSPENDED)
+
+                string message = "";
+                // [2] Check the Account Status
+                if (user.AccountStatus == AccountStatusConstants.SUSPENDED)
+                {
                     user.AccountStatus = AccountStatusConstants.ACTIVE;
+                    // Generate The Access Token
+                    #region Claims
+                    List<Claim> claims = new List<Claim>()
+                    {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // User ID as Subject
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email!), // User Email
+                    new Claim(JwtRegisteredClaimNames.Name, user.FullName), // User FullName
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())// Token Identifier
+                    };
+                    // Roles As Claims
+                    var UserRoles = await _userManager.GetRolesAsync(user);
+                    foreach (var role in UserRoles)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role));
+                    }
+                    #endregion
+
+                    result.AccessToken = GenerateToken(claims, verifyOtpDto.RememberMe);
+                    message = "مرحبًا، سعداء بوجودك معنا 🎉";
+                }
                 else
+                {
                     user.AccountStatus = AccountStatusConstants.RESETPWD;
+                    message = "تم التحقق من حسابك بنجاح، يمكنك الآن إعادة تعيين كلمة المرور الخاصة بك.";
+                }
+                // Update User Data
                 var updateUser = await _userManager.UpdateAsync(user);
                 if (!updateUser.Succeeded)
                 {
                     return new ApiResponse<AuthResponseDto>(updateUser.Errors.Select(d => d.Description).ToList());
-                }
-
-                // [2] Generate The Access Token
-                #region Claims
-                List<Claim> claims = new List<Claim>()
-                {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // User ID as Subject
-                new Claim(JwtRegisteredClaimNames.Email, user.Email), // User Email
-                new Claim(JwtRegisteredClaimNames.Name, user.FullName), // User FullName
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())// Token Identifier
-                };
-                // Roles As Claims
-                var UserRoles = await _userManager.GetRolesAsync(user);
-                foreach (var role in UserRoles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-                }
-                #endregion
-                result.AccessToken = GenerateToken(claims, verifyOtpDto.RememberMe);
-                result.AccountStatus = user.AccountStatus;
+                }                
                 
                 // [3] Response
-                return new ApiResponse<AuthResponseDto>(result, "مرحبًا، سعداء بوجودك معنا 🎉");
+                result.AccountStatus = user.AccountStatus;
+                return new ApiResponse<AuthResponseDto>(result, message);
             }
             catch( Exception ex )
             {
@@ -279,7 +292,7 @@ namespace Rased.Business.Services.AuthServices
                 string otp = GenerateOTP();
                 // Update User Data
                 user.OTP = otp;
-                user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(10);
+                user.OtpExpiryTime = DateTime.Now.AddMinutes(10);
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
@@ -316,12 +329,16 @@ namespace Rased.Business.Services.AuthServices
                 {
                     return new ApiResponse<string>("خطأ في البريد الإلكتروني، حاول مرة أخري!");
                 }
-
+                // Check if the account is active
+                if (user.AccountStatus == AccountStatusConstants.ACTIVE)
+                {
+                    return new ApiResponse<string>(null!, "يمكنك الإستمتاع الآن، اذهب إلي الصفحة الرئيسية!");
+                }
                 string otp = GenerateOTP();
                 // Update User Data
                 user.AccountStatus = AccountStatusConstants.RESETPWD;
                 user.OTP = otp;
-                user.OtpExpiryTime = DateTime.UtcNow.AddMinutes(10);
+                user.OtpExpiryTime = DateTime.Now.AddMinutes(10);
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
@@ -351,6 +368,11 @@ namespace Rased.Business.Services.AuthServices
                 // Check User
                 var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
                 if (user == null)
+                {
+                    return new ApiResponse<string>("خطأ ما حدث، حاول تسجيل الدخول مرة أخري!");
+                }
+                // Check the account should be RESETPWD
+                if (user.AccountStatus != AccountStatusConstants.RESETPWD)
                 {
                     return new ApiResponse<string>("خطأ ما حدث، حاول تسجيل الدخول مرة أخري!");
                 }
@@ -401,12 +423,44 @@ namespace Rased.Business.Services.AuthServices
             }
         }
 
+        // Logout User
+        public async Task<ApiResponse<string>> LogoutAsync(LogoutDto model)
+        {
+            try
+            {
+                // Check User
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    return new ApiResponse<string>("خطأ ما حدث، حاول مرة أخري!");
+                }
+                // Check if the user is active
+                if (user.AccountStatus != AccountStatusConstants.ACTIVE)
+                {
+                    return new ApiResponse<string>("خطأ ما حدث، حاول مرة أخري!");
+                }
+                // Update User Data
+                user.AccountStatus = AccountStatusConstants.INACTIVE;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    return new ApiResponse<string>(updateResult.Errors.Select(d => d.Description).ToList());
+                }
+
+                return new ApiResponse<string>(null!, "تم تسجيل الخروج بنجاح!");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>("خطأ تقني!! ... " + ex.Message);
+            }
+        }
+
 
         // Generate UserName
-        private string GenerateUserName(string fullName)
+        private string GenerateUserName()
         {
-            string name = Regex.Replace(fullName, @"\s+", "");
-            return $"{name}{new Random().Next(1, 999)}";
+            string name = "rased-user-";
+            return $"{name}{new Random().Next(1000, 9999)}";
         }
         // Generate OTP
         private string GenerateOTP()
@@ -463,10 +517,14 @@ namespace Rased.Business.Services.AuthServices
             // Every 3 wrong attempts a Ban Strategy applied
             try
             {
+                // Increment the Failed Attempts
+                user.FailedAttempts += 1;
                 int attempts = user.FailedAttempts;
+                // Check for Alerts
                 if (attempts != 0 && attempts % 3 == 0)
                 {
                     user.IsBanned = true;
+                    user.AccountStatus = AccountStatusConstants.INACTIVE;
                     string emailSubject = "🚫 إشعار بحظر الحساب";
                     string emailBody = "";
                     string banDurationText = "";
@@ -476,7 +534,6 @@ namespace Rased.Business.Services.AuthServices
                         user.BannedReason = $"الكثير من المحاولات الخاطئة مما أدي لحظر الحساب لمدة [{BanAcountConstants.QUARTER}]";
                         user.BannedDuration = BanAcountConstants.QUARTER;
                         user.BanBrokeAt = DateTime.Now.AddMinutes(15);
-                        user.FailedAttempts = attempts + 1;
                         banDurationText = "15 دقيقة";
                     }
                     else if (attempts / 3 == 2)
@@ -484,7 +541,6 @@ namespace Rased.Business.Services.AuthServices
                         user.BannedReason = $"الكثير من المحاولات الخاطئة مما أدي لحظر الحساب لمدة [{BanAcountConstants.ONE_HOUR}]";
                         user.BannedDuration = BanAcountConstants.ONE_HOUR;
                         user.BanBrokeAt = DateTime.Now.AddHours(1);
-                        user.FailedAttempts = attempts + 1;
                         banDurationText = "ساعة واحدة";
                     }
                     else if (attempts / 3 == 3)
@@ -492,7 +548,6 @@ namespace Rased.Business.Services.AuthServices
                         user.BannedReason = $"الكثير من المحاولات الخاطئة مما أدي لحظر الحساب لمدة [{BanAcountConstants.ONE_DAY}]";
                         user.BannedDuration = BanAcountConstants.ONE_DAY;
                         user.BanBrokeAt = DateTime.Now.AddDays(1);
-                        user.FailedAttempts = attempts + 1;
                         banDurationText = "يوم كامل";
                     }
                     else
@@ -500,7 +555,7 @@ namespace Rased.Business.Services.AuthServices
                         user.BannedReason = $"الكثير من المحاولات الخاطئة مما أدي لحظر الحساب لمدة [{BanAcountConstants.FOREVER}]";
                         user.BannedDuration = BanAcountConstants.FOREVER;
                         user.BanBrokeAt = null;
-                        banDurationText = "غير محددة (حظر دائم)";
+                        banDurationText = "غير محدد (حظر دائم)";
                     }
 
                     // Email Body (HTML)
@@ -529,10 +584,6 @@ namespace Rased.Business.Services.AuthServices
                     await _emailService.SendEmailAsync(user.Email!, emailSubject, emailBody);
                     // Response
                     result.IsBanned = true;
-                }
-                else
-                {
-                    user.FailedAttempts = attempts + 1;
                 }
 
                 // Update User Data
@@ -566,7 +617,7 @@ namespace Rased.Business.Services.AuthServices
             SigningCredentials signingCredential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             //Determine Expiration
-            DateTime tokenExpiration = RememberMe ? DateTime.UtcNow.AddDays(3) : DateTime.UtcNow.AddDays(1);
+            DateTime tokenExpiration = RememberMe ? DateTime.Now.AddDays(3) : DateTime.Now.AddDays(1);
 
             //Token
             JwtSecurityToken jwtSecurityToken = new JwtSecurityToken
