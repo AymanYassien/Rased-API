@@ -2,12 +2,9 @@
 
 namespace Rased.Business.Dtos.Auths
 {
-    public class VerifyOtpDto
+    public class LogoutDto
     {
-        public bool RememberMe { get; set; }
         [Required]
         public string Email { get; set; } = null!;
-        [Required]
-        public string OTP { get; set; } = null!;
     }
 }

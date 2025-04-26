@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Rased.Business.Dtos.Auths
 {
     public class ResetPasswordDto
     {
-        [Required(ErrorMessage = "Email is required")]
+        [Required(ErrorMessage = "البريد الإلكتروني مطلوب")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Invalid Email Format")]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "Password is required")]
+        [Required(ErrorMessage = "رقم المرور مطلوب")]
         [DataType(DataType.Password)]
-        [StringLength(100, ErrorMessage = "Password must be at least 6 characters long", MinimumLength = 6)]
-        public string NewPassword { get; set; }
+        //[StringLength(100, ErrorMessage = "Password must be at least 6 characters long", MinimumLength = 6)]
+        public string NewPassword { get; set; } = null!;
 
-        [Required(ErrorMessage = "Password confirmation is required")]
+        [Required(ErrorMessage = "تأكيد رقم المرور مطلوب")]
         [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Password and confirmation do not match")]
-        public string ConfirmedNewPassword { get; set; }
-
-        public string OTP { get; set; }
+        [Compare("NewPassword", ErrorMessage = "رقم المرور لابد أن يكون مُطابق")]
+        public string ConfirmedNewPassword { get; set; } = null!;
     }
 }

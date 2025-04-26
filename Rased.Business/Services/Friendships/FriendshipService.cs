@@ -67,7 +67,7 @@ namespace Rased.Business.Services.Friendships
                 await _unitOfWork.CommitChangesAsync();
 
                 // Send an Email to the receiver about a new friend request
-                var senderName = $"{sender.FirstName} {sender.LastName}";
+                var senderName = $"{sender.FullName}";
                 string emailSubject = $"📩 {senderName} أرسل لك طلب صداقة";
                 string emailBody = $@"
                 <h2 style='color: #2c3e50;'>👋 مرحبًا!</h2>
@@ -88,9 +88,9 @@ namespace Rased.Business.Services.Friendships
                 ";
                 var sendEmail = await _emailService.SendEmailAsync(model.ReceiverEmail, emailSubject, emailBody);
                 if (!sendEmail.successed)
-                    return new ApiResponse<string>(null, "تم إرسال طلب الصداقة بنجاح بنجاح .. خطأ تقني في إرسال إيميل بطلب الصداقة!");
+                    return new ApiResponse<string>(null!, "تم إرسال طلب الصداقة بنجاح بنجاح .. خطأ تقني في إرسال إيميل بطلب الصداقة!");
 
-                return new ApiResponse<string>(null, "لقد تم إرسال طلب الصداقة بنجاح!");
+                return new ApiResponse<string>(null!, "لقد تم إرسال طلب الصداقة بنجاح!");
             }
             catch(Exception ex)
             {
@@ -120,8 +120,8 @@ namespace Rased.Business.Services.Friendships
                     // Get the sender and receiver data
                     var sender = await _unitOfWork.Friendships.GetUserByIdAsync(friendship.SenderId);
                     var receiver = await _unitOfWork.Friendships.GetUserByIdAsync(receiverId);
-                    string receiverName = $"{receiver.FirstName} {receiver.LastName}";
-                    string senderName = $"{sender.FirstName} {sender.LastName}";
+                    string receiverName = $"{receiver.FullName}";
+                    string senderName = $"{sender.FullName}";
                     // Send an Email to the sender friend
                     string emailSubject = $"🎉 تم قبول طلب الصداقة الخاص بك!";
                     string emailBody = $@"
@@ -209,7 +209,7 @@ namespace Rased.Business.Services.Friendships
 
                         userFriends.Add(new UserFriendDto
                         {
-                            FullName = $"{friend.Receiver.FirstName} {friend.Receiver.LastName}",
+                            FullName = $"{friend.Receiver.FullName}",
                             Email = friend.Receiver.Email,
                             ProfilePic = friend.Receiver.ProfilePic,
                             Country = friend.Receiver.Country,
@@ -233,7 +233,7 @@ namespace Rased.Business.Services.Friendships
 
                         userFriends.Add(new UserFriendDto
                         {
-                            FullName = $"{friend.Sender.FirstName} {friend.Sender.LastName}",
+                            FullName = $"{friend.Sender.FullName}",
                             Email = friend.Sender.Email,
                             ProfilePic = friend.Sender.ProfilePic,
                             Country = friend.Sender.Country,
