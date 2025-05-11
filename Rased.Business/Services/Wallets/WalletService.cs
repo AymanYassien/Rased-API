@@ -1,6 +1,7 @@
 ﻿using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.Wallets;
 using Rased.Infrastructure;
+using Rased.Infrastructure.Models.Extras;
 using Rased.Infrastructure.UnitsOfWork;
 using System.Linq.Expressions;
 
@@ -23,14 +24,17 @@ namespace Rased.Business.Services.Wallets
             var wallets = _unitOfWork.Wallets.GetData(filters, null, false).AsEnumerable();
             // Check if there are no wallets
             if (!wallets.Any())
-                return new ApiResponse<IEnumerable<ReadWalletDto>>("No Wallets Found");
+                return new ApiResponse<IEnumerable<ReadWalletDto>>("لا يوجد لديك محافظ شخصية حتي الآن");
 
             // Mapping Wallets
             foreach (var wallet in wallets)
             {
                 // Get Wallet Data Parts
                 var walletDataParts = await _unitOfWork.Wallets.GetWalletDataPartsAsync(wallet.WalletId);
-                var walletData = MapWalletData(wallet, walletDataParts.Currency ?? "", walletDataParts.Color ?? "", walletDataParts.Status ?? "");
+                var curr = new WalletCurrency { Id = walletDataParts.Currency!.Id, Name = walletDataParts.Currency.Name };
+                var color = new WalletColor { Id = walletDataParts.Color!.Id, Name = walletDataParts.Color.Name };
+                var status = new WalletStatus { Id = walletDataParts.Status!.Id, Name = walletDataParts.Status.Name };
+                var walletData = MapWalletData(wallet, curr, color, status);
                 result.Add(walletData);
             }
 
@@ -79,7 +83,7 @@ namespace Rased.Business.Services.Wallets
                 return new ApiResponse<string>(e.Message);
             }
 
-            return new ApiResponse<string>(null, "Wallet Added Successfully");
+            return new ApiResponse<string>(null, "تم إضافة محفظة جديدة بنجاح!");
         }
 
         public async Task<ApiResponse<ReadWalletDto>> GetWalletByIdAsync(int id, string userId)
@@ -89,10 +93,13 @@ namespace Rased.Business.Services.Wallets
 
             var wallet = _unitOfWork.Wallets.GetData(filters, null, false).FirstOrDefault();
             if (wallet == null)
-                return new ApiResponse<ReadWalletDto>("Wallet Not Found");
+                return new ApiResponse<ReadWalletDto>("المحفظة غير موجودة أو لا يمكنك الوصول لها!");
             // Get Wallet Data Parts
             var walletDataParts = await _unitOfWork.Wallets.GetWalletDataPartsAsync(wallet.WalletId);
-            var walletData = MapWalletData(wallet, walletDataParts.Currency ?? "", walletDataParts.Color ?? "", walletDataParts.Status ?? "");
+            var curr = new WalletCurrency { Id = walletDataParts.Currency!.Id, Name = walletDataParts.Currency.Name };
+            var color = new WalletColor { Id = walletDataParts.Color!.Id, Name = walletDataParts.Color.Name };
+            var status = new WalletStatus { Id = walletDataParts.Status!.Id, Name = walletDataParts.Status.Name };
+            var walletData = MapWalletData(wallet, curr, color, status);
 
             return new ApiResponse<ReadWalletDto>(walletData);
         }
@@ -116,7 +123,7 @@ namespace Rased.Business.Services.Wallets
                 Expression<Func<Wallet, bool>>[] filters = { x => x.WalletId == walletId && x.CreatorId == userId };
                 var wallet = _unitOfWork.Wallets.GetData(filters, null, true).FirstOrDefault();
                 if (wallet == null)
-                    return new ApiResponse<string>("Wallet Not Found");
+                    return new ApiResponse<string>("المحفظة غير موجودة أو لا يمكنك الوصول لها!");
 
                 decimal totalBalance = (model.InitialBalance - wallet.InitialBalance) + wallet.TotalBalance;
 
@@ -145,7 +152,7 @@ namespace Rased.Business.Services.Wallets
                 return new ApiResponse<string>(e.Message);
             }
 
-            return new ApiResponse<string>(null, "Wallet Updated Successfully");
+            return new ApiResponse<string>(null!, "تم تحديث بيانات المحفظة بنجاح!");
         }
 
         public async Task<ApiResponse<string>> RemoveWalletAsync(int id, string userId)
@@ -157,7 +164,7 @@ namespace Rased.Business.Services.Wallets
 
                 var wallet = _unitOfWork.Wallets.GetData(filters, null, true).FirstOrDefault();
                 if (wallet == null)
-                    return new ApiResponse<string>("Wallet Not Found");
+                    return new ApiResponse<string>("المحفظة غير موجودة أو لا يمكنك الوصول لها!");
 
                 // Remove the wallet
                 _unitOfWork.Wallets.Remove(wallet);
@@ -168,11 +175,47 @@ namespace Rased.Business.Services.Wallets
                 return new ApiResponse<string>(e.Message);
             }
 
-            return new ApiResponse<string>(null!, "Wallet Removed Successfully");
+            return new ApiResponse<string>(null!, "تم حذف المحفظة بنجاح!");
+        }
+
+        // Get Wallet Data Parts
+        public ApiResponse<WalletDataPartsDto> GetWalletDataParts()
+        {
+            var result = new WalletDataPartsDto();
+
+            var status = _unitOfWork.Wallets.GetData<StaticWalletStatusData>(null, null, false).AsEnumerable();
+            if (status.Any())
+            {
+                result.Status = status.Select(x => new WalletStatus
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToList();
+            }
+            var color = _unitOfWork.Wallets.GetData<StaticColorTypeData>(null, null, false).AsEnumerable();
+            if (color.Any())
+            {
+                result.Color = color.Select(x => new WalletColor
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToList();
+            }
+            var currency = _unitOfWork.Wallets.GetData<Currency>(null, null, false).AsEnumerable();
+            if (currency.Any())
+            {
+                result.Currency = currency.Select(x => new WalletCurrency
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToList();
+            }
+
+            return new ApiResponse<WalletDataPartsDto>(result, "تم استعادة البيانات المطلوبة!");
         }
 
         // Mapping Wallet Data
-        private static ReadWalletDto MapWalletData(Wallet wallet, string curr, string color, string status)
+        private static ReadWalletDto MapWalletData(Wallet wallet, WalletCurrency curr, WalletColor color, WalletStatus status)
         {
             return new ReadWalletDto
             {
@@ -183,9 +226,9 @@ namespace Rased.Business.Services.Wallets
                 InitialBalance = wallet.InitialBalance,
                 TotalBalance = wallet.TotalBalance,
                 ExpenseLimit = wallet.ExpenseLimit,
-                Currency = curr,
-                Color = color,
-                Status = status,
+                WalletCurrency = curr,
+                WalletColor = color,
+                WalletStatus = status,
                 CreatedAt = wallet.CreatedDate,
                 UpdatedAt = wallet.LastModified
             };

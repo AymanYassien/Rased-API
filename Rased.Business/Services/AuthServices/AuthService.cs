@@ -56,7 +56,7 @@ namespace Rased.Business.Services.AuthServices
                     UserName = userName,
                     OTP = otp,
                     AccountStatus = AccountStatusConstants.SUSPENDED,
-                    OtpExpiryTime = DateTime.Now.AddMinutes(10),
+                    OtpExpiryTime = DateTime.Now.AddMinutes(2),
                     CreatedAt = DateTime.Now
                 };
                 // Create User
@@ -105,16 +105,10 @@ namespace Rased.Business.Services.AuthServices
                 {
                     return new ApiResponse<string>("خطأ في البريد الإلكتروني أو رقم المرور!");
                 }
-                // Check if the account is active
-                if (user.AccountStatus == AccountStatusConstants.ACTIVE)
-                {
-                    return new ApiResponse<string>(null!, "يمكنك الإستمتاع الآن، اذهب إلي الصفحة الرئيسية!");
-                }
-                // Check if the account already suspended
-                if (user.AccountStatus == AccountStatusConstants.SUSPENDED)
-                {
-                    return new ApiResponse<string>(null!, $"أهلا '{user.FullName}' باقي خطوة واحدة للإستمتاع 🚀");
-                }
+
+                // >> NOTE <<
+                // As long as the frontend reached this endpoint, we treat the request as it is for InActive Account
+
                 // Check if the user is banned
                 if (user.IsBanned)
                 {
@@ -149,7 +143,7 @@ namespace Rased.Business.Services.AuthServices
                 // Update Account Status and OTP
                 user.AccountStatus = AccountStatusConstants.SUSPENDED;
                 user.OTP = otp;
-                user.OtpExpiryTime = DateTime.Now.AddMinutes(10);
+                user.OtpExpiryTime = DateTime.Now.AddMinutes(2);
                 var accStat = await _userManager.UpdateAsync(user);
                 if (!accStat.Succeeded)
                 {
@@ -165,7 +159,7 @@ namespace Rased.Business.Services.AuthServices
             }
         }
 
-        // Verify The Acount
+        // Verify The Account
         public async Task<ApiResponse<AuthResponseDto>> VerifyOtpAsync(VerifyOtpDto verifyOtpDto)
         {
             var result = new AuthResponseDto();
@@ -236,6 +230,7 @@ namespace Rased.Business.Services.AuthServices
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // User ID as Subject
                     new Claim(JwtRegisteredClaimNames.Email, user.Email!), // User Email
                     new Claim(JwtRegisteredClaimNames.Name, user.FullName), // User FullName
+                    new Claim(JwtRegisteredClaimNames.Typ, user.UserBadge), // User Badge
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())// Token Identifier
                     };
                     // Roles As Claims
@@ -292,7 +287,7 @@ namespace Rased.Business.Services.AuthServices
                 string otp = GenerateOTP();
                 // Update User Data
                 user.OTP = otp;
-                user.OtpExpiryTime = DateTime.Now.AddMinutes(10);
+                user.OtpExpiryTime = DateTime.Now.AddMinutes(2);
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
@@ -334,11 +329,35 @@ namespace Rased.Business.Services.AuthServices
                 {
                     return new ApiResponse<string>(null!, "يمكنك الإستمتاع الآن، اذهب إلي الصفحة الرئيسية!");
                 }
+                // Check if the user is banned
+                if (user.IsBanned)
+                {
+                    // Check if the Broke Date has value
+                    if (user.BanBrokeAt == null || user.BanBrokeAt.Value > DateTime.Now)
+                    {
+                        return new ApiResponse<string>("تم حظر حسابك، يرجي فحص البريد الإلكتروني لتفاصيل أكثر");
+                    }
+                    else
+                    {
+                        // ---> Update banning data (Should be tasked by the system)
+                        user.IsBanned = false;
+                        user.BanBrokeAt = null;
+                        user.BannedDuration = null;
+                        user.BannedReason = null;
+                        var banData = await _userManager.UpdateAsync(user);
+                        if (!banData.Succeeded)
+                        {
+                            return new ApiResponse<string>(banData.Errors.Select(d => d.Description).ToList());
+                        }
+                    }
+                }
+
+                // OTP
                 string otp = GenerateOTP();
                 // Update User Data
                 user.AccountStatus = AccountStatusConstants.RESETPWD;
                 user.OTP = otp;
-                user.OtpExpiryTime = DateTime.Now.AddMinutes(10);
+                user.OtpExpiryTime = DateTime.Now.AddMinutes(2);
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
@@ -399,7 +418,7 @@ namespace Rased.Business.Services.AuthServices
                 }
 
                 // Send an email to tell the user that the password has been changed
-                string emailSubject = "🔐 إعادة تعيين كلمة المرور";
+                string emailSubject = "🔐 نجحت ــ إعادة تعيين كلمة المرور";
                 string emailBody = $@"
                 <p>مرحبًا <strong>{user.FullName}</strong>،</p>
                 <p>
@@ -489,7 +508,7 @@ namespace Rased.Business.Services.AuthServices
                 🔹 <strong>{otp}</strong>
             </p>
 
-            <p>⏰ هذا الرمز صالح لمدة <strong>10 دقائق</strong> فقط.</p>
+            <p>⏰ هذا الرمز صالح لمدة <strong>2 دقيقتان</strong> فقط.</p>
 
             <p style='color: #c0392b;'>⚠️ الرجاء عدم مشاركة هذا الرمز مع أي شخص حفاظًا على أمان حسابك.</p>
 

@@ -1,10 +1,16 @@
-﻿namespace Rased.Infrastructure.Repositoryies.DTOs
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Rased.Business.Dtos.Wallets
 {
     public class WalletDataPartsDto
     {
-        public WalletColor Color { get; set; } = new();
-        public WalletStatus Status { get; set; } = new();
-        public WalletCurrency Currency { get; set; } = new();
+        public List<WalletStatus>? Status { get; set; }
+        public List<WalletColor>? Color { get; set; }
+        public List<WalletCurrency>? Currency { get; set; }
     }
 
     public class WalletCurrency
