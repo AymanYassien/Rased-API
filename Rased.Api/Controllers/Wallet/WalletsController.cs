@@ -82,5 +82,14 @@ namespace Rased.Api.Controllers.Wallet
 
             return Ok(result);
         }
+
+        [AllowAnonymous]
+        [HttpGet("DataParts", Name = "DataParts")]
+        public IActionResult GetDataParts()
+        {
+            var result = _walletService.GetWalletDataParts();
+
+            return Ok(result);
+        }
     }
 }

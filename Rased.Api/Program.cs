@@ -164,27 +164,41 @@ namespace Rased.Api
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
 
                 // ? Â‰«  ÷Ì› «·›· — «··Ì ÌŒ·¯Ì Swagger Ì›Â„ «·‹ IFormFile
                 //c.OperationFilter<FileUploadOperationFilter>();
             });
 
+            // Add CORS services
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
 
 
             var app = builder.Build();
+
+            // Enable CORS
+            app.UseCors("AllowAll");
 
             // Call the SeedRoles method
             using (var scope = app.Services.CreateScope())
