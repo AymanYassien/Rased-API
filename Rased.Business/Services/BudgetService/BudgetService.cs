@@ -635,12 +635,18 @@ public class BudgetService : IBudgetService
         try
         {
             var data = await _unitOfWork.Budget.GetFinancialGraphDataAsync(walletId, isShared);
-            var res =  data.Select(d => new FinancialGraphDto
-            {
-                Period = d.period,
-                Income = d.income,
-                Expense = d.expense
-            }).ToList();
+
+            if (data == null) 
+                return _response.Response(false, null, "",
+                    "Not Found ",  HttpStatusCode.NotFound);
+            
+                var res = data.Select(d => new FinancialGraphDto
+                {
+                    Period = d.period,
+                    Income = d.income,
+                    Expense = d.expense
+                }).ToList();
+            
             
             return _response.Response(true, res, "",
                 "",  HttpStatusCode.OK);
@@ -663,6 +669,10 @@ public class BudgetService : IBudgetService
         try
         {
             var (total, budgetExpenses) = await _unitOfWork.Budget.GetBudgetsStatisticsAsync(walletId, isShared);
+            if (total == 0 && budgetExpenses is null)
+                return _response.Response(false, null, "",
+                    "Not Found ",  HttpStatusCode.NotFound);
+            
             var res = new ExpensesByBudgetDto
             {
                 Total = total,
