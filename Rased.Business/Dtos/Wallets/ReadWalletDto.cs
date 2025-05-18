@@ -12,8 +12,8 @@
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         // Relations
-        public string? Status { get; set; }
-        public string? Color { get; set; }
-        public string? Currency { get; set; }
+        public WalletColor? WalletColor { get; set; }
+        public WalletCurrency? WalletCurrency { get; set; }
+        public WalletStatus? WalletStatus { get; set; }
     }
 }

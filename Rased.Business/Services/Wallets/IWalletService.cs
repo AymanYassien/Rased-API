@@ -10,5 +10,8 @@ namespace Rased.Business.Services.Wallets
         Task<ApiResponse<string>> AddWalletAsync(RequestWalletDto model, string userId);
         Task<ApiResponse<string>> UpdateWalletAsync(RequestWalletDto model, int walletId, string userId);
         Task<ApiResponse<string>> RemoveWalletAsync(int Id, string userId);
+
+        // Get Wallet Data Prts
+        ApiResponse<WalletDataPartsDto> GetWalletDataParts();
     }
 }

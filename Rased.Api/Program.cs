@@ -22,6 +22,8 @@ using Rased.Business.Services.SubCategories;
 using Rased.Business.Services.Transfer;
 using Rased.Business.Services.SharedWallets;
 using Rased.Business.Services.Friendships;
+using Rased.Business.Services.Bills;
+using Rased.Infrastructure.Helpers;
 
 namespace Rased.Api
 {
@@ -114,8 +116,10 @@ namespace Rased.Api
             builder.Services.AddScoped<ITransactionRejectionService, TransactionRejectionService>();
             builder.Services.AddScoped<IStaticReceiverTypeDataService, StaticReceiverTypeDataService>();
             builder.Services.AddScoped<IStaticTransactionStatusService, StaticTransactionStatusService>();
-           
-          
+            builder.Services.AddScoped<IBillService, BillService>();
+            builder.Services.AddHttpClient();
+
+
             builder.Services.AddScoped<IExpenseService, ExpenseService>();
             builder.Services.AddScoped<IExpenseTemplateService, ExpenseTemplateService>();
             builder.Services.AddScoped<IIncomeService, IncomeService>();
@@ -148,6 +152,7 @@ namespace Rased.Api
             //builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(c =>
             {
+                // ≈⁄œ«œ JWT Bearer
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -159,23 +164,41 @@ namespace Rased.Api
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] { }
-        }
-    });
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+
+                // ? Â‰«  ÷Ì› «·›· — «··Ì ÌŒ·¯Ì Swagger Ì›Â„ «·‹ IFormFile
+                //c.OperationFilter<FileUploadOperationFilter>();
+            });
+
+            // Add CORS services
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
             });
 
 
             var app = builder.Build();
+
+            // Enable CORS
+            app.UseCors("AllowAll");
 
             // Call the SeedRoles method
             using (var scope = app.Services.CreateScope())

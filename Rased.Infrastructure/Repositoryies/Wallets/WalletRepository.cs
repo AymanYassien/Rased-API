@@ -25,9 +25,13 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             if (wallet is null)
                 return result;
 
-            result.Status = wallet.StaticWalletStatusData.Name;
-            result.Color = wallet.StaticColorTypeData.Name;
-            result.Currency = wallet.Currency.Name;
+            result.Status.Name = wallet.StaticWalletStatusData.Name;
+            result.Color.Name = wallet.StaticColorTypeData.Name;
+            result.Currency.Name = wallet.Currency.Name;
+
+            result.Status.Id = wallet.StaticWalletStatusData.Id;
+            result.Color.Id = wallet.StaticColorTypeData.Id;
+            result.Currency.Id = wallet.Currency.Id;
 
             return result;
         }
@@ -58,7 +62,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
                 var checkName = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
                 if (checkName is not null && checkName.Name != walletName)
                 {
-                    result.Message = "يجب أن يكون اسم المحفظة فريدًا!";
+                    result.Message = "اسم المحفظة مُكرر، حاول مرة أخري!";
                     return result;
                 }
             }
@@ -68,7 +72,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
                 var walletUnique = await _context.Wallets.FirstOrDefaultAsync(x => x.Name == walletName);
                 if (walletUnique is not null)
                 {
-                    result.Message = "يجب أن يكون اسم المحفظة فريدًا!";
+                    result.Message = "اسم المحفظة مُكرر، حاول مرة أخري!";
                     return result;
                 }
             }
@@ -77,7 +81,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             var color = await _context.StaticColorTypes.FirstOrDefaultAsync(x => x.Id == colorId);
             if (color is null)
             {
-                result.Message = "خطأ تقني!";
+                result.Message = "من فضلك اختر لون محفظتك";
                 return result;
             }
 
@@ -85,7 +89,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             var status = await _context.StaticWalletStatus.FirstOrDefaultAsync(x => x.Id == statusId);
             if (status is null)
             {
-                result.Message = "خطأ تقني!";
+                result.Message = "من فضلك اختر حالة المحفظة";
                 return result;
             }
 
@@ -93,7 +97,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             var currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == currId);
             if (currency is null)
             {
-                result.Message = "خطأ تقني!";
+                result.Message = "من فضلك اختر عملة المحفظة";
                 return result;
             }
 
@@ -144,5 +148,6 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
             return false;
         }
        
+
     }
 }

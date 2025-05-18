@@ -2,13 +2,6 @@
 using MimeKit;
 using MailKit.Security;
 using Rased.Business.Dtos.Auths;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace Rased.Business.Services.AuthServices
 {
