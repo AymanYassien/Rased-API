@@ -284,8 +284,8 @@ namespace Rased.Business.Services.SharedWallets
                 includes = new Expression<Func<SharedWalletMembers, object>>[] { x => x.Member };
                 var swMembers = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(filters, includes, false).AsEnumerable();
                 var ownerMember = swMembers.FirstOrDefault(x => x.Role == AccessLevelConstants.OWNER);
-                string ownerName = ownerMember == null ? "UnKnown" : $"{ownerMember!.Member.FirstName} {ownerMember.Member.LastName}";
-                var senderName = $"{sender.Member.FirstName} {sender.Member.LastName}";
+                string ownerName = ownerMember == null ? "UnKnown" : $"{ownerMember!.Member.FullName}";
+                var senderName = $"{sender.Member.FullName}";
                 // Send an Email
                 string emailSubject = $"📩 دعوة للانضمام إلى المحفظة المشتركة: {sw.Name}";
                 string emailBody = $@"
@@ -360,7 +360,7 @@ namespace Rased.Business.Services.SharedWallets
                     var ownerMember = await _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(ownerFilter, ownerIncludes, false).FirstOrDefaultAsync();
                     if (ownerMember is not null)
                     {
-                        string memberName = $"{invite.Receiver.FirstName} {invite.Receiver.LastName}";
+                        string memberName = $"{invite.Receiver.FullName}";
                         string memberEmail = invite.Receiver.Email!;
                         string swName = invite.SharedWallet.Name;
                         string emailSubject = $"عضو جديد في المحفظة المشتركة ’{swName}’ ✅";
@@ -501,7 +501,7 @@ namespace Rased.Business.Services.SharedWallets
             var membersList = members?.Select(m => new SWMembersDto
             {
                 Email = m.Member.Email,
-                FullName = $"{m.Member.FirstName} {m.Member.LastName}",
+                FullName = $"{m.Member.FullName}",
                 Role = m.Role
             }).ToList();
 

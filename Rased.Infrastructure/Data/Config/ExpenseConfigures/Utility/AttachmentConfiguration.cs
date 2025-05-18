@@ -10,11 +10,13 @@ namespace Rased.Business
     {
         public void Configure(EntityTypeBuilder<Attachment> builder)
         {
-
             builder.HasKey(a => a.AttachmentId);
 
             builder.Property(a => a.ExpenseId)
-                .IsRequired();
+                .IsRequired(false); 
+
+            builder.Property(a => a.BillDraftId)
+                .IsRequired(false); 
 
             builder.Property(a => a.FilePath)
                 .IsRequired()
@@ -39,15 +41,25 @@ namespace Rased.Business
                 .IsRequired()
                 .HasColumnType("datetime");
 
-            // Relationship
+     
             builder.HasOne(a => a.Expense)
                 .WithMany()
                 .HasForeignKey(a => a.ExpenseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Index 
+         
+            builder.HasOne(a => a.BillDraft)
+                .WithMany()
+                .HasForeignKey(a => a.BillDraftId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+         
             builder.HasIndex(a => a.ExpenseId)
                 .HasDatabaseName("IX_Attachment_ExpenseId");
+
+            builder.HasIndex(a => a.BillDraftId)
+                .HasDatabaseName("IX_Attachment_BillDraftId");
         }
     }
+
 }

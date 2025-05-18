@@ -136,7 +136,10 @@ namespace Rased.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttachmentId"));
 
-                    b.Property<int>("ExpenseId")
+                    b.Property<int?>("BillDraftId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExpenseId")
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
@@ -159,6 +162,9 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("datetime");
 
                     b.HasKey("AttachmentId");
+
+                    b.HasIndex("BillDraftId")
+                        .HasDatabaseName("IX_Attachment_BillDraftId");
 
                     b.HasIndex("ExpenseId")
                         .HasDatabaseName("IX_Attachment_ExpenseId");
@@ -711,6 +717,38 @@ namespace Rased.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_IncomeTemplate_WalletOrSharedWallet", "((WalletId IS NULL AND SharedWalletId IS NOT NULL) OR (WalletId IS NOT NULL AND SharedWalletId IS NULL))");
                         });
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.Bills.BillDraft", b =>
+                {
+                    b.Property<int>("BillDraftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BillDraftId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("DECIMAL(18, 2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<int?>("SharedWalletId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WalletId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BillDraftId");
+
+                    b.HasIndex("SharedWalletId");
+
+                    b.HasIndex("WalletId");
+
+                    b.ToTable("BillDrafts", (string)null);
                 });
 
             modelBuilder.Entity("Rased.Infrastructure.Models.Debts.Loan", b =>
@@ -1403,7 +1441,22 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("AccountStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR(50)")
+                        .HasDefaultValue("غير نشط");
+
                     b.Property<string>("Address")
+                        .HasColumnType("NVARCHAR(MAX)");
+
+                    b.Property<DateTime?>("BanBrokeAt")
+                        .HasColumnType("DATETIME2");
+
+                    b.Property<string>("BannedDuration")
+                        .HasColumnType("NVARCHAR(20)");
+
+                    b.Property<string>("BannedReason")
                         .HasColumnType("NVARCHAR(MAX)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -1426,16 +1479,17 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FirstName")
+                    b.Property<int>("FailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("NVARCHAR(255)");
 
                     b.Property<bool>("IsBanned")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR(255)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIT")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -1452,10 +1506,10 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("OTP")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("NVARCHAR(20)");
 
                     b.Property<DateTime?>("OtpExpiryTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("DATETIME2");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -1469,12 +1523,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<byte[]>("ProfilePic")
                         .HasColumnType("IMAGE");
 
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("RefreshTokenExpiryTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -1483,6 +1531,12 @@ namespace Rased.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("DATETIME2");
+
+                    b.Property<string>("UserBadge")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NVARCHAR(255)")
+                        .HasDefaultValue("جديد");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -2120,11 +2174,17 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Attachment", b =>
                 {
+                    b.HasOne("Rased.Infrastructure.Models.Bills.BillDraft", "BillDraft")
+                        .WithMany("Attachments")
+                        .HasForeignKey("BillDraftId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("Rased.Infrastructure.Expense", "Expense")
                         .WithMany("Attachments")
                         .HasForeignKey("ExpenseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("BillDraft");
 
                     b.Navigation("Expense");
                 });
@@ -2340,6 +2400,23 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("SharedWallet");
 
                     b.Navigation("SubCategory");
+
+                    b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("Rased.Infrastructure.Models.Bills.BillDraft", b =>
+                {
+                    b.HasOne("Rased.Infrastructure.Models.SharedWallets.SharedWallet", "SharedWallet")
+                        .WithMany("BillDrafts")
+                        .HasForeignKey("SharedWalletId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Rased.Infrastructure.Wallet", "Wallet")
+                        .WithMany("BillDrafts")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("SharedWallet");
 
                     b.Navigation("Wallet");
                 });
@@ -2778,6 +2855,11 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("Attachments");
                 });
 
+            modelBuilder.Entity("Rased.Infrastructure.Models.Bills.BillDraft", b =>
+                {
+                    b.Navigation("Attachments");
+                });
+
             modelBuilder.Entity("Rased.Infrastructure.Models.Debts.Loan", b =>
                 {
                     b.Navigation("LoanInstallments");
@@ -2803,6 +2885,8 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Models.SharedWallets.SharedWallet", b =>
                 {
+                    b.Navigation("BillDrafts");
+
                     b.Navigation("Budgets");
 
                     b.Navigation("Expenses");
@@ -2889,6 +2973,8 @@ namespace Rased.Infrastructure.Migrations
 
             modelBuilder.Entity("Rased.Infrastructure.Wallet", b =>
                 {
+                    b.Navigation("BillDrafts");
+
                     b.Navigation("Budgets");
 
                     b.Navigation("Expenses");

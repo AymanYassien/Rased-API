@@ -15,6 +15,7 @@ using Rased.Infrastructure.Repositoryies.Goals;
 using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.Repositoryies.SharedWallets;
 using Rased.Infrastructure.Repositoryies.Friendships;
+using Rased.Infrastructure.Models.Bills;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -32,6 +33,14 @@ namespace Rased.Infrastructure.UnitsOfWork
         public IRepository<StaticTransactionStatusData, int> StaticTransactionStatus{ get; }
         public IRepository<TransactionApproval, int> TransactionApprovals { get; }
         public IRepository<TransactionRejection, int> TransactionRejections { get; }
+        public IRepository<BillDraft, int> BillDrafts { get; }
+
+
+        // All System IServices ..
+        // IAuthService RasedAuth { get; }
+        // ....
+        
+
 
         public IPaymentMethodRepository PaymentMethods { get; }                
         public IAttachmentRepository Attachments { get; }
