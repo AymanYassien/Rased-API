@@ -147,6 +147,27 @@ public class BudgetController : ControllerBase
     }
     
     
+    [HttpGet("wallet/{walletId}/get-statistics")]
+    public async Task<IActionResult> GetStatistics([FromRoute] int walletId, bool isShared = false)
+    {
+        var response = await _budgetService.GetFinancialStatusAsync(walletId, isShared);
+        return StatusCode((int)response.StatusCode, response);
+    }
+    
+    [HttpGet("wallet/{walletId}/graph-statistics")]
+    public async Task<IActionResult> GraphStatistics([FromRoute] int walletId, bool isShared = false)
+    {
+        var response = await _budgetService.GetFinancialGraphDataAsync(walletId, isShared);
+        return StatusCode((int)response.StatusCode, response);
+    }
+    
+    [HttpGet("wallet/{walletId}/budgets-statistics")]
+    public async Task<IActionResult> GetBudgetsStatisticsAsync([FromRoute] int walletId, bool isShared = false)
+    {
+        var response = await _budgetService.GetBudgetsStatisticsAsync(walletId, isShared);
+        return StatusCode((int)response.StatusCode, response);
+    }
+    
     [HttpGet("{budgetId}/remaining")]
     public async Task<IActionResult> GetRemainingAmount([FromRoute] int budgetId)
     {

@@ -17,5 +17,28 @@ public interface IBudgetRepository : IRepository_Test<Budget, int>
     Task<bool> UpdateBudgetSpentAmountAsync(int budgetId, decimal newSpent);
     public Task<decimal> GetRemainingAmountAsync(int budgetId);
 
+    Task<string> GetHighestBudgetExpensesAmountForWallet(int walletId, bool isShared);
+    Task<string> GetLowestBudgetExpensesAmountForWallet(int walletId, bool isShared);
+    Task<string> GetRemainderRatioForBudget(int walletId, bool isShared);
+    Task<decimal> GetBudgetsAmountAndRatioAccordingWallet(int walletId, bool isShared = false);
+    Task<decimal> GetTotalAmountsForWalletBudgets();
 
+    public Task<(decimal totalIncome, decimal totalExpenses, int expensesOperationsNumber)> GetFinancialStatusAsync(
+        int walletId, bool isShared = false);
+
+    public Task<List<(string period, decimal income, decimal expense)>> GetFinancialGraphDataAsync(int walletId,
+        bool isShared = false);
+
+    public Task<List<(string period, decimal income, decimal expense)>> GetFinancialGraphData_YearlyAsync(
+        int walletId, bool isShared = false);
+
+    public Task<List<(string period, decimal income, decimal expense)>> GetFinancialGraphData_MonthlyAsync(
+        int walletId, bool isShared = false);
+
+    public Task<List<(string period, decimal income, decimal expense)>> GetFinancialGraphData_QuarterlyAsync(
+        int walletId, bool isShared = false);
+
+
+    Task<(decimal total, List<(string budget, decimal amount)>)> GetBudgetsStatisticsAsync(int walletId,
+        bool isShared = false);
 }

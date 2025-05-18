@@ -66,9 +66,24 @@ public class IncomeService : IIncomeService
 
         var income = _MapToIncomeFromAdd(newIncomeDto);
 
+        bool isSuccessUpdateTotalBalance = true;
         try
         {
             await _unitOfWork.Income.AddAsync(income);
+            
+            if (newIncomeDto.WalletId is not null)
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newIncomeDto.WalletId, newIncomeDto.Amount );
+            else
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(newIncomeDto.SharedWalletId, newIncomeDto.Amount );
+            
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return _response.Response(false, newIncomeDto, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
+            
+            
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -81,7 +96,7 @@ public class IncomeService : IIncomeService
         return _response.Response(true, income, $"Success add Income with id: {income.IncomeId}", $"",
             HttpStatusCode.Created);
     }
-
+    
     public async Task<ApiResponse<object>> UpdateUserIncome(int incomeId, UpdateIncomeDto updateIncomeDto)
     {
         if (!IsIncomeDtoValid(updateIncomeDto, out var errorMessage))
@@ -99,11 +114,34 @@ public class IncomeService : IIncomeService
         if (res == null)
             return _response.Response(false, null, "", $"Not Found Income with id {incomeId}",  HttpStatusCode.NotFound);
 
-        _MapToIncomeFromUpdate(updateIncomeDto, res);
-
+        bool isSuccessUpdateTotalBalance = true;
         try
         {
+            if (updateIncomeDto.Amount != res.Amount)
+            {
+                
+                if(updateIncomeDto.Amount > res.Amount)
+                    if (res.WalletId is not null)
+                        isSuccessUpdateTotalBalance = await UpdateTotalAmount(res.WalletId, res.Amount );
+                    else
+                        isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(res.SharedWalletId, res.Amount);
+                else
+                if (res.WalletId is not null)
+                    isSuccessUpdateTotalBalance = await UpdateTotalAmount(res.WalletId, res.Amount * -1 );
+                else
+                    isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(res.SharedWalletId, res.Amount * -1);
+
+            }
+            
+            _MapToIncomeFromUpdate(updateIncomeDto, res);
+            
             _unitOfWork.Income.Update(res);
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return _response.Response(false, res, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -123,7 +161,24 @@ public class IncomeService : IIncomeService
             return _response.Response(false, null, "",
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
+        
+        bool isSuccessUpdateTotalBalance = true;
+        
+        Income income = await _unitOfWork.Income.GetByIdAsync(incomeId);
+        if (income.WalletId is not null)
+            isSuccessUpdateTotalBalance = await UpdateTotalAmount(income.WalletId, income.Amount * -1);
+        else
+            isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(income.SharedWalletId, income.Amount  * -1);
+        
+        if (isSuccessUpdateTotalBalance == false)
+        {
+            return _response.Response(false, income, "", $"Failed to Update Total Balance",
+                HttpStatusCode.InternalServerError);
+        }
+
+        
         var res =  _unitOfWork.Income.RemoveById(incomeId);
+        
         if (res is false)
             return _response.Response(false, null, "", "Not Found, or fail to delete",  HttpStatusCode.NotFound);
         
@@ -428,4 +483,55 @@ public class IncomeService : IIncomeService
 
             return true;
         }
+    
+    private async Task<bool> UpdateTotalAmount(int? walletId, decimal number)
+    {
+        var res =  await _unitOfWork.Wallets.UpdateTotalBalance((int)walletId, number);
+        return res;
+
+    }
+    
+    private async Task<bool> UpdateTotalAmount_shared(int? sharedWalletId, decimal number)
+    {
+        var res =  await _unitOfWork.SharedWallets.UpdateTotalBalance((int)sharedWalletId, number);
+        return res;
+
+    }
+    
+    public async Task<int> AddUserIncome_forInternalUsage(AddIncomeDto newIncomeDto)
+    {
+        if (!IsIncomeDtoValid(newIncomeDto, out var errorMessage))
+        {
+            return -1;
+        }
+
+        var income = _MapToIncomeFromAdd(newIncomeDto);
+
+        bool isSuccessUpdateTotalBalance = true;
+        try
+        {
+            await _unitOfWork.Income.AddAsync(income);
+            
+            if (newIncomeDto.WalletId is not null)
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newIncomeDto.WalletId, newIncomeDto.Amount );
+            else
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(newIncomeDto.SharedWalletId, newIncomeDto.Amount );
+            
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return -1;
+            }
+            
+            
+            await _unitOfWork.CommitChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            
+            return -1;
+        }
+        
+        return income.IncomeId;
+    }
 }

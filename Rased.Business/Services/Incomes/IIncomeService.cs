@@ -22,7 +22,8 @@ public interface IIncomeService
     public Task<ApiResponse<object>> CalculateTotalIncomesAmountForLastMonth(int walletId, bool isShared = false , Expression<Func<Income, bool>>[]? filter = null);
     public Task<ApiResponse<object>> CalculateTotalIncomesAmountForLastYear(int walletId, bool isShared = false , Expression<Func<Income, bool>>[]? filter = null);
     public Task<ApiResponse<object>> CalculateTotalIncomesAmountForSpecificPeriod(int walletId, DateTime startDateTime, DateTime endDateTime, Expression<Func<Income, bool>>[]? filter = null, bool isShared = false);
-    
+
+    public Task<int> AddUserIncome_forInternalUsage(AddIncomeDto newIncomeDto);
     
     // Filter Incomes 
     

@@ -20,7 +20,8 @@ public interface IExpenseService
     public Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastMonth(int walletId, bool isShared = false , Expression<Func<Expense, bool>>[]? filter = null);
     public Task<ApiResponse<object>> CalculateTotalExpensesAmountForLastYear(int walletId, bool isShared = false , Expression<Func<Expense, bool>>[]? filter = null);
     public Task<ApiResponse<object>> CalculateTotalExpensesAmountForSpecificPeriod(int walletId, DateTime startDateTime, DateTime endDateTime, Expression<Func<Expense, bool>>[]? filter = null, bool isShared = false);
-    
+
+    public Task<int> AddUserExpense_forInternalUsage(AddExpenseDto newExpenseDto);
     
     // Filter Expenses 
     

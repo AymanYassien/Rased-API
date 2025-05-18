@@ -26,4 +26,10 @@ public interface IBudgetService
     Task<ApiResponse<object>> GetBudgetSpentAmountAsync(int budgetId);
     Task<ApiResponse<object>> UpdateBudgetSpentAmountAsync(int budgetId, decimal newSpent);
     public Task<ApiResponse<object>> GetRemainingAmountAsync(int budgetId);
+
+    public Task<ApiResponse<object>> GetFinancialStatusAsync(int walletId, bool isShared = false);
+    Task<ApiResponse<object>> GetFinancialGraphDataAsync(int walletId, bool isShared = false);
+
+    Task<ApiResponse<object>> GetBudgetsStatisticsAsync(int walletId, bool isShared = false);
+    
 }
