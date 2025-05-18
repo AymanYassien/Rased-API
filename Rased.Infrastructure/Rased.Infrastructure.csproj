@@ -32,4 +32,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\api5.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -67,6 +67,8 @@ public class ExpenseService : IExpenseService
 
         var expense = _MapToExpenseDtoFromAdd(newExpenseDto);
         bool isSuccessUpdateRelatedBudget = true;
+        bool isSuccessUpdateTotalBalance = true;
+        
         try
         {
             await _unitOfWork.Expenses.AddAsync(expense);
@@ -74,11 +76,24 @@ public class ExpenseService : IExpenseService
             if (expense.RelatedBudgetId is not null)
                 isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount );
 
+            if (newExpenseDto.WalletId is not null)
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newExpenseDto.WalletId, newExpenseDto.Amount * -1);
+            else
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(newExpenseDto.SharedWalletId, newExpenseDto.Amount * -1);
+            
+            
             if (isSuccessUpdateRelatedBudget == false)
             {
                 return _response.Response(false, newExpenseDto, "", $"Failed to Update Related Budget, Error Messages : {errorMessage}",
                     HttpStatusCode.InternalServerError);
             }
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return _response.Response(false, newExpenseDto, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
+            
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -111,6 +126,7 @@ public class ExpenseService : IExpenseService
 
         
         bool isSuccessUpdateRelatedBudget = true;
+        bool isSuccessUpdateTotalBalance = true;
         try
         {
             
@@ -118,7 +134,21 @@ public class ExpenseService : IExpenseService
             {
                 decimal spentAmount = (updateExpenseDto.Amount - expense.Amount) ;
                 isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, spentAmount );
+                
+                
+                if(updateExpenseDto.Amount > expense.Amount)
+                    if (expense.WalletId is not null)
+                        isSuccessUpdateTotalBalance = await UpdateTotalAmount(expense.WalletId, expense.Amount * -1);
+                    else
+                        isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(expense.SharedWalletId, expense.Amount * -1);
+                else
+                if (expense.WalletId is not null)
+                    isSuccessUpdateTotalBalance = await UpdateTotalAmount(expense.WalletId, expense.Amount );
+                else
+                    isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(expense.SharedWalletId, expense.Amount);
+
             }
+            
             _MapToExpenseDtoFromUpdate(updateExpenseDto, expense);
             
             
@@ -129,6 +159,13 @@ public class ExpenseService : IExpenseService
                 return _response.Response(false, updateExpenseDto, "", $"Failed to Update Related Budget, Error Messages : {errorMessage}",
                     HttpStatusCode.InternalServerError);
             }
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return _response.Response(false, expense, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
+                    HttpStatusCode.InternalServerError);
+            }
+            
             await _unitOfWork.CommitChangesAsync();
         }
         catch (Exception ex)
@@ -150,14 +187,29 @@ public class ExpenseService : IExpenseService
 
         Expense expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
         bool isSuccessUpdateRelatedBudget = true;
+        bool isSuccessUpdateTotalBalance = true;
+        
         if (expense?.RelatedBudgetId is not null)
             isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount  * -1);
+
+        if (expense.WalletId is not null)
+            isSuccessUpdateTotalBalance = await UpdateTotalAmount(expense.WalletId, expense.Amount );
+        else
+            isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(expense.SharedWalletId, expense.Amount );
 
         if (isSuccessUpdateRelatedBudget == false)
         {
             return _response.Response(false, expenseId, "", $"Failed to Delete Related Budget",
                 HttpStatusCode.InternalServerError);
         }
+        
+        
+        if (isSuccessUpdateTotalBalance == false)
+        {
+            return _response.Response(false, expense, "", $"Failed to Update Total Balance",
+                HttpStatusCode.InternalServerError);
+        }
+        
         
         var res =  _unitOfWork.Expenses.RemoveById(expenseId);
         await _unitOfWork.CommitChangesAsync();
@@ -476,6 +528,83 @@ public class ExpenseService : IExpenseService
         var res = await _unitOfWork.Budget.UpdateBudgetSpentAmountAsync((int)budgetId, spentAmount);
         return res;
     }
+    
+    private async Task<bool> UpdateTotalAmount(int? walletId, decimal number)
+    {
+        var res =  await _unitOfWork.Wallets.UpdateTotalBalance((int)walletId, number);
+        return res;
+
+    }
+    
+    private async Task<bool> UpdateTotalAmount_shared(int? sharedWalletId, decimal number)
+    {
+        var res =  await _unitOfWork.SharedWallets.UpdateTotalBalance((int)sharedWalletId, number);
+        return res;
+
+    }
+    
+    public async Task<int> AddUserExpense_forInternalUsage(AddExpenseDto newExpenseDto)
+    {
+        if (!IsExpenseDtoValid(newExpenseDto, out var errorMessage))
+        {
+            return -1;
+        }
+
+        var expense = _MapToExpenseDtoFromAdd(newExpenseDto);
+        bool isSuccessUpdateRelatedBudget = true;
+        bool isSuccessUpdateTotalBalance = true;
+        
+        try
+        {
+            await _unitOfWork.Expenses.AddAsync(expense);
+            
+            if (expense.RelatedBudgetId is not null)
+                isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount );
+
+            if (newExpenseDto.WalletId is not null)
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newExpenseDto.WalletId, newExpenseDto.Amount * -1);
+            else
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount_shared(newExpenseDto.SharedWalletId, newExpenseDto.Amount * -1);
+            
+            
+            if (isSuccessUpdateRelatedBudget == false)
+            {
+                return -1;
+            }
+            
+            if (isSuccessUpdateTotalBalance == false)
+            {
+                return -1;
+            }
+            
+            await _unitOfWork.CommitChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            
+            return -1;
+        }
+        
+        return expense.ExpenseId;
+    }
+    
+    
+    
+    // add ex          - delete ex      -  update ex with greater        - update ex with lowest
+    // t -= amount     t += amount           t -= amount                    t += amount  
+    
+    // add in          - delete in      -  update in with greater        - update in with lowest
+    // t += amount     t -= amount           t += amount                    t -= amount
+    
+    // 100  50   => 100 += 50 = 150,   100 += -50 = 50
+    
+    // into repo => by id ==>    t += amount
+    // when call =>  if + => pass amount  | if - => pass times -1
+    
+    
+    
+    
+    
 
     
 

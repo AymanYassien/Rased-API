@@ -20,5 +20,7 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
         Task<StaticColorTypeData> GetStaticColorTypeAsync(int id);
         Task<StaticWalletStatusData> GetStaticWalletStatusDataAsync(int id);
         Task<Currency> GetCurrencyAsync(int id);
+
+        Task<bool> UpdateTotalBalance(int walletId, decimal amount);
     }
 }
