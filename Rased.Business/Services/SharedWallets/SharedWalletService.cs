@@ -522,5 +522,80 @@ namespace Rased.Business.Services.SharedWallets
                 Members = membersList
             };
         }
+
+
+        public async Task<ApiResponse<bool>> IsUserInSharedWalletAsync(string userId, int? sharedWalletId)
+        {
+            try
+            {
+                // Validate if userId or sharedWalletId is null
+                if (string.IsNullOrEmpty(userId) || !sharedWalletId.HasValue)
+                {
+                    return new ApiResponse<bool>(false, "User or Shared Wallet ID is invalid.");
+                }
+
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[]
+                {
+            x => x.UserId == userId && x.SharedWalletId == sharedWalletId
+                };
+
+                var member = _unitOfWork.SharedWallets
+                    .GetData<SharedWalletMembers>(memberFilter, null, false)
+                    .FirstOrDefault();
+
+                if (member == null)
+                {
+                    return new ApiResponse<bool>(false, "User is not a member of the shared wallet.");
+                }
+
+                return new ApiResponse<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(false, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> IsUserAdminOfSharedWalletAsync(string userId, int sharedWalletId)
+        {
+            try
+            {
+                // Validate if userId or sharedWalletId is null
+                if (string.IsNullOrEmpty(userId) || sharedWalletId <= 0)
+                {
+                    return new ApiResponse<bool>(false, "User or Shared Wallet ID is invalid.");
+                }
+
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[]
+                {
+            x => x.UserId == userId &&
+                 x.SharedWalletId == sharedWalletId &&
+                 x.Role == AccessLevelConstants.OWNER
+                };
+
+                var member = _unitOfWork.SharedWallets
+                    .GetData<SharedWalletMembers>(memberFilter, null, false)
+                    .FirstOrDefault();
+
+                if (member == null)
+                {
+                    return new ApiResponse<bool>(false, "User is not the admin of the shared wallet.");
+                }
+
+                return new ApiResponse<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(false, ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
     }
 }

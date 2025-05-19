@@ -9,5 +9,6 @@ namespace Rased.Business.Services.Friendships
         Task<ApiResponse<string>> UpdateFriendshipStatusAsync(UpdateFriendRequestDto model, string receiverId);
         Task<ApiResponse<string>> RemoveFriendshipAsync(RemoveFriendshipDto model, string senderId);
         Task<ApiResponse<IEnumerable<UserFriendDto>>> GetUserFriendsAsync(string userId);
+        Task<bool> AreUsersFriendsAsync(string userId1, string userId2);
     }
 }

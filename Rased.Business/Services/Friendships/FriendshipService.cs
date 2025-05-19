@@ -253,5 +253,21 @@ namespace Rased.Business.Services.Friendships
                 return new ApiResponse<IEnumerable<UserFriendDto>>(ex.Message);
             }
         }
+
+
+        public async Task<bool> AreUsersFriendsAsync(string userId1, string userId2)
+        {
+            var filters = new Expression<Func<Friendship, bool>>[]
+            {
+        x =>
+            ((x.SenderId == userId1 && x.ReceiverId == userId2) ||
+             (x.SenderId == userId2 && x.ReceiverId == userId1))
+            && x.Status == InvitationStatusConstants.ACCEPTED
+            };
+
+            var friendship = await _unitOfWork.Friendships.GetData(filters, null, false).FirstOrDefaultAsync();
+            return friendship != null;
+        }
+
     }
 }

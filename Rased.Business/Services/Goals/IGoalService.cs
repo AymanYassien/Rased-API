@@ -19,7 +19,11 @@ namespace Rased.Business.Services.Goals
 
         Task<ApiResponse<IQueryable<ReadGoalDto>>> GetGoalsByStatusAsync(GoalStatusEnum status);
         Task<ApiResponse<IQueryable<ReadGoalDto>>> GetGoalsByWalletIdAndUserIdAsync(int walletId, string userId);
+
         Task<ApiResponse<decimal>> GetTotalSavedAmountAsync(int goalId);
+        Task<ApiResponse<decimal>> GetGoalProgressPercentageAsync(int goalId);
+        Task<ApiResponse<decimal>> GetTotalGoalsProgressPercentageByWalletIdAsync(int walletId, string userId);
+        Task<ApiResponse<(int totalGoals, decimal totalCurrentAmount)>> GetGoalsStatsByWalletIdAsync(int walletId, string userId);
 
 
 

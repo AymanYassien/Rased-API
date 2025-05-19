@@ -18,5 +18,10 @@ namespace Rased.Business.Services.SharedWallets
         //// Members Control
         Task<ApiResponse<string>> UpdateMemberAccessLevelAsync(UpdateMemberRoleDto model, string userId); // Only for Owner
         Task<ApiResponse<string>> RemoveMemberAsync(RemoveMemberDto model, string userId); // Only for Owner and SuperVisor
+
+
+        Task<ApiResponse<bool>> IsUserInSharedWalletAsync(string userId, int? sharedWalletId);
+        Task<ApiResponse<bool>> IsUserAdminOfSharedWalletAsync(string userId, int sharedWalletId);
+   
     }
 }

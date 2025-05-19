@@ -13,9 +13,9 @@ namespace Rased.Business.Dtos.Savings
         public decimal TotalAmount { get; set; }
         public bool IsSaving { get; set; }
         public DateTime CreatedAt { get; set; }
-      
-        //public int? WalletId { get; set; }
-        //public int? SharedWalletId { get; set; }
-        //public int? SubCatId { get; set; }
+
+        public int? WalletId { get; set; }
+        public int? SharedWalletId { get; set; }
+        public int? SubCatId { get; set; }
     }
 }

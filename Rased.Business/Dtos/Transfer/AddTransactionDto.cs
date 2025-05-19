@@ -18,5 +18,8 @@ namespace Rased.Business.Dtos.Transfer
         public string? Description { get; set; }
         public int TransactionStatusId { get; set; }
         public string DisplayColor { get; set; }
+        // New
+        public int? RelatedBudgetId { get; set; }
+        public int? SubCategoryId { get; set; }
     }
 }
