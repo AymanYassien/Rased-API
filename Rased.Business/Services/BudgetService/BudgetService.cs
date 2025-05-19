@@ -591,4 +591,105 @@ public class BudgetService : IBudgetService
         
         return budget;
     }
+    
+    public async Task<ApiResponse<object>> GetFinancialStatusAsync(int walletId, bool isShared = false)
+    {
+        
+        if (walletId <= 0)
+        {
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        }
+
+        try
+        {
+            
+            var (totalIncome, totalExpenses, expensesOperationsNumber) = await _unitOfWork.Budget.GetFinancialStatusAsync(walletId, isShared);
+
+            // Map to DTO
+            var res =  new BudgetStatistics
+            {
+                TotalIncome = totalIncome,
+                TotalExpenses = totalExpenses,
+                ExpensesOperationsNumber = expensesOperationsNumber
+            };
+            
+            return _response.Response(true, res, "",
+                "",  HttpStatusCode.OK);
+        }
+        catch (Exception ex)
+        {
+            return _response.Response(false, null, "",
+                $"Internal Server Error: {ex.Message}",  HttpStatusCode.InternalServerError);
+        }
+    }
+    
+    public async Task<ApiResponse<object>> GetFinancialGraphDataAsync(int walletId, bool isShared = false)
+    {
+        if (walletId <= 0)
+        {
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        }
+
+        try
+        {
+            var data = await _unitOfWork.Budget.GetFinancialGraphDataAsync(walletId, isShared);
+
+            if (data == null) 
+                return _response.Response(false, null, "",
+                    "Not Found ",  HttpStatusCode.NotFound);
+            
+                var res = data.Select(d => new FinancialGraphDto
+                {
+                    Period = d.period,
+                    Income = d.income,
+                    Expense = d.expense
+                }).ToList();
+            
+            
+            return _response.Response(true, res, "",
+                "",  HttpStatusCode.OK);
+            
+        }
+        catch (Exception ex)
+        {
+            return _response.Response(false, null, "",
+                $"Internal Server Error: {ex.Message}",  HttpStatusCode.InternalServerError);
+        }
+    }
+    
+    public async Task<ApiResponse<object>> GetBudgetsStatisticsAsync(int walletId, bool isShared = false)
+    {
+        if (walletId <= 0)
+            return _response.Response(false, null, "",
+                "Bad Request ",  HttpStatusCode.BadRequest);
+        
+
+        try
+        {
+            var (total, budgetExpenses) = await _unitOfWork.Budget.GetBudgetsStatisticsAsync(walletId, isShared);
+            if (total == 0 && budgetExpenses is null)
+                return _response.Response(false, null, "",
+                    "Not Found ",  HttpStatusCode.NotFound);
+            
+            var res = new ExpensesByBudgetDto
+            {
+                Total = total,
+                Budgets = budgetExpenses.Select(be => new BudgetExpenseDto
+                {
+                    Budget = be.budget,
+                    Amount = be.amount
+                }).ToList()
+            };
+            return _response.Response(true, res, "",
+                "",  HttpStatusCode.OK);
+            
+        }
+        catch (Exception ex)
+        {
+            return _response.Response(false, null, "",
+                $"Internal Server Error: {ex.Message}",  HttpStatusCode.InternalServerError);
+        }
+    }
 }

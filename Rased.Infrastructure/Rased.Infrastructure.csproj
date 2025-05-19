@@ -33,4 +33,10 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+<!--    <ProjectReference Include="..\Rased.Business\Rased.Business.csproj" />-->
+  </ItemGroup>
+
+
+
 </Project>

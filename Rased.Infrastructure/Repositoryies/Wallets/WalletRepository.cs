@@ -130,6 +130,24 @@ namespace Rased.Infrastructure.Repositoryies.Wallets
         {
             var currency = await _context.Currencies.FirstOrDefaultAsync(x => x.Id == id);
             return currency!;
-        }       
+        }
+
+
+        public async Task<bool> UpdateTotalBalance(int walletId, decimal amount)
+        {
+            var obj =  await GetByIdAsync(walletId);
+            if (obj is not null )
+            {
+                obj.TotalBalance += amount;
+
+                UpdateAsync(obj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+       
+
     }
 }

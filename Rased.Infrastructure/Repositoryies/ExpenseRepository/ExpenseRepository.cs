@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Rased.Business;
 using Rased.Infrastructure;
+using Rased.Infrastructure.Models;
 using Rased.Infrastructure.Data;
 using Rased.Infrastructure.Repositoryies.Base;
 
@@ -144,7 +146,98 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
 
         return await query.SumAsync(e => e.Amount);
     }
-    
+
+    // public async Task<List<MonthlyExpenseSummary>> SumExpensesByMonthAsync(int walletId, DateTime startDateTime, DateTime endDateTime, Expression<Func<Expense, bool>>[]? filter = null, bool isShared = false)
+    // {
+    //     if (startDateTime > endDateTime)
+    //     {
+    //         throw new ArgumentException("startDateTime must be earlier than endDateTime.");
+    //     }
+    //
+    //     IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, filter);
+    //
+    //     // Filter expenses within the specified date range
+    //     query = query.Where(e => e.Date >= startDateTime && e.Date <= endDateTime);
+    //
+    //     
+    //     var result = await query
+    //         .GroupBy(e => new { e.Date.Year, e.Date.Month })
+    //         .Select(g => new MonthlyExpenseSummary
+    //         {
+    //             Year = g.Key.Year,
+    //             Month = g.Key.Month,
+    //             TotalAmount = g.Sum(e => e.Amount)
+    //         })
+    //         .OrderBy(g => g.Year).ThenBy(g => g.Month)
+    //         .ToListAsync();
+    //     
+    //     return result;
+    //     
+    // }
+
+    public async Task<decimal> CalculateAverageDailyExpenseAmountForLastWeek(int walletId, bool isShared)
+    {
+        DateTime endDate = DateTime.UtcNow;
+        DateTime startDate = endDate.AddDays(-7);
+        
+        IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, null);
+        
+        query = query.Where(e => e.Date >= startDate && e.Date <= endDate);
+        
+        decimal totalAmount = await query.SumAsync(e => e.Amount);
+        
+        if (totalAmount == 0) return totalAmount;
+        
+        decimal averageDailyExpense = totalAmount / 7;
+
+        return averageDailyExpense;
+    }
+
+    public async Task<int> CountExpensesAsync(int walletId, bool isShared)
+    {
+        IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, null);
+
+        var total = await query.CountAsync();
+
+        return total;
+
+    }
+
+    public async Task<int> GetNumberOfRelatedBudgets(int walletId, bool isShared)
+    {
+        IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, null);
+        var total = await query.GroupBy(g => g.RelatedBudgetId).CountAsync();
+
+        return total;
+    }
+
+    public async Task<decimal> GetTotalAmountOfRelatedBudgets(int walletId, bool isShared)
+    {
+        IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, null);
+        var Sum = await query.SumAsync(e => e.Amount);
+
+        return Sum;
+    }
+
+    // public async Task<List<MonthlyExpenseSummary>> SumExpensesByYearAsync(int walletId, bool isShared)
+    // {
+    //     
+    //     IQueryable<Expense> query = BuildBaseQuery(walletId, isShared, null);
+    //     
+    //     
+    //     var result = await query
+    //         .GroupBy(e => new { e.Date.Year })
+    //         .Select(g => new MonthlyExpenseSummary
+    //         {
+    //             Year = g.Key.Year,
+    //             TotalAmount = g.Sum(e => e.Amount)
+    //         })
+    //         .OrderBy(g => g.Year)
+    //         .ToListAsync();
+    //
+    //     return result;
+    // }
+
     private IQueryable<Expense> BuildBaseQuery(int walletId, bool isShared, Expression<Func<Expense, bool>>[]? filter)
     {
         IQueryable<Expense> query = _dbSet;

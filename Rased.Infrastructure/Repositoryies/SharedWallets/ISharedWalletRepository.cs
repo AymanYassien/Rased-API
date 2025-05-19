@@ -20,6 +20,7 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
         Task<Currency> GetCurrencyAsync(int id);
 
 
+        Task<bool> UpdateTotalBalance(int sharedWalletId, decimal amount);
 
         //Task<StatusDto> AddNewMember(RasedUser user, SharedWallet sw, StaticSharedWalletAccessLevelData accessLevel);
 
