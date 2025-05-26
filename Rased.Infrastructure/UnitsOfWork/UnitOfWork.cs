@@ -15,6 +15,7 @@ using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.Repositoryies.SharedWallets;
 using Rased.Infrastructure.Repositoryies.Friendships;
 using Rased.Infrastructure.Models.Bills;
+using Rased.Infrastructure.Models.Recomm;
 
 namespace Rased.Infrastructure.UnitsOfWork
 {
@@ -68,6 +69,8 @@ namespace Rased.Infrastructure.UnitsOfWork
 
         public IRepository<BillDraft, int> BillDrafts { get; private set; }
 
+        public IRepository<BudgetRecommendation, int> BudgetRecommendations { get; private set; }
+
 
         // Constructor to inject all Repositoryies
         public UnitOfWork(RasedDbContext context, UserManager<RasedUser> userManager)
@@ -102,6 +105,7 @@ namespace Rased.Infrastructure.UnitsOfWork
             IncomeTemplate = new IncomeTemplateRepository(_context);
             StaticIncomeSourceTypeData = new StaticIncomeSourceTypeDataRepository(_context);
             BillDrafts = new Repository<BillDraft, int>(context);
+            BudgetRecommendations = new Repository<BudgetRecommendation, int>(context);
         }
 
         // Save All System Changes and return the number of affected rows

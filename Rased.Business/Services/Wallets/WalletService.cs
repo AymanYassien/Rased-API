@@ -233,5 +233,15 @@ namespace Rased.Business.Services.Wallets
                 UpdatedAt = wallet.LastModified
             };
         }
+
+        //In Transfer 
+        public async Task<bool> IsWalletOwnedByUserAsync(int walletId, string userId)
+        {
+            
+            var wallet = await _unitOfWork.Wallets.GetByIdAsync(walletId);
+            if (wallet == null) return false;
+
+            return wallet.CreatorId == userId;
+        }
     }
 }

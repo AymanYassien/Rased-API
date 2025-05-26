@@ -9,7 +9,7 @@ namespace Rased.Business.Dtos.Transfer
     public class AddTransactionDto
     {
         public string SenderId { get; set; }
-        public int SenderWalletId { get; set; }
+        public int? SenderWalletId { get; set; }
         public string? ReceiverId { get; set; }
         public int? ReceiverWalletId { get; set; }
         public int ReceiverTypeId { get; set; }

@@ -90,6 +90,7 @@ namespace Rased.Infrastructure.Data
         public DbSet<StaticWalletStatusData> StaticWalletStatus { get; set; }
 
         public DbSet<BillDraft> BillDrafts { get; set; }
+        public DbSet<BillDraft> BudgetRecommendations { get; set; }
 
 
 
@@ -115,16 +116,19 @@ namespace Rased.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AutomationRuleConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WalletConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(BillDraftConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(BudgetRecommendationConfiguration).Assembly);
 
 
 
 
             // Seed Data for ReceiverType
             modelBuilder.Entity<StaticReceiverTypeData>().HasData(
-                new StaticReceiverTypeData { Id = 1, Name = "Friend" },
-                new StaticReceiverTypeData { Id = 2, Name = "SharedWallet" },
-                new StaticReceiverTypeData { Id = 3, Name = "UnknownPerson" }
-            );
+          new StaticReceiverTypeData { Id = 1, Name = "Friend" },
+          new StaticReceiverTypeData { Id = 2, Name = "SharedWallet" },
+          new StaticReceiverTypeData { Id = 3, Name = "UnknownPerson" },
+          new StaticReceiverTypeData { Id = 4, Name = "PersonalWalletTransfer" } 
+      );
+
 
             //  Seed Data for TransactionStatus
             modelBuilder.Entity<StaticTransactionStatusData>().HasData(

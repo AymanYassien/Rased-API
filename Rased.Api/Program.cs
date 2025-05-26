@@ -24,6 +24,7 @@ using Rased.Business.Services.SharedWallets;
 using Rased.Business.Services.Friendships;
 using Rased.Business.Services.Bills;
 using Rased.Infrastructure.Helpers;
+using Rased.Business.Services.RecommendSystem;
 
 namespace Rased.Api
 {
@@ -118,6 +119,8 @@ namespace Rased.Api
             builder.Services.AddScoped<IStaticTransactionStatusService, StaticTransactionStatusService>();
             builder.Services.AddScoped<IBillService, BillService>();
             builder.Services.AddHttpClient();
+
+            builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 
             builder.Services.AddScoped<IExpenseService, ExpenseService>();

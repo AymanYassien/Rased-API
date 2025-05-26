@@ -6,6 +6,7 @@ using Rased.Business.Dtos.Transfer;
 using Rased.Business.Services.ExpenseService;
 using Rased.Business.Services.Friendships;
 using Rased.Business.Services.SharedWallets;
+using Rased.Business.Services.Wallets;
 using Rased.Infrastructure;
 using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.UnitsOfWork;
@@ -25,15 +26,17 @@ namespace Rased.Business.Services.Transfer
         private readonly IExpenseService _expenseService;
         private readonly IFriendshipService _friendshipService;
         private readonly ISharedWalletService _sharedWalletService;
+        private readonly IWalletService _walletService;
 
         public TransactionService(IUnitOfWork unitOfWork, IMapper mapper , IExpenseService expenseService , IFriendshipService friendshipService
-            , ISharedWalletService sharedWalletService)
+            , ISharedWalletService sharedWalletService , IWalletService walletService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _expenseService = expenseService;
             _friendshipService = friendshipService;
             _sharedWalletService = sharedWalletService;
+            _walletService = walletService;
         }
 
         public async Task<ApiResponse<IQueryable<ReadTransactionDto>>> GetAllTransactionsAsync()
@@ -59,7 +62,7 @@ namespace Rased.Business.Services.Transfer
             try
             {
                 // Check if it's a friend transaction
-                if (dto.ReceiverTypeId == 1) // 1 means "Friend"
+                if (dto.ReceiverTypeId == 1) // Friend
                 {
                     bool areFriends = await _friendshipService.AreUsersFriendsAsync(dto.SenderId, dto.ReceiverId);
                     if (!areFriends)
@@ -67,9 +70,7 @@ namespace Rased.Business.Services.Transfer
                         return new ApiResponse<string>("Transaction failed. Sender and receiver are not friends.");
                     }
                 }
-
-                // Check if it's a Shared Wallet transaction (ReceiverTypeId == 2)
-                if (dto.ReceiverTypeId == 2) // 2 means "Shared Wallet"
+                else if (dto.ReceiverTypeId == 2) // Shared Wallet
                 {
                     if (!dto.ReceiverWalletId.HasValue)
                     {
@@ -80,6 +81,29 @@ namespace Rased.Business.Services.Transfer
                     if (!isUserInSharedWallet.Succeeded || !isUserInSharedWallet.Data)
                     {
                         return new ApiResponse<string>("Transaction failed. Sender is not a member of the shared wallet.");
+                    }
+                }
+                else if (dto.ReceiverTypeId == 4) // Personal Wallet Transfer (new case)
+                {
+                    // تحقق إن اليوزر هو نفس الشخص (المرسل والمستقبل)
+                    if (dto.SenderId != dto.ReceiverId)
+                    {
+                        return new ApiResponse<string>("Transaction failed. Sender and receiver must be the same user for personal wallet transfers.");
+                    }
+
+                    // تحقق من وجود معرف المحفظة المرسلة والمستقبلة
+                    if (!dto.SenderWalletId.HasValue || !dto.ReceiverWalletId.HasValue)
+                    {
+                        return new ApiResponse<string>("Transaction failed. Both sender and receiver wallet IDs are required for personal wallet transfers.");
+                    }
+
+                    // تحقق من ملكية المحفظتين لليوزر
+                    bool senderWalletOwned = await _walletService.IsWalletOwnedByUserAsync(dto.SenderWalletId.Value, dto.SenderId);
+                    bool receiverWalletOwned = await _walletService.IsWalletOwnedByUserAsync(dto.ReceiverWalletId.Value, dto.ReceiverId);
+
+                    if (!senderWalletOwned || !receiverWalletOwned)
+                    {
+                        return new ApiResponse<string>("Transaction failed. One or both wallets do not belong to the user.");
                     }
                 }
                 var transaction = _mapper.Map<Infrastructure.Transaction>(dto);
@@ -104,13 +128,13 @@ namespace Rased.Business.Services.Transfer
 
                 //await _unitOfWork.Expenses.AddAsync(expense);
 
-                var expense = await _expenseService.AddUserExpense(_mapper.Map<AddExpenseDto>(dto));
+                var expense = await _expenseService.AddUserExpense_forInternalUsage(_mapper.Map<AddExpenseDto>(dto));
                 await _unitOfWork.CommitChangesAsync();
 
                 //Add ExpenseTransactionReord
                 var expenseTransactionRecord = new ExpenseTransactionRecord
                 {
-                    //ExpenseId = expense.Da,
+                    ExpenseId = expense,
                     TransactionId = transaction.TransactionId,
                     CreatedAt = DateTime.UtcNow
                 };

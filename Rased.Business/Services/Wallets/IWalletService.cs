@@ -13,5 +13,9 @@ namespace Rased.Business.Services.Wallets
 
         // Get Wallet Data Prts
         ApiResponse<WalletDataPartsDto> GetWalletDataParts();
+
+
+        // In Transfer
+        Task<bool> IsWalletOwnedByUserAsync(int walletId, string userId);
     }
 }
