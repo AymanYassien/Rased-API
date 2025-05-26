@@ -8,6 +8,8 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
 {
     public interface ISharedWalletRepository: IRepository<SharedWallet, int>
     {
+        // Data Parts
+        Task<WalletDataPartsDto> GetSharedWalletDataPartsAsync(int id);
         // Check Method ..
         Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string walletName, bool isAdd);
         //Task<StaticSharedWalletAccessLevelData> GetAccessLevelAsync(string accessName);

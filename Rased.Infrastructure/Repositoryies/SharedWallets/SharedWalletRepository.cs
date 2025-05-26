@@ -18,6 +18,26 @@ namespace Rased.Infrastructure.Repositoryies.SharedWallets
             _userManager = userManager;
         }
 
+
+        public async Task<WalletDataPartsDto> GetSharedWalletDataPartsAsync(int id)
+        {
+            var result = new WalletDataPartsDto();
+
+            var wallet = await _context.SharedWallets.Include(x => x.StaticWalletStatusData).Include(x => x.StaticColorTypeData).Include(x => x.Currency).FirstOrDefaultAsync(x => x.SharedWalletId == id);
+            if (wallet is null)
+                return result;
+
+            result.Status.Name = wallet.StaticWalletStatusData.Name;
+            result.Color.Name = wallet.StaticColorTypeData.Name;
+            result.Currency.Name = wallet.Currency.Name;
+
+            result.Status.Id = wallet.StaticWalletStatusData.Id;
+            result.Color.Id = wallet.StaticColorTypeData.Id;
+            result.Currency.Id = wallet.Currency.Id;
+
+            return result;
+        }
+
         // Some Critical Checks
         public async Task<StatusDto> CheckAsync(string userId, int colorId, int statusId, int currId, int walletId, string walletName, bool isAdd)
         {
