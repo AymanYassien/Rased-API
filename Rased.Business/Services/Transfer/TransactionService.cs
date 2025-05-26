@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.Transfer;
+using Rased.Business.Services.ExpenseService;
+using Rased.Business.Services.Friendships;
+using Rased.Business.Services.SharedWallets;
 using Rased.Infrastructure;
 using Rased.Infrastructure.Models.Transfer;
 using Rased.Infrastructure.UnitsOfWork;
@@ -18,12 +22,18 @@ namespace Rased.Business.Services.Transfer
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IExpenseService _expenseService;
+        private readonly IFriendshipService _friendshipService;
+        private readonly ISharedWalletService _sharedWalletService;
 
-        public TransactionService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TransactionService(IUnitOfWork unitOfWork, IMapper mapper , IExpenseService expenseService , IFriendshipService friendshipService
+            , ISharedWalletService sharedWalletService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-           
+            _expenseService = expenseService;
+            _friendshipService = friendshipService;
+            _sharedWalletService = sharedWalletService;
         }
 
         public async Task<ApiResponse<IQueryable<ReadTransactionDto>>> GetAllTransactionsAsync()
@@ -46,38 +56,73 @@ namespace Rased.Business.Services.Transfer
 
         public async Task<ApiResponse<string>> AddTransactionAsync(AddTransactionDto dto)
         {
-            var transaction = _mapper.Map<Infrastructure.Transaction>(dto);
-            transaction.CreatedAt = DateTime.UtcNow;
-            transaction.TransactionStatusId = 1; // Pending
-
-            await _unitOfWork.Transactions.AddAsync(transaction);
-            await _unitOfWork.CommitChangesAsync();
-
-            //Add Expense
-            var expense = new Expense
+            try
             {
-                WalletId = dto.SenderWalletId,
-                SharedWalletId = dto.ReceiverTypeId == 2 ? dto.ReceiverWalletId : (int?)null,
-                Title = "Transaction Expense",
-                Amount = dto.Amount,
-                Date = DateTime.UtcNow,
-                Description = dto.Description,
-            };
+                // Check if it's a friend transaction
+                if (dto.ReceiverTypeId == 1) // 1 means "Friend"
+                {
+                    bool areFriends = await _friendshipService.AreUsersFriendsAsync(dto.SenderId, dto.ReceiverId);
+                    if (!areFriends)
+                    {
+                        return new ApiResponse<string>("Transaction failed. Sender and receiver are not friends.");
+                    }
+                }
 
-            await _unitOfWork.Expenses.AddAsync(expense);
-            await _unitOfWork.CommitChangesAsync();
+                // Check if it's a Shared Wallet transaction (ReceiverTypeId == 2)
+                if (dto.ReceiverTypeId == 2) // 2 means "Shared Wallet"
+                {
+                    if (!dto.ReceiverWalletId.HasValue)
+                    {
+                        return new ApiResponse<string>("Transaction failed. ReceiverWalletId is required for shared wallet transactions.");
+                    }
 
-            //Add ExpenseTransactionReord
-            var expenseTransactionRecord = new ExpenseTransactionRecord
+                    var isUserInSharedWallet = await _sharedWalletService.IsUserInSharedWalletAsync(dto.SenderId, dto.ReceiverWalletId.Value);
+                    if (!isUserInSharedWallet.Succeeded || !isUserInSharedWallet.Data)
+                    {
+                        return new ApiResponse<string>("Transaction failed. Sender is not a member of the shared wallet.");
+                    }
+                }
+                var transaction = _mapper.Map<Infrastructure.Transaction>(dto);
+                transaction.CreatedAt = DateTime.UtcNow;
+                transaction.TransactionStatusId = 1; // Pending
+
+                await _unitOfWork.Transactions.AddAsync(transaction);
+                await _unitOfWork.CommitChangesAsync();
+
+                //Add Expense
+                //var expense = new Expense
+                //{
+                //    WalletId = dto.SenderWalletId,
+                //    SharedWalletId = dto.ReceiverTypeId == 2 ? dto.ReceiverWalletId : (int?)null,
+                //    Title = "Transaction Expense",
+                //    Amount = dto.Amount,
+                //    Date = DateTime.UtcNow,
+                //    Description = dto.Description,
+                //    RelatedBudgetId = dto.RelatedBudgetId,
+                //    SubCategoryId = dto.SubCategoryId
+                //};
+
+                //await _unitOfWork.Expenses.AddAsync(expense);
+
+                var expense = await _expenseService.AddUserExpense(_mapper.Map<AddExpenseDto>(dto));
+                await _unitOfWork.CommitChangesAsync();
+
+                //Add ExpenseTransactionReord
+                var expenseTransactionRecord = new ExpenseTransactionRecord
+                {
+                    //ExpenseId = expense.Da,
+                    TransactionId = transaction.TransactionId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _unitOfWork.ExpenseTransactionRecords.AddAsync(expenseTransactionRecord);
+                await _unitOfWork.CommitChangesAsync();
+
+                return new ApiResponse<string>(null, "Transaction added successfully");
+            }
+            catch (Exception ex)
             {
-                ExpenseId = expense.ExpenseId,
-                TransactionId = transaction.TransactionId,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _unitOfWork.ExpenseTransactionRecords.AddAsync(expenseTransactionRecord);
-            await _unitOfWork.CommitChangesAsync();
-
-            return new ApiResponse<string>(null, "Transaction added successfully");
+                return new ApiResponse<string>(ex.Message);
+            }
         }
 
         public async Task<ApiResponse<string>> UpdateTransactionAsync(UpdateTransactionDto dto)
@@ -122,9 +167,17 @@ namespace Rased.Business.Services.Transfer
 
                 transaction.ReceiverWalletId = dto.ReceiverWalletId; // نثبت المحفظة اللي اختارها
             }
-            else if (transaction.ReceiverTypeId == 2)
+            else if (transaction.ReceiverTypeId == 2) // Shared Wallet
             {
-                // لو SharedWallet لسه مفعلتش admin check، افعلها حسب النظام
+                if (transaction.ReceiverWalletId == null)
+                    return new ApiResponse<string>("Transaction does not have a valid shared wallet");
+
+                var isAdminResult = await _sharedWalletService.IsUserAdminOfSharedWalletAsync(dto.ApproverId, transaction.ReceiverWalletId.Value);
+                if (!isAdminResult.Succeeded || !isAdminResult.Data)
+                {
+                    return new ApiResponse<string>("Only an admin of the shared wallet can approve this transaction");
+                }
+
             }
             else
             {

@@ -81,5 +81,29 @@ namespace Rased.Api.Controllers.Goals
 
 
         }
+
+        [HttpGet("{goalId}/progress-percentage")]
+        public async Task<IActionResult> GetGoalProgressPercentageAsync(int goalId)
+        {
+            var response = await _goalService.GetGoalProgressPercentageAsync(goalId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+        [HttpGet("wallet/{walletId}/user/{userId}/progress-percentage")]
+        public async Task<IActionResult> GetTotalGoalsProgressPercentageByWalletIdAsync(int walletId, string userId)
+        {
+            var response = await _goalService.GetTotalGoalsProgressPercentageByWalletIdAsync(walletId, userId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+        [HttpGet("wallet/{walletId}/user/{userId}/stats")]
+        public async Task<IActionResult> GetGoalsStatsByWalletIdAsync(int walletId, string userId)
+        {
+            var response = await _goalService.GetGoalsStatsByWalletIdAsync(walletId, userId);
+            return response.Succeeded ? Ok(response.Data) : BadRequest(response.Errors);
+        }
+
+
+
     }
 }

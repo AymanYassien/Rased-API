@@ -12,4 +12,17 @@ namespace Rased.Business.Dtos.Categories
         // Subs
         public List<ReadSubCategoryDto>? SubCategories { get; set; }
     }
+
+    public class CatSubDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public List<SubCatDto> Subs { get; set; }
+    }
+
+    public class SubCatDto
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
 }

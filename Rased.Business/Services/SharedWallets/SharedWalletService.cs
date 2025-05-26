@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Dtos.SharedWallets;
+using Rased.Business.Dtos.Wallets;
 using Rased.Business.Services.AuthServices;
+using Rased.Infrastructure;
 using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.UnitsOfWork;
@@ -159,7 +161,7 @@ namespace Rased.Business.Services.SharedWallets
         }
 
         // Read a single shared wallet
-        public ApiResponse<ReadSharedWalletDto> ReadSingleAsync(int id, string userId)
+        public async Task<ApiResponse<ReadSharedWalletDto>> ReadSingleAsync(int id, string userId)
         {
             var result = new ReadSharedWalletDto();
 
@@ -184,9 +186,17 @@ namespace Rased.Business.Services.SharedWallets
                 var members = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(filterMember, includeMember, false).AsEnumerable();
                 if (!members.Any())
                     return new ApiResponse<ReadSharedWalletDto>("خطأ تقني!");
+                // Check if the current user is the owner
+                bool isOwner = members.Any(x => x.UserId == userId && x.Role == AccessLevelConstants.OWNER);
+
+                // Get the data parts
+                var walletDataParts = await _unitOfWork.SharedWallets.GetSharedWalletDataPartsAsync(sw.SharedWalletId);
+                var curr = new WalletCurrency { Id = walletDataParts.Currency!.Id, Name = walletDataParts.Currency.Name };
+                var color = new WalletColor { Id = walletDataParts.Color!.Id, Name = walletDataParts.Color.Name };
+                var status = new WalletStatus { Id = walletDataParts.Status!.Id, Name = walletDataParts.Status.Name };
 
                 // Map Shared Wallet Data
-                result = MapData(sw, members);
+                result = MapData(sw, members, curr, color, status, isOwner);
             }
             catch (Exception ex)
             {
@@ -197,7 +207,7 @@ namespace Rased.Business.Services.SharedWallets
         }
 
         // Read all shared wallets which a specific user is a member in it
-        public ApiResponse<IEnumerable<ReadSharedWalletDto>> ReadAllAsync(string userId)
+        public async Task<ApiResponse<IEnumerable<ReadSharedWalletDto>>> ReadAllAsync(string userId)
         {
             var result = new List<ReadSharedWalletDto>();
 
@@ -219,8 +229,17 @@ namespace Rased.Business.Services.SharedWallets
                     Expression<Func<SharedWalletMembers, object>>[] includeMember = { x => x.Member };
                     var members = _unitOfWork.SharedWallets.GetData<SharedWalletMembers>(filterMember, includeMember, false).AsEnumerable();
 
+                    // Get the wallet data parts
+                    var walletDataParts = await _unitOfWork.SharedWallets.GetSharedWalletDataPartsAsync(sw.SharedWalletId);
+                    var curr = new WalletCurrency { Id = walletDataParts.Currency!.Id, Name = walletDataParts.Currency.Name };
+                    var color = new WalletColor { Id = walletDataParts.Color!.Id, Name = walletDataParts.Color.Name };
+                    var status = new WalletStatus { Id = walletDataParts.Status!.Id, Name = walletDataParts.Status.Name };
+
+                    // Check if the current user is the owner
+                    bool isOwner = members.Any(x => x.UserId == userId && x.Role == AccessLevelConstants.OWNER);
+
                     // Map Shared Wallet Data and add it to the List
-                    result.Add(MapData(sw.SharedWallet, members));
+                    result.Add(MapData(sw.SharedWallet, members, curr, color, status, isOwner));
                 }
             }
             catch (Exception ex)
@@ -495,7 +514,7 @@ namespace Rased.Business.Services.SharedWallets
 
 
         // Get The Shared Wallet Data
-        private static ReadSharedWalletDto MapData(SharedWallet sw, IEnumerable<SharedWalletMembers>? members)
+        private static ReadSharedWalletDto MapData(SharedWallet sw, IEnumerable<SharedWalletMembers>? members, WalletCurrency curr, WalletColor color, WalletStatus status, bool isOwner)
         {
             // Get the Members
             var membersList = members?.Select(m => new SWMembersDto
@@ -516,11 +535,79 @@ namespace Rased.Business.Services.SharedWallets
                 ExpenseLimit = sw.ExpenseLimit,
                 CreatedAt = sw.CreatedAt,
                 UpdatedAt = sw.LastModified,
-                Currency = sw.Currency.Name,
-                Color = sw.StaticColorTypeData.Name,
-                Status = sw.StaticWalletStatusData.Name,
-                Members = membersList
+                WalletCurrency = curr,
+                WalletColor = color,
+                WalletStatus = status,
+                Members = membersList,
+                IsOwner = isOwner
             };
+        }
+
+
+        public async Task<ApiResponse<bool>> IsUserInSharedWalletAsync(string userId, int? sharedWalletId)
+        {
+            try
+            {
+                // Validate if userId or sharedWalletId is null
+                if (string.IsNullOrEmpty(userId) || !sharedWalletId.HasValue)
+                {
+                    return new ApiResponse<bool>(false, "User or Shared Wallet ID is invalid.");
+                }
+
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[]
+                {
+            x => x.UserId == userId && x.SharedWalletId == sharedWalletId
+                };
+
+                var member = _unitOfWork.SharedWallets
+                    .GetData<SharedWalletMembers>(memberFilter, null, false)
+                    .FirstOrDefault();
+
+                if (member == null)
+                {
+                    return new ApiResponse<bool>(false, "User is not a member of the shared wallet.");
+                }
+
+                return new ApiResponse<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(false, ex.Message);
+            }
+        }
+
+        public async Task<ApiResponse<bool>> IsUserAdminOfSharedWalletAsync(string userId, int sharedWalletId)
+        {
+            try
+            {
+                // Validate if userId or sharedWalletId is null
+                if (string.IsNullOrEmpty(userId) || sharedWalletId <= 0)
+                {
+                    return new ApiResponse<bool>(false, "User or Shared Wallet ID is invalid.");
+                }
+
+                var memberFilter = new Expression<Func<SharedWalletMembers, bool>>[]
+                {
+            x => x.UserId == userId &&
+                 x.SharedWalletId == sharedWalletId &&
+                 x.Role == AccessLevelConstants.OWNER
+                };
+
+                var member = _unitOfWork.SharedWallets
+                    .GetData<SharedWalletMembers>(memberFilter, null, false)
+                    .FirstOrDefault();
+
+                if (member == null)
+                {
+                    return new ApiResponse<bool>(false, "User is not the admin of the shared wallet.");
+                }
+
+                return new ApiResponse<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(false, ex.Message);
+            }
         }
     }
 }

@@ -45,11 +45,15 @@ namespace Rased.Business.Services.Goals
 
         public async Task<ApiResponse<string>> AddGoalAsync(AddGoalDto addGoalDto)
         {
-            await _unitOfWork.GoalRepository.AddAsync(_mapper.Map<Goal>(addGoalDto));
+            var goal = _mapper.Map<Goal>(addGoalDto);
+            goal.CurrentAmount = goal.StartedAmount;
+
+            await _unitOfWork.GoalRepository.AddAsync(goal);
             await _unitOfWork.CommitChangesAsync();
 
             return new ApiResponse<string>(null, "Goal added successfully.");
         }
+
 
         public async Task<ApiResponse<string>> UpdateGoalAsync(UpdateGoalDto updateGoalDto)
         {
@@ -104,19 +108,76 @@ namespace Rased.Business.Services.Goals
 
         public async Task<ApiResponse<decimal>> GetTotalSavedAmountAsync(int goalId)
         {
-            var goalExists = await _unitOfWork.GoalRepository.AnyAsync(g => g.Id == goalId);
-            if (!goalExists)
+            var goal = await _unitOfWork.GoalRepository.GetByIdAsync(goalId);
+
+            if (goal == null)
                 return new ApiResponse<decimal>("Goal not found.");
 
-
-            var totalSavedAmount = await _unitOfWork.GoalTransactionRepository
-                .GetByCondition(t => t.GoalId == goalId)
-                .SumAsync(t => t.InsertedAmount);  
-
-            return new ApiResponse<decimal>(totalSavedAmount);
+            return new ApiResponse<decimal>(goal.CurrentAmount);
         }
 
-     
+
+        public async Task<ApiResponse<decimal>> GetGoalProgressPercentageAsync(int goalId)
+        {
+            var goal = await _unitOfWork.GoalRepository.GetByIdAsync(goalId);
+            if (goal == null)
+                return new ApiResponse<decimal>("Goal not found.");
+
+            if (goal.TargetAmount == 0)
+                return new ApiResponse<decimal>("Target amount cannot be zero.");
+
+            decimal percentage = (goal.CurrentAmount / goal.TargetAmount) * 100;
+
+            percentage = Math.Min(percentage, 100);
+
+            return new ApiResponse<decimal>(percentage);
+        }
+        public async Task<ApiResponse<decimal>> GetTotalGoalsProgressPercentageByWalletIdAsync(int walletId, string userId)
+        {
+           
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+            if (!walletExists)
+                return new ApiResponse<decimal>("Wallet not found or doesn't belong to the user.");
+
+            var goals = await _unitOfWork.GoalRepository
+                .GetByCondition(g => g.WalletId == walletId && g.Wallet.CreatorId == userId)
+                .ToListAsync();
+
+            if (!goals.Any())
+                return new ApiResponse<decimal>("No goals found for the specified wallet.");
+
+            decimal totalCurrentAmount = goals.Sum(g => g.CurrentAmount);
+            decimal totalTargetAmount = goals.Sum(g => g.TargetAmount);
+
+            if (totalTargetAmount == 0)
+                return new ApiResponse<decimal>("Total target amount cannot be zero.");
+
+            decimal overallPercentage = (totalCurrentAmount / totalTargetAmount) * 100;
+
+          
+            overallPercentage = Math.Min(overallPercentage, 100);
+
+            return new ApiResponse<decimal>(overallPercentage);
+        }
+
+        public async Task<ApiResponse<(int totalGoals, decimal totalCurrentAmount)>> GetGoalsStatsByWalletIdAsync(int walletId, string userId)
+        {
+            bool walletExists = await _unitOfWork.Wallets.AnyAsync(w => w.WalletId == walletId && w.CreatorId == userId);
+            if (!walletExists)
+                return new ApiResponse<(int, decimal)>("Wallet not found or doesn't belong to the user.");
+
+            var goals = _unitOfWork.GoalRepository.GetByCondition(g => g.WalletId == walletId && g.Wallet.CreatorId == userId);
+
+            var totalGoals = await goals.CountAsync();
+            var totalCurrentAmount = await goals.SumAsync(g => g.CurrentAmount);
+
+            return new ApiResponse<(int, decimal)>((totalGoals, totalCurrentAmount));
+        }
+
+
+
+
+
 
 
 

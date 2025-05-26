@@ -6,6 +6,7 @@ using Rased.Business.Dtos.Auths;
 using Rased.Business.Dtos.Response;
 using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Models.User;
+using System;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -471,6 +472,73 @@ namespace Rased.Business.Services.AuthServices
             catch (Exception ex)
             {
                 return new ApiResponse<string>("خطأ تقني!! ... " + ex.Message);
+            }
+        }
+
+        // Get User
+        public async Task<ApiResponse<ReadUserDto>> GetUserAsync(string curUserId)
+        {
+            try
+            {
+                // Ensure the user id
+                var user = await _userManager.FindByIdAsync(curUserId);
+                if (user is null)
+                    return new ApiResponse<ReadUserDto>("حدث خطأ ما!");
+
+                // Retrieve the data
+                var userData = new ReadUserDto()
+                {
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Address = user.Address,
+                    UserName = user.UserName,
+                    Badge = user.UserBadge,
+                    DateOfBirth = user.DateOfBirth,
+                    ProfilePic = user.ProfilePic
+                };
+
+                return new ApiResponse<ReadUserDto>(userData, "تم استرجاع البيانات بنجاح!");
+            }
+            catch(Exception ex)
+            {
+                return new ApiResponse<ReadUserDto>(ex.Message);
+            }
+        }
+
+        // Update User Data
+        public async Task<ApiResponse<string>> UpdateUserAsync(UpdateUserDto model, string curUserId)
+        {
+            try
+            {
+                // Ensure the user id
+                var user = await _userManager.FindByIdAsync(curUserId);
+                if (user is null)
+                    return new ApiResponse<string>("حدث خطأ ما!");
+                // Ensure the user name not duplicated
+                var dupUser = _userManager.Users.Where(x => x.UserName == model.UserName).FirstOrDefault();
+                // Means if the user name exists and the old user name not equals to the new user name --> duplicated
+                if(dupUser is not null && model.UserName != user.UserName)
+                    return new ApiResponse<string>("اسم المستخدم مُكرر، جرب واحد آخر!");
+
+                // Update Data
+                user.UserName = model.UserName;
+                user.FullName = model.FullName;
+                user.Address = model.Address;
+                user.DateOfBirth = model.DateOfBirth != null ? DateOnly.FromDateTime(model.DateOfBirth!.Value) : null;
+                if(!string.IsNullOrEmpty(model.ProfilePic))
+                    user.ProfilePic = Convert.FromBase64String(model.ProfilePic!);
+                user.UpdatedAt = DateTime.Now;
+                var res = await _userManager.UpdateAsync(user);
+                if (!res.Succeeded)
+                {
+                    return new ApiResponse<string>(res.Errors.Select(d => d.Description).ToList());
+                }
+
+                return new ApiResponse<string>(null!, "تم تحديث بياناتك بنجاح!");
+            }
+            catch(Exception ex)
+            {
+                return new ApiResponse<string>(ex.Message);
             }
         }
 

@@ -5,8 +5,8 @@ namespace Rased.Business.Services.SharedWallets
 {
     public interface ISharedWalletService
     {
-        ApiResponse<IEnumerable<ReadSharedWalletDto>> ReadAllAsync(string userId);
-        ApiResponse<ReadSharedWalletDto> ReadSingleAsync(int id, string userId);
+        Task<ApiResponse<IEnumerable<ReadSharedWalletDto>>> ReadAllAsync(string userId);
+        Task<ApiResponse<ReadSharedWalletDto>> ReadSingleAsync(int id, string userId);
         Task<ApiResponse<string>> CreateAsync(SharedWalletDto model, string userId);
         Task<ApiResponse<string>> UpdateAsync(SharedWalletDto model, int walletId, string userId);
         Task<ApiResponse<string>> RemoveAsync(int id, string userId);
@@ -18,5 +18,10 @@ namespace Rased.Business.Services.SharedWallets
         //// Members Control
         Task<ApiResponse<string>> UpdateMemberAccessLevelAsync(UpdateMemberRoleDto model, string userId); // Only for Owner
         Task<ApiResponse<string>> RemoveMemberAsync(RemoveMemberDto model, string userId); // Only for Owner and SuperVisor
+
+
+        Task<ApiResponse<bool>> IsUserInSharedWalletAsync(string userId, int? sharedWalletId);
+        Task<ApiResponse<bool>> IsUserAdminOfSharedWalletAsync(string userId, int sharedWalletId);
+   
     }
 }

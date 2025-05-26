@@ -14,14 +14,15 @@ namespace Rased.Business.Dtos.Goals
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
         public GoalStatusEnum Status { get; set; } 
-        public DateTime StartedDate { get; set; } = DateTime.UtcNow;
+        public DateTime StartedDate { get; set; } 
         public DateTime DesiredDate { get; set; }
-        public decimal StartedAmount { get; set; } = 0;
+        public decimal StartedAmount { get; set; } 
+        public decimal CurrentAmount { get; set; }
         public decimal TargetAmount { get; set; }
 
-        public bool IsTemplate { get; set; } = false;
-        public string? Frequency { get; set; }
-        public decimal? FrequencyAmount { get; set; }
+        //public bool IsTemplate { get; set; } = false;
+        //public string? Frequency { get; set; }
+        //public decimal? FrequencyAmount { get; set; }
 
         // Parent Ids
         public int? WalletId { get; set; }

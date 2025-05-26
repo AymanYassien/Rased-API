@@ -43,11 +43,20 @@ namespace Rased.Business.Services.Goals
 
         public async Task<ApiResponse<string>> AddGoalTransactionAsync(AddGoalTransactionDto addGoalTransactionDto)
         {
-            await _unitOfWork.GoalTransactionRepository.AddAsync(_mapper.Map<GoalTransaction>(addGoalTransactionDto));
+            var transaction = _mapper.Map<GoalTransaction>(addGoalTransactionDto);
+            await _unitOfWork.GoalTransactionRepository.AddAsync(transaction);
+
+            var goal = await _unitOfWork.GoalRepository.GetByIdAsync(transaction.GoalId);
+            if (goal != null)
+            {
+                goal.CurrentAmount += transaction.InsertedAmount; // افترضنا إن عندك property اسمها Amount في GoalTransaction
+            }
+
             await _unitOfWork.CommitChangesAsync();
 
             return new ApiResponse<string>(null, "Goal Transaction added successfully.");
         }
+
 
         public async Task<ApiResponse<string>> UpdateGoalTransactionAsync(UpdateGoalTransactionDto updateGoalTransactionDto)
         {
@@ -55,11 +64,21 @@ namespace Rased.Business.Services.Goals
             if (transaction == null)
                 return new ApiResponse<string>("Goal Transaction not found.");
 
+            var oldAmount = transaction.InsertedAmount;
+
             _mapper.Map(updateGoalTransactionDto, transaction);
+
+            var goal = await _unitOfWork.GoalRepository.GetByIdAsync(transaction.GoalId);
+            if (goal != null)
+            {
+                goal.CurrentAmount = goal.CurrentAmount - oldAmount + transaction.InsertedAmount;
+            }
+
             await _unitOfWork.CommitChangesAsync();
 
             return new ApiResponse<string>(null, "Goal Transaction updated successfully.");
         }
+
 
         public async Task<ApiResponse<string>> DeleteGoalTransactionAsync(int id)
         {
@@ -67,11 +86,18 @@ namespace Rased.Business.Services.Goals
             if (transaction == null)
                 return new ApiResponse<string>("Goal Transaction not found.");
 
+            var goal = await _unitOfWork.GoalRepository.GetByIdAsync(transaction.GoalId);
+            if (goal != null)
+            {
+                goal.CurrentAmount -= transaction.InsertedAmount;
+            }
+
             await _unitOfWork.GoalTransactionRepository.DeleteByIdAsync(id);
             await _unitOfWork.CommitChangesAsync();
 
             return new ApiResponse<string>(null, "Goal Transaction deleted successfully.");
         }
+
 
         public async Task<ApiResponse<IQueryable<ReadGoalTransactionDto>>> GetTransactionsByGoalIdAsync(int goalId)
         {

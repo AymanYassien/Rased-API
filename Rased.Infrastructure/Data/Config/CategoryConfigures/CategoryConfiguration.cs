@@ -30,19 +30,6 @@ namespace Rased.Business
 
             builder.Property(sc => sc.IsActive)
                 .HasDefaultValue(true);
-
-            //builder.Property(c => c.CategoryTypeId)
-            //    .IsRequired();
-
-            builder.HasMany(c => c.SubCategories)
-                .WithOne(SubCategory => SubCategory.ParentCategory)
-                .HasForeignKey("CategoryId")
-                .OnDelete(DeleteBehavior.Cascade);
-            
-            //builder.HasOne(c => c.StaticCategoryTypesData)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.CategoryTypeId)
-            //    .OnDelete(DeleteBehavior.Cascade);
         }
 
     }
