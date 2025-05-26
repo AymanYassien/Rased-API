@@ -21,7 +21,7 @@ public class validBudgetDto
     public int  BudgetTypeId { get; set; }
     public int? DayOfMonth { get; set; }
     public int? DayOfWeek { get; set; }
-    public List<ExpenseDto> relatedExpenses { get; set; }
+    public List<ExpenseDto> relatedExpenses { get; set; } = new List<ExpenseDto>();
     
     public string subCategoryName { get; set; }
     public int CategoryId { get; set; }

@@ -178,11 +178,11 @@ public class BudgetService : IBudgetService
         {
             var res = await _unitOfWork.Budget.GetValidBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
             if (!res.Any())
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                return _response.Response(false, null, "", "Not Found",
                     HttpStatusCode.NotFound);
             
 
-            var mapped = MapToBudgetDto(res);
+            var mapped = MapToBudgetDto(res).ToList();
             
             foreach (var budget in mapped)
             {
@@ -190,7 +190,7 @@ public class BudgetService : IBudgetService
                 var subcategoryName = await _subCategoryService.GetSubCategoryNameById((int)budget.SubCategoryId);
                 var categoryId = await _unitOfWork.Categories.GetCategoryIdByName(budget.CategoryName);
                 
-                budget.relatedExpenses = await relatedExpenses.ToListAsync();
+                budget.relatedExpenses = relatedExpenses.ToList();
                 budget.subCategoryName = subcategoryName;
                 budget.CategoryId = categoryId;
             }
