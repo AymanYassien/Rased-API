@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Net;
 using Rased_API.Rased.Business.Services.BudgetService;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
@@ -123,7 +123,7 @@ public class BudgetService : IBudgetService
         {
             var res = await _unitOfWork.Budget.GetAllAsync(filter, null, pageNumber, pageSize);
             if (!res.Any())
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
                     HttpStatusCode.NotFound);
 
             return _response.Response(true, res, "Success", "", HttpStatusCode.OK);
@@ -145,7 +145,7 @@ public class BudgetService : IBudgetService
         {
             var res = await _unitOfWork.Budget.GetBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
             if (!res.Any())
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
                     HttpStatusCode.NotFound);
             
             var mapped = MapToBudgetDto(res);
@@ -171,7 +171,7 @@ public class BudgetService : IBudgetService
             
             var res = await _unitOfWork.Budget.GetValidBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
             if (!res.Any())
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
                     HttpStatusCode.NotFound);
 
             var mapped = MapToBudgetDto(res);
@@ -217,7 +217,7 @@ public class BudgetService : IBudgetService
         {
             var res = await _unitOfWork.Budget.CountValidBudgetsByWalletIdAsync(walletId, isShared);
             if (res < 0)
-                return _response.Response(false, null, "", "Not Found, or Nothing to calculate",
+                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
                     HttpStatusCode.NotFound);
 
             return _response.Response(true, res, "Success", "", HttpStatusCode.OK);
@@ -255,7 +255,7 @@ public class BudgetService : IBudgetService
         
         decimal res =  await _unitOfWork.Budget.GetBudgetAmountAsync(budgetId);
         if (res < 0)
-            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
@@ -287,7 +287,7 @@ public class BudgetService : IBudgetService
         
         decimal res =  await _unitOfWork.Budget.GetBudgetSpentAmountAsync(budgetId);
         if (res < 0)
-            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
@@ -319,7 +319,7 @@ public class BudgetService : IBudgetService
         
         decimal res =  await _unitOfWork.Budget.GetRemainingAmountAsync(budgetId);
         if (res < 0)
-            return _response.Response(false, null, "", "Not Found, or Nothing to calculate",  HttpStatusCode.NotFound);
+            return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",  HttpStatusCode.NotFound);
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }

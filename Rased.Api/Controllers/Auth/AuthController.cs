@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Auths;
 using Rased.Business.Services.AuthServices;
+using System.Security.Claims;
 
 namespace Rased.Api.Controllers.Auth
 {
@@ -95,6 +97,35 @@ namespace Rased.Api.Controllers.Auth
         {
             var result = await _authService.LogoutAsync(model);
 
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        // Get User
+        [Authorize]
+        [HttpGet("GetUser", Name = "GetUser")]
+        public async Task<IActionResult> GetUser()
+        {
+            // Current Authenticated User
+            var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _authService.GetUserAsync(curUserId!);
+            if(!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPut("UpdateUser", Name = "UpdateUser")]
+        public async Task<IActionResult> UpdateUser(UpdateUserDto model)
+        {
+            // Current Authenticated User
+            var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _authService.UpdateUserAsync(model, curUserId!);
             if (!result.Succeeded)
                 return BadRequest(result);
 
