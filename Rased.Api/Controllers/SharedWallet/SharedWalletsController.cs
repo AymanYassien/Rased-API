@@ -59,12 +59,12 @@ namespace Rased.Api.Controllers.SharedWallet
         }
 
         [HttpGet("Single/{id:int}", Name = "SingleSW")]
-        public IActionResult Single(int id)
+        public async Task<IActionResult> Single(int id)
         {
             // Current Authenticated User
             var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var result = _sharedWalletService.ReadSingleAsync(id, curUserId!);
+            var result = await _sharedWalletService.ReadSingleAsync(id, curUserId!);
             if (!result.Succeeded)
                 return BadRequest(result);
 
@@ -72,12 +72,12 @@ namespace Rased.Api.Controllers.SharedWallet
         }
 
         [HttpGet("All", Name = "AllSW")]
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
             // Current Authenticated User
             var curUserId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            var result = _sharedWalletService.ReadAllAsync(curUserId!);
+            var result = await _sharedWalletService.ReadAllAsync(curUserId!);
             if (!result.Succeeded)
                 return BadRequest(result);
 
