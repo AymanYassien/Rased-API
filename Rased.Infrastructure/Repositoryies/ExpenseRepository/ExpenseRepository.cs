@@ -219,6 +219,18 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
         return Sum;
     }
 
+    public async Task<IQueryable<Expense>> GetLast3ExpensesByBudgetId(int budgetId)
+    {
+        IQueryable<Expense> expenses =  _dbSet
+            .Where(x => x.RelatedBudgetId == budgetId)
+            .OrderByDescending(x => x.Date)
+            .Take(3);
+         return expenses;
+        //return Task.FromResult(expenses);    => with no async
+    }
+    
+   
+
     // public async Task<List<MonthlyExpenseSummary>> SumExpensesByYearAsync(int walletId, bool isShared)
     // {
     //     

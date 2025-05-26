@@ -150,5 +150,15 @@ namespace Rased.Business.Services.SubCategories
                 return new ApiResponse<ReadSubCategoryDto>(e.Message);
             }
         }
+
+        public async Task<string> GetSubCategoryNameById(int id)
+        {
+            if (1 > id)
+                return string.Empty;
+        
+            var res = await _unitOfWork.SubCategories.GetByIdAsync(id);
+            return res.Name;
+
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Rased.Business.Dtos.Auths
+﻿using System.Collections.Generic;
+
+namespace Rased.Business.Dtos.Auths
 {
     public class GeneralRespnose
     {

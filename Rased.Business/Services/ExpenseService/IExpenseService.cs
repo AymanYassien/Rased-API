@@ -24,6 +24,7 @@ public interface IExpenseService
     public Task<int> AddUserExpense_forInternalUsage(AddExpenseDto newExpenseDto);
     
     // Filter Expenses 
+    public Task<IQueryable<ExpenseDto>> GetLast3ExpensesByBudgetId(int budgetId);
     
     
     // For Admin 
