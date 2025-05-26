@@ -285,7 +285,24 @@ public class ExpenseService : IExpenseService
         
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
-    
+
+    public async Task<IQueryable<ExpenseDto>> GetLast3ExpensesByBudgetId(int budgetId)
+    { 
+        if (1 > budgetId)
+            return null;
+        
+        IQueryable<Expense> res = await _unitOfWork.Expenses.GetLast3ExpensesByBudgetId(budgetId);
+        
+        if ( !res.Any() )
+            return  null;
+
+        IQueryable < ExpenseDto > newResult = MapToExpenseDto(res);
+
+        return newResult;
+
+
+    }
+
     public async Task<ApiResponse<object>> GetAllExpensesForAdmin(Expression<Func<Expense, bool>>[]? filter = null, Expression<Func<Expense, object>>[]? includes = null, int pageNumber = 0,
         int pageSize = 10)
     {
