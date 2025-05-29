@@ -42,6 +42,11 @@ public class BudgetService : IBudgetService
                     HttpStatusCode.NotFound);
 
             var mapped = MapToBudgetDto(res);
+            var subcategoryName = await _subCategoryService.GetSubCategoryNameById((int)mapped.SubCategoryId);
+            var categoryId = await _unitOfWork.Categories.GetCategoryIdByName(mapped.CategoryName);
+
+            mapped.subCategoryName = subcategoryName;
+            mapped.CategoryId = categoryId;
             return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
 
         }
@@ -192,7 +197,7 @@ public class BudgetService : IBudgetService
                 var subcategoryName = await _subCategoryService.GetSubCategoryNameById((int)budget.SubCategoryId);
                 var categoryId = await _unitOfWork.Categories.GetCategoryIdByName(budget.CategoryName);
                 
-                budget.relatedExpenses = relatedExpenses.ToList();
+                budget.relatedExpenses = relatedExpenses?.ToList();
                 budget.subCategoryName = subcategoryName;
                 budget.CategoryId = categoryId;
             }
@@ -555,9 +560,9 @@ public class BudgetService : IBudgetService
         });
     }
 
-    private BudgetDto MapToBudgetDto(Budget budget)
+    private validBudgetDto MapToBudgetDto(Budget budget)
     {
-        return new BudgetDto()
+        return new validBudgetDto()
         {
             BudgetId = budget.BudgetId,
             WalletId = budget.WalletId,
