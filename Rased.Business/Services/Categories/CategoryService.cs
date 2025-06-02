@@ -162,6 +162,15 @@ namespace Rased.Business.Services.Categories
             return new ApiResponse<ReadCategoryDto>(result);
         }
 
+        public async Task<string> GetCategoryName(int id)
+        {
+            if (1 > id)
+                return string.Empty;
+        
+            var res = await _unitOfWork.Categories.GetByIdAsync(id);
+            return res.Name;
+        }
+
         // Mapping Data
         private static ReadCategoryDto MappingData(Category category)
         {

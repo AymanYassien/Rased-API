@@ -16,5 +16,7 @@ namespace Rased.Business.Services.Categories
         Task<ApiResponse<List<ReadCategoryDto>>> GetAllCategories();
         // Read Category by Id
         Task<ApiResponse<ReadCategoryDto>> GetCategoryById(int id);
+
+        Task<string> GetCategoryName(int id);
     }
 }

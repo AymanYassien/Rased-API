@@ -3,6 +3,8 @@ using System.Net;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
 using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
+using Rased.Business.Services.Categories;
+using Rased.Business.Services.SubCategories;
 using Rased.Infrastructure;
 using Rased.Infrastructure.UnitsOfWork;
 
@@ -12,10 +14,14 @@ public class ExpenseService : IExpenseService
 {
     private IUnitOfWork _unitOfWork;
     private ApiResponse<object> _response;
+    private ISubCategoryService _subCategoryService;
+    private ICategoryService _categoryService;
     
-    public ExpenseService(IUnitOfWork unitOfWork)
+    public ExpenseService(IUnitOfWork unitOfWork, ISubCategoryService subCategoryService, ICategoryService categoryService)
     {
         _unitOfWork = unitOfWork;
+        _subCategoryService = subCategoryService;
+        _categoryService = categoryService;
         _response = new ApiResponse<object>();
          
     }
@@ -286,6 +292,31 @@ public class ExpenseService : IExpenseService
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
 
+    public async Task<ExpenseDTOforRecommenditionSystem> GetExpenseByIdForRecommenditionSystem(int expenseId)
+    {
+        if (1 > expenseId)
+            return null;
+
+        var res = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+        //GetUserExpenseAsync(walletId, ExpenseId, isShared);
+
+        if (res == null)
+            return null;
+
+       
+        var subCategory = await _unitOfWork.SubCategories.GetByIdAsync((int)res.SubCategoryId);
+        var subCategoryName = subCategory.Name;
+        
+        var categoryName = await _categoryService.GetCategoryName(subCategory.ParentCategoryId);
+            
+        var newResult = _MapToExpenseDtoForRecommnditionSystem(res);
+        newResult.SubCategoryName = subCategoryName;
+        newResult.CategoryName = categoryName;
+        
+        return newResult;
+
+    }
+
     public async Task<IQueryable<ExpenseDto>> GetLast3ExpensesByBudgetId(int budgetId)
     { 
         if (1 > budgetId)
@@ -333,6 +364,26 @@ public class ExpenseService : IExpenseService
             Description = expense.Description,
             Title = expense.Title, 
             RelatedBudgetId = expense.RelatedBudgetId
+        };
+    }
+    
+    private ExpenseDTOforRecommenditionSystem _MapToExpenseDtoForRecommnditionSystem(Expense expense)
+    {
+        return new ExpenseDTOforRecommenditionSystem()
+        {
+            ExpenseId = expense.ExpenseId,
+            WalletId = expense.WalletId,
+            SharedWalletId = expense.SharedWalletId,
+            Amount = expense.Amount,
+            CategoryName = expense.CategoryName,
+            SubCategoryId = expense.SubCategoryId,
+            Date = expense.Date,
+            PaymentMethodId = expense.PaymentMethodId,
+            IsAutomated = expense.IsAutomated,
+            Description = expense.Description,
+            Title = expense.Title, 
+            RelatedBudgetId = expense.RelatedBudgetId,
+            SubCategoryName = string.Empty
         };
     }
 
