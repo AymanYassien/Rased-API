@@ -278,8 +278,8 @@ public class IncomeService : IIncomeService
             WalletId = income.WalletId,
             SharedWalletId = income.SharedWalletId,
             Amount = income.Amount,
-            CategoryName = income.CategoryName,
-            SubCategoryId = income.SubCategoryId,
+            //CategoryName = income.CategoryName,
+            //SubCategoryId = income.SubCategoryId,
             CreatedDate = income.CreatedDate,
             IncomeSourceTypeId = income.IncomeSourceTypeId,
             IsAutomated = income.IsAutomated,
@@ -296,8 +296,8 @@ public class IncomeService : IIncomeService
             income.WalletId = updateIncomeDto.WalletId ;
             income.SharedWalletId = updateIncomeDto.SharedWalletId;
             income.Amount = updateIncomeDto.Amount;
-            income.CategoryName = updateIncomeDto.CategoryName;
-            income.SubCategoryId = updateIncomeDto.SubCategoryId;
+            //income.CategoryName = updateIncomeDto.CategoryName;
+            //income.SubCategoryId = updateIncomeDto.SubCategoryId;
             income.CreatedDate = updateIncomeDto.CreatedDate;
             income.IncomeSourceTypeId = updateIncomeDto.IncomeSourceTypeId;
             income.IsAutomated = updateIncomeDto.IsAutomated;
@@ -315,8 +315,8 @@ public class IncomeService : IIncomeService
             WalletId = addIncomeDto.WalletId,
             SharedWalletId = addIncomeDto.SharedWalletId,
             Amount = addIncomeDto.Amount,
-            CategoryName = addIncomeDto.CategoryName,
-            SubCategoryId = addIncomeDto.SubCategoryId,
+            //CategoryName = addIncomeDto.CategoryName,
+            //SubCategoryId = addIncomeDto.SubCategoryId,
             CreatedDate = addIncomeDto.CreatedDate,
             IncomeSourceTypeId = addIncomeDto.IncomeSourceTypeId,
             IsAutomated = false,
@@ -334,8 +334,8 @@ public class IncomeService : IIncomeService
             WalletId = income.WalletId,
             SharedWalletId = income.SharedWalletId,
             Amount = income.Amount,
-            CategoryName = income.CategoryName,
-            SubCategoryId = income.SubCategoryId,
+            //CategoryName = income.CategoryName,
+            //SubCategoryId = income.SubCategoryId,
             CreatedDate = income.CreatedDate,
             IncomeSourceTypeId = income.IncomeSourceTypeId,
             IsAutomated = income.IsAutomated,
@@ -359,13 +359,6 @@ public class IncomeService : IIncomeService
             if (dto.Title.Length > 50)
             {
                 errorMessage = "Title cannot exceed 50 characters.";
-                return false;
-            }
-
-            // 2. CategoryName: MaxLength(50), optional
-            if (dto.CategoryName?.Length > 50)
-            {
-                errorMessage = "CategoryName cannot exceed 50 characters.";
                 return false;
             }
 
@@ -428,13 +421,6 @@ public class IncomeService : IIncomeService
             if (dto.Title.Length > 50)
             {
                 errorMessage = "Title cannot exceed 50 characters.";
-                return false;
-            }
-
-            // 2. CategoryName: MaxLength(50), optional
-            if (dto.CategoryName?.Length > 50)
-            {
-                errorMessage = "CategoryName cannot exceed 50 characters.";
                 return false;
             }
 

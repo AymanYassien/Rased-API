@@ -22,6 +22,7 @@ public class StaticIncomeSourceTypesDataController : Controller
     }
     
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] string filter = null) // e.g., "name=visa"
     {
         var filters = ExpressionBuilder.ParseFilter<StaticIncomeSourceTypeData>(filter);
