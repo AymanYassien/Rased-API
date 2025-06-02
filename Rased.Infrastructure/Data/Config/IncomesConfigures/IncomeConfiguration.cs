@@ -14,9 +14,9 @@ public class IncomeConfiguration : IEntityTypeConfiguration<Income>
         entity.Property(e => e.Title)
             .IsRequired()
             .HasMaxLength(50);
-        entity.Property(e => e.CategoryName)
-            .IsRequired(false)
-            .HasMaxLength(50);
+        //entity.Property(e => e.CategoryName)
+        //    .IsRequired(false)
+        //    .HasMaxLength(50);
 
         entity.Property(e => e.Description)
             .HasMaxLength(200)
@@ -44,10 +44,10 @@ public class IncomeConfiguration : IEntityTypeConfiguration<Income>
             .HasForeignKey(e => e.SharedWalletId)
             .IsRequired(false);
 
-        entity.HasOne(e => e.SubCategory)
-            .WithMany(x => x.Incomes)
-            .HasForeignKey(e => e.SubCategoryId)
-            .IsRequired(false);
+        //entity.HasOne(e => e.SubCategory)
+        //    .WithMany(x => x.Incomes)
+        //    .HasForeignKey(e => e.SubCategoryId)
+        //    .IsRequired(false);
 
         entity.HasOne(e => e.IncomeSourceType)
             .WithMany() 
