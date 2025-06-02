@@ -23,7 +23,7 @@ public class incomeController : Controller
     }
     
     
-    [HttpGet("get-all-incomes/{walletId}")]
+    [HttpGet("GetAllIncomes/{walletId}")]
     public async Task<IActionResult> GetUserIncomesByWalletId(
         [FromRoute]int walletId, 
         [FromQuery] bool isShared = false,
@@ -48,7 +48,8 @@ public class incomeController : Controller
     {
         var response = await _incomeService.AddUserIncome(newIncomeDto);
         if (response.Succeeded)
-            return CreatedAtAction(nameof(GetById), new { walletId = newIncomeDto.WalletId ?? newIncomeDto.SharedWalletId, incomeId = ((Infrastructure.Income)response.Data).IncomeId }, response);
+            return Ok(response);
+
         return StatusCode((int)response.StatusCode, response);
     }
 
@@ -57,8 +58,10 @@ public class incomeController : Controller
     public async Task<IActionResult> Update(int incomeId, [FromBody] UpdateIncomeDto updateIncomeDto)
     {
         var response = await _incomeService.UpdateUserIncome(incomeId, updateIncomeDto);
-        if ((int)response.StatusCode == 204) response.StatusCode = HttpStatusCode.OK;
-        return StatusCode((int)response.StatusCode, response);
+        if (!response.Succeeded)
+            return BadRequest(response);
+
+        return Ok(response);
     }
 
     
