@@ -31,5 +31,5 @@ public interface IBudgetService
     Task<ApiResponse<object>> GetFinancialGraphDataAsync(int walletId, bool isShared = false);
 
     Task<ApiResponse<object>> GetBudgetsStatisticsAsync(int walletId, bool isShared = false);
-    
+    public Task<string> GetBudgetNameById(int id);
 }

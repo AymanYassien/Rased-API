@@ -229,7 +229,35 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
         //return Task.FromResult(expenses);    => with no async
     }
     
-   
+
+    public async Task<IQueryable<Expense>> GetLast10ExpensesByWalletId(int walletId, bool isShared)
+    {
+        IQueryable<Expense> expenses;
+        if (isShared)
+            expenses =  _dbSet
+                .Where(x => x.SharedWalletId == walletId)
+                .OrderByDescending(x => x.Date)
+                .Take(10);
+        
+            
+        else
+            expenses =  _dbSet
+            .Where(x => x.WalletId == walletId)
+            .OrderByDescending(x => x.Date)
+            .Take(10);
+        
+        return expenses;
+    }
+    
+    public async Task<IQueryable<Expense>> GetLast10ExpensesByBudgetId(int budgetId)
+    {
+        IQueryable<Expense> expenses =  _dbSet
+            .Where(x => x.RelatedBudgetId == budgetId)
+            .OrderByDescending(x => x.Date)
+            .Take(10);
+        return expenses;
+    }
+
 
     // public async Task<List<MonthlyExpenseSummary>> SumExpensesByYearAsync(int walletId, bool isShared)
     // {

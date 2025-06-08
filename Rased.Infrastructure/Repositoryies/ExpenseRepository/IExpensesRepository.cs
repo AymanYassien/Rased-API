@@ -28,6 +28,8 @@ public interface IExpensesRepository : IRepository_Test<Expense, int>
     Task<decimal> GetTotalAmountOfRelatedBudgets(int walletId, bool isShared);
     
     Task<IQueryable<Expense>> GetLast3ExpensesByBudgetId(int budgetId);
+    Task<IQueryable<Expense>> GetLast10ExpensesByBudgetId(int budgetId);
+    Task<IQueryable<Expense>> GetLast10ExpensesByWalletId(int walletId, bool isShared);
     
     // Task<List<MonthlyExpenseSummary>> SumExpensesByYearAsync(int walletId, bool isShared);
     

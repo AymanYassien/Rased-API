@@ -88,21 +88,7 @@ namespace Rased.Business.Services.Transfer
 
                 await _unitOfWork.Transactions.AddAsync(transaction);
                 await _unitOfWork.CommitChangesAsync();
-
-                //Add Expense
-                //var expense = new Expense
-                //{
-                //    WalletId = dto.SenderWalletId,
-                //    SharedWalletId = dto.ReceiverTypeId == 2 ? dto.ReceiverWalletId : (int?)null,
-                //    Title = "Transaction Expense",
-                //    Amount = dto.Amount,
-                //    Date = DateTime.UtcNow,
-                //    Description = dto.Description,
-                //    RelatedBudgetId = dto.RelatedBudgetId,
-                //    SubCategoryId = dto.SubCategoryId
-                //};
-
-                //await _unitOfWork.Expenses.AddAsync(expense);
+                
 
                 var expense = await _expenseService.AddUserExpense(_mapper.Map<AddExpenseDto>(dto));
                 await _unitOfWork.CommitChangesAsync();
@@ -124,6 +110,9 @@ namespace Rased.Business.Services.Transfer
                 return new ApiResponse<string>(ex.Message);
             }
         }
+        
+        
+        
 
         public async Task<ApiResponse<string>> UpdateTransactionAsync(UpdateTransactionDto dto)
         {

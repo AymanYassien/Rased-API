@@ -98,6 +98,8 @@ public class BudgetRepository : Repository_Test<Budget, int>, IBudgetRepository
         return await query.SumAsync(e => e.RemainingAmount);
     }
 
+
+
     public Task<string> GetHighestBudgetExpensesAmountForWallet(int walletId, bool isShared)
     {
         throw new NotImplementedException();
