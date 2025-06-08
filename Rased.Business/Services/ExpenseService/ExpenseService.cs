@@ -109,8 +109,8 @@ public class ExpenseService : IExpenseService
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, expense, $"Success add Expense with id: {expense.ExpenseId}", $"",
-            HttpStatusCode.Created);
+        return _response.Response(true, null, $"Success", $"",
+            HttpStatusCode.OK);
     }
 
     public async Task<ApiResponse<object>> UpdateUserExpense(int expenseId, UpdateExpenseDto updateExpenseDto)

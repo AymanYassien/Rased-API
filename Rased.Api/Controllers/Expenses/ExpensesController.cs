@@ -46,7 +46,8 @@ public class ExpensesController : ControllerBase
     {
         var response = await _expenseService.AddUserExpense(newExpenseDto);
         if (response.Succeeded)
-            return CreatedAtAction(nameof(GetById), new { walletId = newExpenseDto.WalletId ?? newExpenseDto.SharedWalletId, expenseId = ((Expense)response.Data).ExpenseId }, response);
+            return Ok(response);
+
         return StatusCode((int)response.StatusCode, response);
     }
     
