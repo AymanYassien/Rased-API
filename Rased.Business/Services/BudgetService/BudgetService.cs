@@ -352,6 +352,16 @@ public class BudgetService : IBudgetService
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
     
+    
+    public async Task<string> GetBudgetNameById(int id)
+    {
+        if (1 > id)
+            return string.Empty;
+        
+        var res = await _unitOfWork.Budget.GetByIdAsync(id);
+        return res.Name;
+
+    }
     private bool IsAddDtoValid(AddBudgetDto dto, out string errorMessage)
     {
         errorMessage = string.Empty;

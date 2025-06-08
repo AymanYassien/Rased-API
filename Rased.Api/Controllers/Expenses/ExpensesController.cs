@@ -31,6 +31,26 @@ public class ExpensesController : ControllerBase
         var response = await _expenseService.GetUserExpensesByWalletId(walletId, filters, 0,0, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
+    
+    [HttpGet("get-last10-expenses/{walletId}")]
+    public async Task<IActionResult> GetLast10ExpensesByWalletId(
+        int walletId, 
+        [FromQuery] bool isShared = false) 
+    {
+        // var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        // if (filters.Length == 0) filters = null;
+        var response = await _expenseService.GetLatest10ExpensesByWalletId(walletId, isShared);
+        return StatusCode((int)response.StatusCode, response);
+    }
+    
+    [HttpGet("get-last10-expenses/{budgetId}")]
+    public async Task<IActionResult> GetLast10ExpensesByBudgetId(
+        int budgetId) 
+    {
+        
+        var response = await _expenseService.GetLatest10ExpensesByBudgetId(budgetId);
+        return StatusCode((int)response.StatusCode, response);
+    }
 
     
     [HttpGet("{expenseId}")]
@@ -42,11 +62,13 @@ public class ExpensesController : ControllerBase
     
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] AddExpenseDto newExpenseDto)
+    public async Task<IActionResult> Create([FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment)
     {
+
         var response = await _expenseService.AddUserExpense(newExpenseDto);
         if (response.Succeeded)
             return Ok(response);
+
 
         return StatusCode((int)response.StatusCode, response);
     }

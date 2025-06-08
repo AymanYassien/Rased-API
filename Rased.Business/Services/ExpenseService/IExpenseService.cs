@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
 using Rased.Infrastructure;
@@ -10,6 +11,7 @@ public interface IExpenseService
     // Basic CRUD
     public Task<ApiResponse<object>> GetUserExpensesByWalletId(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
     public Task<ApiResponse<object>> GetUserExpense(int expenseId );
+    public Task<ApiResponse<object>> AddUserExpense([FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment);
     public Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto);
     public Task<ApiResponse<object>> UpdateUserExpense(int expenseId,UpdateExpenseDto updateExpenseDto);
     public Task<ApiResponse<object>> DeleteUserExpense(int expenseId);
@@ -23,6 +25,9 @@ public interface IExpenseService
 
     public Task<ExpenseDTOforRecommenditionSystem> GetExpenseByIdForRecommenditionSystem(int expenseId);
     public Task<int> AddUserExpense_forInternalUsage(AddExpenseDto newExpenseDto);
+
+    Task<ApiResponse<object>> GetLatest10ExpensesByWalletId(int walletId, bool isShared);
+    Task<ApiResponse<object>> GetLatest10ExpensesByBudgetId(int budgetId );
     
     // Filter Expenses 
     public Task<IQueryable<ExpenseDto>> GetLast3ExpensesByBudgetId(int budgetId);
