@@ -64,7 +64,12 @@ public class ExpensesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment)
     {
-        var response = await _expenseService.AddUserExpense(newExpenseWithAttachment);
+
+        var response = await _expenseService.AddUserExpense(newExpenseDto);
+        if (response.Succeeded)
+            return Ok(response);
+
+
         return StatusCode((int)response.StatusCode, response);
     }
     

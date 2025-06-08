@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Net;
 using Rased_API.Rased.Infrastructure;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
@@ -28,9 +28,9 @@ public class IncomeService : IIncomeService
                 "Bad Request ",  HttpStatusCode.BadRequest);
         
         IQueryable<Income> res = await _unitOfWork.Income.GetUserIncomesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
-        
+
         if (!res.Any())
-            return  _response.Response(false, null, "", "Not Found",  HttpStatusCode.NotFound);
+            return  _response.Response(false, null, "", "لا يوجد مصادر دخل لهذه المحفظة",  HttpStatusCode.NotFound);
 
         IQueryable < IncomeDto > newResult = MapToIncomeDto(res);
         
@@ -93,8 +93,8 @@ public class IncomeService : IIncomeService
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, income, $"Success add Income with id: {income.IncomeId}", $"",
-            HttpStatusCode.Created);
+        return _response.Response(true, null, $"تم إضافة مصدر دخل جديد", $"",
+            HttpStatusCode.OK);
     }
     
     public async Task<ApiResponse<object>> UpdateUserIncome(int incomeId, UpdateIncomeDto updateIncomeDto)
@@ -139,7 +139,7 @@ public class IncomeService : IIncomeService
             
             if (isSuccessUpdateTotalBalance == false)
             {
-                return _response.Response(false, res, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
+                return _response.Response(false, null, "", $"Failed to Update Total Balance, Error Messages : {errorMessage}",
                     HttpStatusCode.InternalServerError);
             }
             await _unitOfWork.CommitChangesAsync();
@@ -147,12 +147,12 @@ public class IncomeService : IIncomeService
         catch (Exception ex)
         {
             
-            return _response.Response(false, updateIncomeDto, "", $"Database constraint violation: {ex.InnerException?.Message}",
+            return _response.Response(false, null, "", $"Database constraint violation: {ex.InnerException?.Message}",
                 HttpStatusCode.InternalServerError);
         }
         
-        return _response.Response(true, res, $"Success Update Income with id: {res.IncomeId}", $"",
-            HttpStatusCode.NoContent);
+        return _response.Response(true, null, $"تم تحديث البيانات بنجاح", $"",
+            HttpStatusCode.OK);
     }
 
     public async Task<ApiResponse<object>> DeleteUserIncome(int incomeId)
@@ -278,8 +278,8 @@ public class IncomeService : IIncomeService
             WalletId = income.WalletId,
             SharedWalletId = income.SharedWalletId,
             Amount = income.Amount,
-            CategoryName = income.CategoryName,
-            SubCategoryId = income.SubCategoryId,
+            //CategoryName = income.CategoryName,
+            //SubCategoryId = income.SubCategoryId,
             CreatedDate = income.CreatedDate,
             IncomeSourceTypeId = income.IncomeSourceTypeId,
             IsAutomated = income.IsAutomated,
@@ -296,14 +296,12 @@ public class IncomeService : IIncomeService
             income.WalletId = updateIncomeDto.WalletId ;
             income.SharedWalletId = updateIncomeDto.SharedWalletId;
             income.Amount = updateIncomeDto.Amount;
-            income.CategoryName = updateIncomeDto.CategoryName;
-            income.SubCategoryId = updateIncomeDto.SubCategoryId;
-            income.CreatedDate = updateIncomeDto.CreatedDate;
+            //income.CreatedDate = updateIncomeDto.CreatedDate;
             income.IncomeSourceTypeId = updateIncomeDto.IncomeSourceTypeId;
             income.IsAutomated = updateIncomeDto.IsAutomated;
             income.Description = updateIncomeDto.Description;
             income.Title = updateIncomeDto.Title;
-            income.IncomeTemplateId = updateIncomeDto.IncomeTemplateId;
+            //income.IncomeTemplateId = updateIncomeDto.IncomeTemplateId;
 
 
     }
@@ -315,8 +313,8 @@ public class IncomeService : IIncomeService
             WalletId = addIncomeDto.WalletId,
             SharedWalletId = addIncomeDto.SharedWalletId,
             Amount = addIncomeDto.Amount,
-            CategoryName = addIncomeDto.CategoryName,
-            SubCategoryId = addIncomeDto.SubCategoryId,
+            //CategoryName = addIncomeDto.CategoryName,
+            //SubCategoryId = addIncomeDto.SubCategoryId,
             CreatedDate = addIncomeDto.CreatedDate,
             IncomeSourceTypeId = addIncomeDto.IncomeSourceTypeId,
             IsAutomated = false,
@@ -334,8 +332,7 @@ public class IncomeService : IIncomeService
             WalletId = income.WalletId,
             SharedWalletId = income.SharedWalletId,
             Amount = income.Amount,
-            CategoryName = income.CategoryName,
-            SubCategoryId = income.SubCategoryId,
+            IncomeSourceTypeName = income.IncomeSourceType.Name,
             CreatedDate = income.CreatedDate,
             IncomeSourceTypeId = income.IncomeSourceTypeId,
             IsAutomated = income.IsAutomated,
@@ -359,13 +356,6 @@ public class IncomeService : IIncomeService
             if (dto.Title.Length > 50)
             {
                 errorMessage = "Title cannot exceed 50 characters.";
-                return false;
-            }
-
-            // 2. CategoryName: MaxLength(50), optional
-            if (dto.CategoryName?.Length > 50)
-            {
-                errorMessage = "CategoryName cannot exceed 50 characters.";
                 return false;
             }
 
@@ -431,13 +421,6 @@ public class IncomeService : IIncomeService
                 return false;
             }
 
-            // 2. CategoryName: MaxLength(50), optional
-            if (dto.CategoryName?.Length > 50)
-            {
-                errorMessage = "CategoryName cannot exceed 50 characters.";
-                return false;
-            }
-
             // 3. Amount: Required, > 0, decimal(8,2)
             if (dto.Amount == default(decimal))
             {
@@ -456,11 +439,11 @@ public class IncomeService : IIncomeService
             }
 
             // 4. Date: Required
-            if (dto.CreatedDate == default(DateTime))
-            {
-                errorMessage = "Date is required.";
-                return false;
-            }
+            //if (dto.CreatedDate == default(DateTime))
+            //{
+            //    errorMessage = "Date is required.";
+            //    return false;
+            //}
 
             // 5. Description: MaxLength(200), optional
             if (dto.Description?.Length > 200)
