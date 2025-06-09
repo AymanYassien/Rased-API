@@ -53,7 +53,7 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
         
         if (filter != null)
             foreach (var fil in filter)
-                query = query.Where(fil);
+                query = query.Include(x => x.StaticPaymentMethodsData).Where(fil);
 
         if (isShared)
             query = query.Where(x => x.SharedWalletId == walletId);
@@ -235,6 +235,9 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
         IQueryable<Expense> expenses;
         if (isShared)
             expenses =  _dbSet
+                .Include(x => x.SubCategory)
+                .Include(x => x.StaticPaymentMethodsData)
+                .Include(x => x.RelatedBudget)
                 .Where(x => x.SharedWalletId == walletId)
                 .OrderByDescending(x => x.Date)
                 .Take(10);
@@ -242,6 +245,9 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
             
         else
             expenses =  _dbSet
+            .Include(x => x.SubCategory)
+            .Include(x => x.StaticPaymentMethodsData)
+            .Include(x => x.RelatedBudget)
             .Where(x => x.WalletId == walletId)
             .OrderByDescending(x => x.Date)
             .Take(10);

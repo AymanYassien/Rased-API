@@ -11,8 +11,8 @@ public interface IExpenseService
     // Basic CRUD
     public Task<ApiResponse<object>> GetUserExpensesByWalletId(int walletId, Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,  bool isShared = false);
     public Task<ApiResponse<object>> GetUserExpense(int expenseId );
-    public Task<ApiResponse<object>> AddUserExpense([FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment);
-    public Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto);
+    public Task<ApiResponse<object>> AddUserExpense([FromForm] AddExpenseDto newExpenseWithAttachment);
+    //public Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto);
     public Task<ApiResponse<object>> UpdateUserExpense(int expenseId,UpdateExpenseDto updateExpenseDto);
     public Task<ApiResponse<object>> DeleteUserExpense(int expenseId);
     

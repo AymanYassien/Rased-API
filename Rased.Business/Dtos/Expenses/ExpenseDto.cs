@@ -13,6 +13,7 @@ public class ExpenseDto
     public string? SubCategoryName { get; set; }
     public DateTime Date { get; set; }
     public int? PaymentMethodId { get; set; }
+    public string? PaymentMethodName { get; set; }
     public bool IsAutomated { get; set; } 
     public int? RelatedBudgetId { get; set; }
     public string? RelatedBudgetName { get; set; }
