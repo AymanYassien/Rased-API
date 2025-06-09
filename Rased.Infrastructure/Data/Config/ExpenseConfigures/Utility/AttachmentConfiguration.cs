@@ -20,18 +20,18 @@ namespace Rased.Business
 
             builder.Property(a => a.FilePath)
                 .IsRequired()
-                .HasMaxLength(512)
-                .HasColumnType("nvarchar(512)");
+                //.HasMaxLength(512)
+                .HasColumnType("nvarchar(MAX)");
 
             builder.Property(a => a.FileName)
                 .IsRequired(false)
-                .HasMaxLength(50)
-                .HasColumnType("nvarchar(50)");
+                //.HasMaxLength(50)
+                .HasColumnType("nvarchar(MAX)");
 
             builder.Property(a => a.FileType)
                 .IsRequired(false)
-                .HasMaxLength(10)
-                .HasColumnType("nvarchar(10)");
+                //.HasMaxLength(10)
+                .HasColumnType("nvarchar(MAX)");
 
             builder.Property(a => a.FileSize)
                 .IsRequired(false)

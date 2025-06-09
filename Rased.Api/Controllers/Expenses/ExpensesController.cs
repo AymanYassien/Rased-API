@@ -32,7 +32,7 @@ public class ExpensesController : ControllerBase
         return StatusCode((int)response.StatusCode, response);
     }
     
-    [HttpGet("get-last10-expenses/{walletId}")]
+    [HttpGet("GetTenExpensesByWallet/{walletId}", Name = "GetTenExpensesByWallet")]
     public async Task<IActionResult> GetLast10ExpensesByWalletId(
         int walletId, 
         [FromQuery] bool isShared = false) 
@@ -43,7 +43,7 @@ public class ExpensesController : ControllerBase
         return StatusCode((int)response.StatusCode, response);
     }
     
-    [HttpGet("get-last10-expenses/{budgetId}")]
+    [HttpGet("GetTenExpensesByBudget/{budgetId}", Name = "GetTenExpensesByBudget")]
     public async Task<IActionResult> GetLast10ExpensesByBudgetId(
         int budgetId) 
     {
@@ -53,7 +53,7 @@ public class ExpensesController : ControllerBase
     }
 
     
-    [HttpGet("{expenseId}")]
+    [HttpGet("{expenseId}", Name = "GetSingleExpense")]
     public async Task<IActionResult> GetById(int expenseId)
     {
         var response = await _expenseService.GetUserExpense(expenseId);
@@ -62,10 +62,10 @@ public class ExpensesController : ControllerBase
     
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment)
+    public async Task<IActionResult> Create([FromForm] AddExpenseDto newExpenseWithAttachment)
     {
 
-        var response = await _expenseService.AddUserExpense(newExpenseDto);
+        var response = await _expenseService.AddUserExpense(newExpenseWithAttachment);
         if (response.Succeeded)
             return Ok(response);
 

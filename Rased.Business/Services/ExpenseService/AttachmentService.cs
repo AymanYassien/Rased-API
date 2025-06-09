@@ -286,30 +286,30 @@ public class AttachmentService : IAttachmentService
         }
         // 512 - 50 - 10 
 
-        if (dto.FilePath.Length > 512)
-        {
-            errorMessage = "File Path Must < 512 Chars";
-            return false;
-        }
+        //if (dto.FilePath.Length > 512)
+        //{
+        //    errorMessage = "File Path Must < 512 Chars";
+        //    return false;
+        //}
         
-        if (dto.FileName.Length > 50)
-        {
-            errorMessage = "File Name Must < 50 Chars";
-            return false;
-        }
+        //if (dto.FileName.Length > 50)
+        //{
+        //    errorMessage = "File Name Must < 50 Chars";
+        //    return false;
+        //}
         
-        if (dto.FileType.Length > 10)
-        {
-            errorMessage = "File Type Must < 10 Chars";
-            return false;
-        }
+        //if (dto.FileType.Length > 10)
+        //{
+        //    errorMessage = "File Type Must < 10 Chars";
+        //    return false;
+        //}
 
-        if (dto.FileSize > long.MaxValue
-            || dto.FileSize < 0 )
-        {
-            errorMessage = $"File Size  Must < {long.MaxValue} And Must Positive Value";
-            return false;
-        }
+        //if (dto.FileSize > long.MaxValue
+        //    || dto.FileSize < 0 )
+        //{
+        //    errorMessage = $"File Size  Must < {long.MaxValue} And Must Positive Value";
+        //    return false;
+        //}
         
         return true;
         

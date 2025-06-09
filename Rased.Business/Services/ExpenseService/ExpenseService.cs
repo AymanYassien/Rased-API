@@ -9,6 +9,7 @@ using Rased.Business.Services.Categories;
 using Rased.Business.Services.SubCategories;
 using Rased.Infrastructure;
 using Rased.Infrastructure.UnitsOfWork;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Rased.Business.Services.ExpenseService;
 
@@ -18,18 +19,20 @@ public class ExpenseService : IExpenseService
     private ApiResponse<object> _response;
     private ICategoryService _categoryService;
     private IAttachmentService _attachment;
-    private IBudgetService _budgetService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IAttachmentService attachment, IBudgetService budgetService,
-        ICategoryService categoryService)
+    public ExpenseService(IUnitOfWork unitOfWork, IAttachmentService attachment,
+        ICategoryService categoryService, IServiceProvider serviceProvider)
     {
         _unitOfWork = unitOfWork;
-        _budgetService = budgetService;
         _categoryService = categoryService;
         _attachment = attachment;
         _response = new ApiResponse<object>();
-
+        _serviceProvider = serviceProvider;
     }
+
+    // To Avoid circular dependency
+    public IBudgetService GetBudgetService() => _serviceProvider.GetRequiredService<IBudgetService>();
 
     public async Task<ApiResponse<object>> GetUserExpensesByWalletId(int walletId,
         Expression<Func<Expense, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10, bool isShared = false)
@@ -71,16 +74,16 @@ public class ExpenseService : IExpenseService
     }
 
     public async Task<ApiResponse<object>> AddUserExpense(
-        [FromForm] AddExpenseWithAttachmentDto newExpenseWithAttachment)
+        [FromForm] AddExpenseDto newExpenseWithAttachment)
     {
-        if (!IsExpenseDtoValid(newExpenseWithAttachment.Expense, out var errorMessage))
+        if (!IsExpenseDtoValid(newExpenseWithAttachment, out var errorMessage))
         {
             return _response.Response(false, newExpenseWithAttachment, "",
                 $"Bad Request, Error Messages : {errorMessage}",
                 HttpStatusCode.BadRequest);
         }
 
-        var expense = _MapToExpenseDtoFromAdd(newExpenseWithAttachment.Expense);
+        var expense = _MapToExpenseDtoFromAdd(newExpenseWithAttachment);
         bool isSuccessUpdateRelatedBudget = true;
         bool isSuccessUpdateTotalBalance = true;
 
@@ -91,25 +94,25 @@ public class ExpenseService : IExpenseService
             if (expense.RelatedBudgetId is not null)
                 isSuccessUpdateRelatedBudget = await UpdateRelatedBudget(expense.RelatedBudgetId, expense.Amount);
 
-            if (newExpenseWithAttachment.Expense.WalletId is not null)
-                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newExpenseWithAttachment.Expense.WalletId,
+            if (newExpenseWithAttachment.WalletId is not null)
+                isSuccessUpdateTotalBalance = await UpdateTotalAmount(newExpenseWithAttachment.WalletId,
                     expense.Amount * -1);
             else
                 isSuccessUpdateTotalBalance =
-                    await UpdateTotalAmount_shared(newExpenseWithAttachment.Expense.SharedWalletId,
+                    await UpdateTotalAmount_shared(newExpenseWithAttachment.SharedWalletId,
                         expense.Amount * -1);
 
 
             if (isSuccessUpdateRelatedBudget == false)
             {
-                return _response.Response(false, newExpenseWithAttachment.Expense, "",
+                return _response.Response(false, newExpenseWithAttachment, "",
                     $"Failed to Update Related Budget, Error Messages : {errorMessage}",
                     HttpStatusCode.InternalServerError);
             }
 
             if (isSuccessUpdateTotalBalance == false)
             {
-                return _response.Response(false, newExpenseWithAttachment.Expense, "",
+                return _response.Response(false, newExpenseWithAttachment, "",
                     $"Failed to Update Total Balance, Error Messages : {errorMessage}",
                     HttpStatusCode.InternalServerError);
             }
@@ -145,7 +148,7 @@ public class ExpenseService : IExpenseService
         catch (Exception ex)
         {
 
-            return _response.Response(false, newExpenseWithAttachment.Expense, "",
+            return _response.Response(false, newExpenseWithAttachment, "",
                 $"Database constraint violation: {ex.InnerException?.Message}",
                 HttpStatusCode.InternalServerError);
         }
@@ -157,7 +160,7 @@ public class ExpenseService : IExpenseService
 
     }
 
-    public async Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto)
+    /*public async Task<ApiResponse<object>> AddUserExpense(AddExpenseDto newExpenseDto)
     {
          if (!IsExpenseDtoValid(newExpenseDto, out var errorMessage))
         {
@@ -215,7 +218,7 @@ public class ExpenseService : IExpenseService
 
         return _response.Response(true, expense, $"Success add Expense with id: {expense.ExpenseId}", $"",
                 HttpStatusCode.OK);
-    }
+    }*/
 
 
     public async Task<ApiResponse<object>> UpdateUserExpense(int expenseId, UpdateExpenseDto updateExpenseDto)
@@ -474,7 +477,8 @@ public class ExpenseService : IExpenseService
                 var categoryName = await _categoryService.GetCategoryName(subCategory.ParentCategoryId);
                 if (expen.RelatedBudgetId is not null)
                 {
-                    var budgetName = await _budgetService.GetBudgetNameById((int)expen.RelatedBudgetId);
+                    var budgetServ = GetBudgetService();
+                    var budgetName = await budgetServ.GetBudgetNameById((int)expen.RelatedBudgetId);
                     expen.RelatedBudgetName = budgetName;
                 }
             
@@ -602,8 +606,11 @@ public class ExpenseService : IExpenseService
                 Amount = expense.Amount,
                 CategoryName = expense.CategoryName,
                 SubCategoryId = expense.SubCategoryId,
+                SubCategoryName = expense.SubCategory.Name,
+                RelatedBudgetName = expense.RelatedBudget.Name,
                 Date = expense.Date,
                 PaymentMethodId = expense.PaymentMethodId,
+                PaymentMethodName = expense.StaticPaymentMethodsData.Name,
                 IsAutomated = expense.IsAutomated,
                 Description = expense.Description,
                 Title = expense.Title
@@ -845,7 +852,8 @@ public class ExpenseService : IExpenseService
 
             if (expen.RelatedBudgetId is not null)
             {
-                var budgetName = await _budgetService.GetBudgetNameById((int)expen.RelatedBudgetId);
+                var budgetServ = GetBudgetService();
+                var budgetName = await budgetServ.GetBudgetNameById((int)expen.RelatedBudgetId);
                 expen.RelatedBudgetName = budgetName;
             }
 
