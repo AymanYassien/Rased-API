@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Swashbuckle.AspNetCore</id>
+    <version>7.3.1</version>
+    <authors>domaindrivendev</authors>
+    <owners>domaindrivendev</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>docs\package-readme.md</readme>
+    <projectUrl>https://github.com/domaindrivendev/Swashbuckle.AspNetCore</projectUrl>
+    <description>Swagger tools for documenting APIs built on ASP.NET Core</description>
+    <tags>swagger documentation discovery help webapi aspnet aspnetcore</tags>
+    <repository type="git" url="https://github.com/domaindrivendev/Swashbuckle.AspNetCore.git" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Swashbuckle.AspNetCore.Swagger" version="7.3.1" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore.SwaggerGen" version="7.3.1" exclude="Build,Analyzers" />
+        <dependency id="Swashbuckle.AspNetCore.SwaggerUI" version="7.3.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.ApiDescription.Server" version="6.0.5" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

@@ -1,9 +1,13 @@
 ﻿using System.Linq.Expressions;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Rased_API.Rased.Business.Services.BudgetService;
 using Rased_API.Rased.Infrastructure.DTOs.BudgetDTO;
 using Rased_API.Rased.Infrastructure.Repositoryies.BudgetRepositroy;
+using Rased.Business.Dtos;
 using Rased.Business.Dtos.Response;
+using Rased.Business.Services.ExpenseService;
+using Rased.Business.Services.SubCategories;
 using Rased.Infrastructure;
 using Rased.Infrastructure.UnitsOfWork;
 
@@ -12,10 +16,14 @@ namespace Rased_API.Rased.Business.Services.BudgetService;
 public class BudgetService : IBudgetService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IExpenseService _unitOfWorkExpenseService;
+    private ISubCategoryService _subCategoryService;
     private ApiResponse<object> _response;
-    public BudgetService(IUnitOfWork unitOfWork)
+    public BudgetService(IUnitOfWork unitOfWork, IExpenseService unitOfWorkExpenseService, ISubCategoryService subCategoryService)
     {
         _unitOfWork = unitOfWork;
+        _unitOfWorkExpenseService = unitOfWorkExpenseService;
+        _subCategoryService = subCategoryService;
         _response = new ApiResponse<object>();
     }
 
@@ -34,6 +42,11 @@ public class BudgetService : IBudgetService
                     HttpStatusCode.NotFound);
 
             var mapped = MapToBudgetDto(res);
+            var subcategoryName = await _subCategoryService.GetSubCategoryNameById((int)mapped.SubCategoryId);
+            var categoryId = await _unitOfWork.Categories.GetCategoryIdByName(mapped.CategoryName);
+
+            mapped.subCategoryName = subcategoryName;
+            mapped.CategoryId = categoryId;
             return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
 
         }
@@ -168,13 +181,28 @@ public class BudgetService : IBudgetService
         
         try
         {
-            
             var res = await _unitOfWork.Budget.GetValidBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
             if (!res.Any())
-                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
-                    HttpStatusCode.NotFound);
 
-            var mapped = MapToBudgetDto(res);
+                return _response.Response(false, null, "", "لا يوجد ميزانيات لتلك المحفظة!",
+
+                    HttpStatusCode.NotFound);
+            
+
+            var mapped = MapToBudgetDto(res).ToList();
+            
+            foreach (var budget in mapped)
+            {
+                var relatedExpenses = await _unitOfWorkExpenseService.GetLast3ExpensesByBudgetId(budget.BudgetId);
+                var subcategoryName = await _subCategoryService.GetSubCategoryNameById((int)budget.SubCategoryId);
+                var categoryId = await _unitOfWork.Categories.GetCategoryIdByName(budget.CategoryName);
+                
+                budget.relatedExpenses = relatedExpenses?.ToList();
+                budget.subCategoryName = subcategoryName;
+                budget.CategoryId = categoryId;
+            }
+            
+            
             return _response.Response(true, mapped, "Success", "", HttpStatusCode.OK);
         }
         catch (Exception e)
@@ -324,6 +352,16 @@ public class BudgetService : IBudgetService
         return _response.Response(true, res, "Success", "",  HttpStatusCode.OK);
     }
     
+    
+    public async Task<string> GetBudgetNameById(int id)
+    {
+        if (1 > id)
+            return string.Empty;
+        
+        var res = await _unitOfWork.Budget.GetByIdAsync(id);
+        return res.Name;
+
+    }
     private bool IsAddDtoValid(AddBudgetDto dto, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -510,9 +548,9 @@ public class BudgetService : IBudgetService
         return true;
     }
     
-    private IQueryable<BudgetDto> MapToBudgetDto(IQueryable<Budget> budgets)
+    private IQueryable<validBudgetDto> MapToBudgetDto(IQueryable<Budget> budgets)
     {
-        return budgets.Select(budget => new BudgetDto()
+        return budgets.Select(budget => new validBudgetDto()
         {
             BudgetId = budget.BudgetId,
             WalletId = budget.WalletId,
@@ -532,9 +570,9 @@ public class BudgetService : IBudgetService
         });
     }
 
-    private BudgetDto MapToBudgetDto(Budget budget)
+    private validBudgetDto MapToBudgetDto(Budget budget)
     {
-        return new BudgetDto()
+        return new validBudgetDto()
         {
             BudgetId = budget.BudgetId,
             WalletId = budget.WalletId,

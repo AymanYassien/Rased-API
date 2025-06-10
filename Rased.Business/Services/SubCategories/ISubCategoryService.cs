@@ -13,5 +13,6 @@ namespace Rased.Business.Services.SubCategories
         Task<ApiResponse<string>> RemoveSubCategory(int id);
         // Read SubCategory by Id
         Task<ApiResponse<ReadSubCategoryDto>> GetSubCategoryById(int id);
+        public Task<string> GetSubCategoryNameById(int id);
     }
 }

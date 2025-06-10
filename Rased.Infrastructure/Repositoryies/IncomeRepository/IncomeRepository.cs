@@ -60,7 +60,7 @@ public class IncomeRepository : Repository_Test<Income, int>, IIncomeRepository
     public async Task<IQueryable<Income>> GetUserIncomesByWalletIdAsync(int walletId, Expression<Func<Income, bool>>[]? filter = null, int pageNumber = 0, int pageSize = 10,
         bool isShared = false)
     {
-        IQueryable<Income> query =  _dbSet;
+        IQueryable<Income> query =  _dbSet.Include(x => x.IncomeSourceType);
         
         if (filter != null)
             foreach (var fil in filter)

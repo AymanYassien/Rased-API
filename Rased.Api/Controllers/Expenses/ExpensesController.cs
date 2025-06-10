@@ -31,9 +31,29 @@ public class ExpensesController : ControllerBase
         var response = await _expenseService.GetUserExpensesByWalletId(walletId, filters, 0,0, isShared);
         return StatusCode((int)response.StatusCode, response);
     }
+    
+    [HttpGet("GetTenExpensesByWallet/{walletId}", Name = "GetTenExpensesByWallet")]
+    public async Task<IActionResult> GetLast10ExpensesByWalletId(
+        int walletId, 
+        [FromQuery] bool isShared = false) 
+    {
+        // var filters = ExpressionBuilder.ParseFilter<Expense>(filter);
+        // if (filters.Length == 0) filters = null;
+        var response = await _expenseService.GetLatest10ExpensesByWalletId(walletId, isShared);
+        return StatusCode((int)response.StatusCode, response);
+    }
+    
+    [HttpGet("GetTenExpensesByBudget/{budgetId}", Name = "GetTenExpensesByBudget")]
+    public async Task<IActionResult> GetLast10ExpensesByBudgetId(
+        int budgetId) 
+    {
+        
+        var response = await _expenseService.GetLatest10ExpensesByBudgetId(budgetId);
+        return StatusCode((int)response.StatusCode, response);
+    }
 
     
-    [HttpGet("{expenseId}")]
+    [HttpGet("{expenseId}", Name = "GetSingleExpense")]
     public async Task<IActionResult> GetById(int expenseId)
     {
         var response = await _expenseService.GetUserExpense(expenseId);
@@ -42,11 +62,14 @@ public class ExpensesController : ControllerBase
     
     
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] AddExpenseDto newExpenseDto)
+    public async Task<IActionResult> Create([FromForm] AddExpenseDto newExpenseWithAttachment)
     {
-        var response = await _expenseService.AddUserExpense(newExpenseDto);
+
+        var response = await _expenseService.AddUserExpense(newExpenseWithAttachment);
         if (response.Succeeded)
-            return CreatedAtAction(nameof(GetById), new { walletId = newExpenseDto.WalletId ?? newExpenseDto.SharedWalletId, expenseId = ((Expense)response.Data).ExpenseId }, response);
+            return Ok(response);
+
+
         return StatusCode((int)response.StatusCode, response);
     }
     

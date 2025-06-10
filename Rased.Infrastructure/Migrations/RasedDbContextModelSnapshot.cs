@@ -143,20 +143,17 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(MAX)");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
+                        .HasColumnType("nvarchar(MAX)");
 
                     b.Property<long?>("FileSize")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FileType")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(MAX)");
 
                     b.Property<DateTime>("UploadDate")
                         .HasColumnType("datetime");
@@ -602,10 +599,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(8,2)");
 
-                    b.Property<string>("CategoryName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -629,9 +622,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Property<int?>("SharedWalletId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubCategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -645,8 +635,6 @@ namespace Rased.Infrastructure.Migrations
                     b.HasIndex("IncomeSourceTypeId");
 
                     b.HasIndex("SharedWalletId");
-
-                    b.HasIndex("SubCategoryId");
 
                     b.HasIndex("WalletId");
 
@@ -2347,10 +2335,6 @@ namespace Rased.Infrastructure.Migrations
                         .WithMany("Incomes")
                         .HasForeignKey("SharedWalletId");
 
-                    b.HasOne("Rased.Infrastructure.SubCategory", "SubCategory")
-                        .WithMany("Incomes")
-                        .HasForeignKey("SubCategoryId");
-
                     b.HasOne("Rased.Infrastructure.Wallet", "Wallet")
                         .WithMany("Incomes")
                         .HasForeignKey("WalletId");
@@ -2358,8 +2342,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("IncomeSourceType");
 
                     b.Navigation("SharedWallet");
-
-                    b.Navigation("SubCategory");
 
                     b.Navigation("Wallet");
                 });
@@ -2962,8 +2944,6 @@ namespace Rased.Infrastructure.Migrations
                     b.Navigation("Goals");
 
                     b.Navigation("IncomeTemplates");
-
-                    b.Navigation("Incomes");
 
                     b.Navigation("Savings");
                 });

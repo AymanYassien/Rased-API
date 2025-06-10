@@ -53,7 +53,7 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
         
         if (filter != null)
             foreach (var fil in filter)
-                query = query.Where(fil);
+                query = query.Include(x => x.StaticPaymentMethodsData).Where(fil);
 
         if (isShared)
             query = query.Where(x => x.SharedWalletId == walletId);
@@ -218,6 +218,52 @@ public class ExpenseRepository : Repository_Test<Expense, int>, IExpensesReposit
 
         return Sum;
     }
+
+    public async Task<IQueryable<Expense>> GetLast3ExpensesByBudgetId(int budgetId)
+    {
+        IQueryable<Expense> expenses =  _dbSet
+            .Where(x => x.RelatedBudgetId == budgetId)
+            .OrderByDescending(x => x.Date)
+            .Take(3);
+         return expenses;
+        //return Task.FromResult(expenses);    => with no async
+    }
+    
+
+    public async Task<IQueryable<Expense>> GetLast10ExpensesByWalletId(int walletId, bool isShared)
+    {
+        IQueryable<Expense> expenses;
+        if (isShared)
+            expenses =  _dbSet
+                .Include(x => x.SubCategory)
+                .Include(x => x.StaticPaymentMethodsData)
+                .Include(x => x.RelatedBudget)
+                .Where(x => x.SharedWalletId == walletId)
+                .OrderByDescending(x => x.Date)
+                .Take(10);
+        
+            
+        else
+            expenses =  _dbSet
+            .Include(x => x.SubCategory)
+            .Include(x => x.StaticPaymentMethodsData)
+            .Include(x => x.RelatedBudget)
+            .Where(x => x.WalletId == walletId)
+            .OrderByDescending(x => x.Date)
+            .Take(10);
+        
+        return expenses;
+    }
+    
+    public async Task<IQueryable<Expense>> GetLast10ExpensesByBudgetId(int budgetId)
+    {
+        IQueryable<Expense> expenses =  _dbSet
+            .Where(x => x.RelatedBudgetId == budgetId)
+            .OrderByDescending(x => x.Date)
+            .Take(10);
+        return expenses;
+    }
+
 
     // public async Task<List<MonthlyExpenseSummary>> SumExpensesByYearAsync(int walletId, bool isShared)
     // {

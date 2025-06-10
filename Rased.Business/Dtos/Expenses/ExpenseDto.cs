@@ -10,10 +10,13 @@ public class ExpenseDto
     public decimal Amount { get; set; }
     public int? SubCategoryId { get; set; }
     public string? CategoryName { get; set; }
+    public string? SubCategoryName { get; set; }
     public DateTime Date { get; set; }
     public int? PaymentMethodId { get; set; }
+    public string? PaymentMethodName { get; set; }
     public bool IsAutomated { get; set; } 
     public int? RelatedBudgetId { get; set; }
+    public string? RelatedBudgetName { get; set; }
     
 
 }

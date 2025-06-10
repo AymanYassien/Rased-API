@@ -54,5 +54,14 @@ namespace Rased.Infrastructure.Repositoryies.Categories
 
             return result;
         }
+
+        public async Task<int> GetCategoryIdByName(string name)
+        {
+            if (name is null )  return -1;
+
+            var id = _dbSet.Where(c => c.Name == name).FirstOrDefault().CategoryId;
+
+            return id;
+        }
     }
 }

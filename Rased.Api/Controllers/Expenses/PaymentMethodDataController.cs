@@ -9,8 +9,8 @@ using Rased.Infrastructure;
 namespace Rased.Api.Controllers.Expenses;
 
 [ApiController]
-[Route("api/payment-methods")]
-[Authorize]
+[Route("api/PaymentMethods")]
+//[Authorize]
 public class PaymentMethodDataController : ControllerBase
 {
     private readonly IPaymentMethodsDataService _paymentMethodService;
@@ -21,7 +21,7 @@ public class PaymentMethodDataController : ControllerBase
     }
 
     
-    [HttpGet]
+    [HttpGet("All", Name = "GetAllPayments")]
     public async Task<IActionResult> GetAll([FromQuery] string filter = null) // e.g., "name=visa"
     {
         var filters = ExpressionBuilder.ParseFilter<StaticPaymentMethodsData>(filter);
