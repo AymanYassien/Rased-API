@@ -49,7 +49,7 @@ namespace Rased.Business.Services.Goals
             var goal = await _unitOfWork.GoalRepository.GetByIdAsync(transaction.GoalId);
             if (goal != null)
             {
-                goal.CurrentAmount += transaction.InsertedAmount; // افترضنا إن عندك property اسمها Amount في GoalTransaction
+                goal.CurrentAmount += transaction.InsertedAmount; 
             }
 
             await _unitOfWork.CommitChangesAsync();
