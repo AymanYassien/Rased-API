@@ -179,7 +179,7 @@ namespace Rased.Api
                     }
                 });
                 
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rased - راصِــــــد", Version = "v1", Description = "AI-powered financial analytics application for comprehensive money management" });
                 c.OperationFilter<SwaggerResponseTypesFilter>();
     
                 // Enable XML comments
