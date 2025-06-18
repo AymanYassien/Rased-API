@@ -20,6 +20,7 @@ using Rased.Infrastructure.Helpers.Constants;
 using Rased.Infrastructure.Models.SharedWallets;
 using Rased.Infrastructure.Models.Bills;
 using Rased.Infrastructure.Data.Config.UtilityConfigures;
+using Rased.Infrastructure.Data.Config.TransferConfigures;
 
 namespace Rased.Infrastructure.Data
 {
@@ -117,6 +118,15 @@ namespace Rased.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(WalletConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(BillDraftConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(BudgetRecommendationConfiguration).Assembly);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(StaticReceiverTypeDataConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(StaticTransactionStatusDataConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PersonalIncomeTransactionRecordConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TransactionApprovalConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SharedWalletIncomeTransactionConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TransactionConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TransactionRejectionConfiguration).Assembly);
+        
 
 
 

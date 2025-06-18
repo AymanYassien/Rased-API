@@ -730,4 +730,44 @@ public class BudgetService : IBudgetService
                 $"Internal Server Error: {ex.Message}",  HttpStatusCode.InternalServerError);
         }
     }
+
+
+
+
+
+    // Make By Fawzy For Recommendation System
+
+    public async Task<ApiResponse<List<validBudgetDto>>> GetBudgetsByWalletIdToRecommendSystemAsync(
+    int walletId,
+    Expression<Func<Budget, bool>>[]? filter = null,
+    int pageNumber = 0,
+    int pageSize = 10,
+    bool isShared = false)
+    {
+        pageNumber = Math.Max(pageNumber, 0);
+        pageSize = Math.Max(pageSize, 1);
+
+        List<validBudgetDto> result = new();
+
+        if (walletId < 1)
+            return new ApiResponse<List<validBudgetDto>>(result);
+
+        try
+        {
+            var query = await _unitOfWork.Budget.GetBudgetsByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+
+            if (query.Any())
+            {
+                result = MapToBudgetDto(query).ToList();
+            }
+        }
+        catch
+        {
+            // أي مشكلة = return فاضي
+            return new ApiResponse<List<validBudgetDto>>(new List<validBudgetDto>());
+        }
+
+        return new ApiResponse<List<validBudgetDto>>(result);
+    }
+
 }

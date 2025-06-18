@@ -26,6 +26,10 @@ namespace Rased.Infrastructure.Models.Recomm
 
         public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
         public bool IsRead { get; set; } = false;
+
+
+        public int Month { get; set; }
+        public int Year { get; set; }
     }
 
 

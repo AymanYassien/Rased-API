@@ -39,6 +39,16 @@ public interface IExpenseService
         Expression<Func<Expense, object>>[]? includes = null,
         int pageNumber = 0,
         int pageSize = 10);
-    
+
+
+    // Make By Fawzy For Recommendation System
+    Task<ApiResponse<List<ExpenseDto>>> GetUserExpensesByWalletIdToRecommendSystem(
+    int walletId,
+    Expression<Func<Expense, bool>>[]? filter = null,
+    int pageNumber = 0,
+    int pageSize = 10,
+    bool isShared = false);
+
+
 }
 

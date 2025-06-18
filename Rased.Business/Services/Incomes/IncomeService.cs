@@ -517,4 +517,47 @@ public class IncomeService : IIncomeService
         
         return income.IncomeId;
     }
+
+
+
+
+    // Make By Fawzy For Recommendation System
+
+    public async Task<ApiResponse<List<IncomeDto>>> GetUserIncomesByWalletIdToRecommendSystem(
+       int walletId,
+       Expression<Func<Income, bool>>[]? filter = null,
+       int pageNumber = 0,
+       int pageSize = 10,
+       bool isShared = false)
+    {
+        // Ensure paging values are non-negative
+        pageNumber = Math.Max(pageNumber, 0);
+        pageSize = Math.Max(pageSize, 1);
+
+        // Default empty list
+        List<IncomeDto> result = new();
+
+        if (walletId < 1)
+            return new ApiResponse<List<IncomeDto>>(result);
+
+        try
+        {
+            var query = await _unitOfWork.Income.GetUserIncomesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+
+            if (query.Any())
+            {
+                result = MapToIncomeDto(query).ToList();
+            }
+        }
+        catch
+        {
+            // In case of any error, return empty list silently
+            return new ApiResponse<List<IncomeDto>>(new List<IncomeDto>());
+        }
+
+        return new ApiResponse<List<IncomeDto>>(result);
+    }
+
+
+
 }

@@ -19,6 +19,8 @@ namespace Rased.Business.Dtos.Goals
         public decimal StartedAmount { get; set; } 
         public decimal CurrentAmount { get; set; }
         public decimal TargetAmount { get; set; }
+      
+        public string? SubCategoryName { get; set; }
 
         //public bool IsTemplate { get; set; } = false;
         //public string? Frequency { get; set; }

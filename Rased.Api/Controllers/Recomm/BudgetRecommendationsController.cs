@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rased.Business.Dtos.Recomm;
 using Rased.Business.Dtos.Response;
 using Rased.Business.Services.RecommendSystem;
@@ -50,6 +51,31 @@ namespace Rased.Api.Controllers
         {
             var response = await _recommendationService.MarkRecommendationAsReadAsync(recommendationId);
             return response.Succeeded ? Ok(response.Message) : NotFound(response.Errors);
+        }
+
+
+        // للاختبار فقط - يمكن حذفها في الإنتاج
+        [HttpPost("generate-now")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GenerateNow()
+        {
+            try
+            {
+                await _recommendationService.GenerateMonthlyRecommendationsAsync();
+                return Ok(new ApiResponse<object>
+                {
+                    Succeeded = true,
+                    Message = "تم إنشاء التوصيات بنجاح"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Succeeded = false,
+                    Message = "خطأ في إنشاء التوصيات"
+                });
+            }
         }
     }
 }

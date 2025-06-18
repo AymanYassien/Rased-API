@@ -15,6 +15,7 @@ namespace Rased.Business.Services.RecommendSystem
         Task<ApiResponse<IQueryable<BudgetRecommendationDto>>> GetRecommendationsByWalletGroupAsync(int walletGroupId);
         Task<ApiResponse<string>> MarkRecommendationAsReadAsync(int recommendationId);
         Task<ApiResponse<string>> CreateRecommendationAsync(CreateBudgetRecommendationDto dto);
+        Task GenerateMonthlyRecommendationsAsync();
     }
 
 }

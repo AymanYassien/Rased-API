@@ -29,7 +29,9 @@ namespace Rased.Infrastructure.Repositoryies.Base
         Task<T?> FindAsync(Expression<Func<T, bool>> predicate);
         IQueryable<T> FindAll(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
-        
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+
+
         void Remove(T entity);
         void Remove<Key>(Key entity) where Key : class;
     }
@@ -55,7 +57,8 @@ namespace Rased.Infrastructure.Repositoryies.Base
         void Remove(T entity);
         bool RemoveById(TKey id);
         void RemoveRange(IEnumerable<T> entities);
-        
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+
         Task<int> SaveChangesAsync();
     }
 }

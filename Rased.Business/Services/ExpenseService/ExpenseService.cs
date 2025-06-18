@@ -868,17 +868,59 @@ public class ExpenseService : IExpenseService
         return _response.Response(true, newResult, "Success", "", HttpStatusCode.OK);
 
     }
+
+
+
+
+    // Make By Fawzy For Recommendation System
+
+
+    public async Task<ApiResponse<List<ExpenseDto>>> GetUserExpensesByWalletIdToRecommendSystem(
+    int walletId,
+    Expression<Func<Expense, bool>>[]? filter = null,
+    int pageNumber = 0,
+    int pageSize = 10,
+    bool isShared = false)
+    {
+        //  √ﬂœ „‰ «·ﬁÌ„ «·„ÊÃ»… ··’›Õ« 
+        pageNumber = Math.Max(pageNumber, 0);
+        pageSize = Math.Max(pageSize, 1);
+
+        List<ExpenseDto> result = new();
+
+        if (walletId < 1)
+            return new ApiResponse<List<ExpenseDto>>(result);
+
+        try
+        {
+            var query = await _unitOfWork.Expenses.GetUserExpensesByWalletIdAsync(walletId, filter, pageNumber, pageSize, isShared);
+
+            if (query.Any())
+            {
+                result = MapToExpenseDto(query).ToList();
+            }
+        }
+        catch
+        {
+            // ·Ê Õ’· √Ì Exception° ‰—Ã¯⁄ List ›«÷Ì…
+            return new ApiResponse<List<ExpenseDto>>(new List<ExpenseDto>());
+        }
+
+        return new ApiResponse<List<ExpenseDto>>(result);
+    }
+
+
 }
 
 // update category name - 
 
 // add ex          - delete ex      -  update ex with greater        - update ex with lowest
 // t -= amount     t += amount           t -= amount                    t += amount  
-    
+
 // add in          - delete in      -  update in with greater        - update in with lowest
 // t += amount     t -= amount           t += amount                    t -= amount
-    
+
 // 100  50   => 100 += 50 = 150,   100 += -50 = 50
-    
+
 // into repo => by id ==>    t += amount
 // when call =>  if + => pass amount  | if - => pass times -1

@@ -32,4 +32,14 @@ public interface IBudgetService
 
     Task<ApiResponse<object>> GetBudgetsStatisticsAsync(int walletId, bool isShared = false);
     public Task<string> GetBudgetNameById(int id);
+
+
+
+    // Make By Fawzy For Recommendation System
+    Task<ApiResponse<List<validBudgetDto>>> GetBudgetsByWalletIdToRecommendSystemAsync(
+    int walletId,
+    Expression<Func<Budget, bool>>[]? filter = null,
+    int pageNumber = 0,
+    int pageSize = 10,
+    bool isShared = false);
 }

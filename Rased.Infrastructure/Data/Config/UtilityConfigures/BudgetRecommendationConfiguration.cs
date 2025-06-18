@@ -21,7 +21,7 @@ namespace Rased.Infrastructure.Data.Config.UtilityConfigures
 
                 entity.Property(e => e.Title)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(1000);
 
                 entity.Property(e => e.Description)
                     .IsRequired()

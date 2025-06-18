@@ -12,34 +12,8 @@ public class StaticTransactionStatusDataConfiguration : IEntityTypeConfiguration
 
         entity.Property(e => e.Name)
             .IsRequired()
-            .HasMaxLength(20); 
+            .HasMaxLength(100); 
 
-        /*entity.HasData(
-            new StaticTransactionStatusData
-            {
-                Id = 1,
-                Name = "PENDING"
-            },
-            new StaticTransactionStatusData
-            {
-                Id = 2,
-                Name = "ACCEPTED"
-            },
-            new StaticTransactionStatusData
-            {
-                Id = 3,
-                Name = "REJECTED"
-            },
-            new StaticTransactionStatusData
-            {
-                Id = 4,
-                Name = "COMPLETED"
-            },
-            new StaticTransactionStatusData
-            {
-                Id = 5,
-                Name = "CANCELED"
-            }
-        );*/
+       
     }
 }

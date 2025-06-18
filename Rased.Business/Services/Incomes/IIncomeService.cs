@@ -34,4 +34,14 @@ public interface IIncomeService
         Expression<Func<Income, object>>[]? includes = null,
         int pageNumber = 0,
         int pageSize = 10);
+
+
+
+    // Make By Fawzy For Recommendation System
+     Task<ApiResponse<List<IncomeDto>>> GetUserIncomesByWalletIdToRecommendSystem(
+     int walletId,
+     Expression<Func<Income, bool>>[]? filter = null,
+     int pageNumber = 0,
+     int pageSize = 10,
+     bool isShared = false);
 }

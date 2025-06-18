@@ -121,6 +121,9 @@ namespace Rased.Api
             builder.Services.AddHttpClient();
 
             builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+            builder.Services.AddScoped<IAiRecommendationService, AiRecommendationService>();
+            builder.Services.AddHostedService<MonthlyRecommendationBackgroundService>();
+
 
 
             builder.Services.AddScoped<IExpenseService, ExpenseService>();
@@ -136,6 +139,8 @@ namespace Rased.Api
             builder.Services.AddAutoMapper(map => map.AddProfile(new SavingProfile()));
             builder.Services.AddAutoMapper(map => map.AddProfile(new GoalProfile()));
             builder.Services.AddAutoMapper(map => map.AddProfile(new TransferProfile()));
+            builder.Services.AddAutoMapper(map => map.AddProfile(new RecommProfile()));
+
             
 
             // Base Repository 

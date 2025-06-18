@@ -10,5 +10,7 @@ namespace Rased.Business.Services.RecommendSystem
     public interface IAiRecommendationService
     {
         Task<WalletDataForAI> CollectWalletDataAsync(int walletId, string userId);
-    }
+        Task<List<RecommendationTipDto>> GetRecommendationAsync(int walletId, string userId);
+        
+        }
 }

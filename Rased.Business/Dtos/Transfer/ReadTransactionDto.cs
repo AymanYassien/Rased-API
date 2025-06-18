@@ -20,6 +20,7 @@ namespace Rased.Business.Dtos.Transfer
         public int TransactionStatusId { get; set; }
         public string DisplayColor { get; set; }
 
+
        
     }
     public class ReadTransactionForSenderDto
@@ -36,6 +37,8 @@ namespace Rased.Business.Dtos.Transfer
         public string DisplayColor { get; set; }
         public int? RelatedBudgetId { get; set; }
         public int? SubCategoryId { get; set; }
+        public string? CategoryName { get; set; }
+        public string? SubCategoryName { get; set; }
     }
 
     public class ReadTransactionForReceiverDto

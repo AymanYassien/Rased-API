@@ -18,6 +18,8 @@ namespace Rased.Business.Dtos.Savings
         public int? WalletId { get; set; }
         public int? SharedWalletId { get; set; }
         public int? SubCatId { get; set; }
+        public string? CategoryName { get; set; }
+        public string? SubCategoryName { get; set; }
 
     }
 }

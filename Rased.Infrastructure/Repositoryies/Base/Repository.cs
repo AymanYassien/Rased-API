@@ -40,8 +40,14 @@ namespace Rased.Infrastructure.Repositoryies.Base
         {
             return await _dbSet.AnyAsync(predicate);
         }
-   
-     
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().CountAsync(predicate);
+        }
+
+
+
         // Overloaded Method
         public IQueryable<T> GetData(
         Expression<Func<T, bool>>[]? filters = null,
@@ -200,6 +206,10 @@ namespace Rased.Infrastructure.Repositoryies.Base
             return _dbSet.Find(id);
         }
 
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().CountAsync(predicate);
+        }
 
         public async Task AddAsync(T entity)
         {

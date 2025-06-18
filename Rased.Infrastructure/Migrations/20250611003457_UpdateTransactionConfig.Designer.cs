@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rased.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Rased.Infrastructure.Data;
 namespace Rased.Infrastructure.Migrations
 {
     [DbContext(typeof(RasedDbContext))]
-    partial class RasedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611003457_UpdateTransactionConfig")]
+    partial class UpdateTransactionConfig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1123,9 +1126,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("Month")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1139,9 +1139,6 @@ namespace Rased.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("WalletId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
