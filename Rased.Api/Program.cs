@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -160,7 +161,7 @@ namespace Rased.Api
             //builder.Services.AddSwaggerGen();
             builder.Services.AddSwaggerGen(c =>
             {
-                // ÅÚÏÇÏ JWT Bearer
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ JWT Bearer
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -185,8 +186,16 @@ namespace Rased.Api
                         new string[] {}
                     }
                 });
+                
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rased - Ø±Ø§ØµÙÙ€Ù€Ù€Ù€Ù€Ù€Ø¯", Version = "v1", Description = "AI-powered financial analytics application for comprehensive money management" });
+                c.OperationFilter<SwaggerResponseTypesFilter>();
+    
+                // Enable XML comments
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
 
-                // ? åäÇ ÊÖíİ ÇáİáÊÑ Çááí íÎáøí Swagger íİåã ÇáÜ IFormFile
+                // ? ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Swagger ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ IFormFile
                 //c.OperationFilter<FileUploadOperationFilter>();
             });
 

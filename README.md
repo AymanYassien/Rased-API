@@ -1,155 +1,244 @@
-# Rased - Personal Financial Ecosystem Management Backend
+# Rased Backend API - راصد
 
-**Rased** is a comprehensive personal finance management backend API built on .NET Core 9.0.200 that empowers users to organize their financial life through multiple customizable wallets, each representing different aspects of their financial ecosystem.
+![Rased Banner](https://github.com/user-attachments/assets/d3c0e412-6522-4bc0-8af8-0bc3b9551aba)
 
-## Technology Stack
+> **Intelligent Financial Analytics Backend** - Powering smart money management with AI-driven insights and secure collaborative features.
 
-**Backend Framework**: .NET Core 9.0.200  
-**Architecture**: 3-Tier Architecture (Repository - Service - Application Layer)  
-**ORM**: Entity Framework Core for data access  
-**API Design**: RESTful API with comprehensive endpoint coverage for financial data management  
-**AI Integration**: Smart document processing and attachment analysis  
-**Security**: Enterprise-grade authentication and data protection
+## 🚀 Overview
 
-## What is Rased Backend?
+Rased Backend is the core API service that powers the Rased financial analytics application. Built with modern technologies, it provides secure, scalable, and intelligent financial management capabilities including AI-powered invoice processing, collaborative wallet management, and personalized financial recommendations.
 
-Rased backend API transforms personal finance management from a single-account approach to a multi-wallet ecosystem where client applications can create, manage, and synchronize different financial contexts. The API provides comprehensive endpoints for wallet management, financial tracking, user collaboration, and intelligent expense processing.
+## ✨ Key Features
 
-## AI-Powered Financial Intelligence
+### 🔐 **Authentication & Security**
+- JWT-based authentication with refresh tokens
+- Two-Factor Authentication (2FA) via email OTP
+- Password reset and account recovery
+- Role-based access control
+- Data encryption and secure API endpoints
 
-### Automated Expense Processing
-- **Document Scanning**: AI-powered receipt and invoice processing that automatically extracts amounts, dates, merchant names, and expense categories
-- **Smart Categorization**: Machine learning algorithms that learn from user behavior to automatically categorize expenses with high accuracy
-- **Attachment Analysis**: Support for image and PDF processing to extract financial data from uploaded documents
+### 💰 **Wallet Management**
+- Personal wallet creation and management
+- Shared wallet functionality with multi-user access
+- Real-time balance tracking
+- Transaction categorization and filtering
+- Comprehensive expense and income tracking
 
+### 🤖 **AI-Powered Features**
+- **Computer Vision OCR**: Automatic invoice data extraction from images
+- **Recommendation Engine**: Personalized financial advice and strategies
 
-## API Architecture: 
+### 🎯 **Financial Tools**
+- Goal setting and progress tracking
+- Savings management with automated calculations
+- Loan management with strategic repayment plans
+- Budget creation and monitoring
+- Financial reporting and analytics
 
+### 👥 **Social Features**
+- User friendship system
+- Experience sharing between users
+- Collaborative wallet invitations
+- User profile management
 
-Unlike traditional finance apps that treat all money as one pool, Rased recognizes that people naturally think about money in different contexts. Each wallet in Rased operates as an independent financial environment with its own:
+### 💸 **Money Transfer**
+- Secure peer-to-peer transfers
+- Inter-wallet transfers
+- Transaction history tracking
+- Real-time balance updates
 
-- **Visual Identity**: Custom colors and icons for instant recognition
-- **Currency System**: Support for different currencies per wallet
-- **Financial Tracking**: Complete income, expense, and budget management
-- **Goal Setting**: Personalized financial objectives and progress tracking
-- **Savings Management**: Track various saving instruments (gold, foreign currency, investments)
-- **Transfer System**: Move money between your wallets or send to friends
-- **Activity Status**: Enable or disable wallets as your financial needs change
+## 🛠️ Technology Stack
 
-## Key Features
+- **Framework**: ASP.NET Core 9.0 Web API
+- **Architecture**: 3-Tier Architecture (API, Business, Infrastructure)
+- **Database**: SQL Server with Entity Framework Core
+- **Authentication**: JWT Bearer Token + ASP.NET Core Identity
+- **AI/ML**: Gemini LLM, Computer Vision
+- **Email Service**: SMTP with MailKit
+- **Validation**: FluentValidation
+- **Testing**: xUnit, Moq, FluentAssertions
+- **Documentation**: Swagger/OpenAPI with Swashbuckle
+- **Dependency Injection**: ASP.NET Core DI Container
 
-### Individual Wallet Management
-- **Budget Planning**: Set and monitor budgets with category-based tracking
-- **Income Tracking**: Record and categorize all income sources
-- **Expense Management**: Detailed expense logging with categorization
-- **Financial Goals**: Set objectives like "increase income by 20%" or "reduce dining expenses"
-- **Savings Portfolio**: Track different saving types including precious metals, foreign currencies, and other assets
+## 📁 Project Structure (3-Tier Architecture)
 
-### Social Financial Features
-- **Friend Network**: Connect with other Rased users for financial collaboration
-- **Shared Wallets**: Create collaborative wallets for shared expenses, group trips, or household budgets
-- **Peer Transfers**: Send money directly to friends with full transaction tracking
-- **Transaction History**: Complete audit trail of all transfers between friends
-
-### Wallet Customization
-- **Visual Personalization**: Choose colors and icons that represent each wallet's purpose
-- **Multi-Currency Support**: Each wallet can operate in its preferred currency
-- **Flexible Organization**: Create wallets for different purposes (Personal, Business, Travel, Shared Expenses)
-- **Status Management**: Activate or deactivate wallets based on current needs
-
-## Use Cases
-
-**Personal Organization**: Separate personal spending from business expenses with dedicated wallets for each context.
-
-**Family Financial Management**: Create shared wallets for household expenses while maintaining individual wallets for personal spending.
-
-**Group Expense Tracking**: Manage shared expenses for roommates, group trips, or collaborative projects with transparent tracking and easy settlement.
-
-**Multi-Currency Management**: Handle different currencies for international travel, foreign investments, or cross-border transactions.
-
-**Goal-Oriented Saving**: Set up dedicated wallets for specific financial goals like emergency funds, vacation savings, or major purchases.
-
-**Investment Tracking**: Monitor various saving and investment vehicles including traditional savings, precious metals, and foreign currency holdings.
-
-## Security Architecture
-
-### Authentication & Authorization
-- **JWT with Refresh Tokens**: Secure token-based authentication with automatic refresh mechanism for seamless user experience
-- **Email Verification**: Mandatory email verification for account activation and critical operations
-- **Account Protection**: Automatic account lockout after 4 failed login attempts for 15 minutes to prevent brute force attacks
-
-### Password Security
-- **High-Security Requirements**: Enforced complex password policies with minimum length, character variety, and strength validation
-- **Salt-Based Hashing**: Password hashing with unique salts to prevent rainbow table attacks
-- **Secure Password Reset**: Multi-step password reset process with time-limited tokens
-
-### Application Security
-- **SQL Injection Prevention**: Parameterized queries and ORM-based data access to eliminate SQL injection vulnerabilities
-- **XSS Protection**: Input validation and output encoding to prevent cross-site scripting attacks
-- **CSRF Protection**: Anti-forgery tokens for state-changing operations
-- **Rate Limiting**: API endpoint rate limiting to prevent abuse and ensure service availability
-- **Data Encryption**: Sensitive financial data encrypted at rest and in transit
-- **Input Validation**: Comprehensive server-side validation for all user inputs and file uploads
-
-### Financial Data Protection
-- **Data Encryption**: Sensitive financial data encrypted at rest and in transit
-- **Data Anonymization**: User data anonymization capabilities for privacy compliance
-
-## API Endpoints Overview
-
-### Wallet Management API
-- **CRUD Operations**: Complete wallet lifecycle management with validation
-- **Multi-Currency Support**: Currency conversion and exchange rate integration
-- **Wallet Sharing**: Friend network integration and shared wallet management
-- **Status Management**: Wallet activation/deactivation with data preservation
-
-### Financial Tracking API
-- **Budget Management**: Budget creation, monitoring, and variance reporting
-- **Income Tracking**: Multiple income source management with categorization
-- **Expense Processing**: Detailed expense logging with AI-assisted categorization
-- **Transfer System**: Secure peer-to-peer transfers with transaction verification
-
-### AI Integration API
-- **Document Upload**: Secure file upload with virus scanning and validation
-- **OCR Processing**: Receipt and invoice data extraction endpoints
-
-## Quick Start Guide
-
-### Prerequisites
-- .NET Core 9.0.200 SDK
-- SQL Server (LocalDB for development)
-
-### Installation & Setup
-
-```bash
-# 1. Clone the repository
-git clone [repository-url]
-cd rased-backend
-
-# 2. Restore dependencies
-dotnet restore
-
-# 3. Update connection string in appsettings.json
-# Modify the DefaultConnection string to point to your SQL Server instance
-
-# 4. Create and apply database migrations
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-# 5. Run the project
-dotnet run
+```
+rased-backend/
+├── Rased.Api/                      # Presentation Layer
+│   ├── Controllers/               # API Controllers
+│   ├── Middlewares/              # Custom middlewares
+│   ├── wwwroot/                 # Static files
+│   ├── appsettings.json         # Configuration
+│   ├── Program.cs               # Application entry point and Service configuration
+│
+├── Rased.Business/                 # Business Logic Layer
+│   ├── Services/                # Business services
+│   │   ├── WalletService.cs
+│   │   ├── TransactionService.cs
+│   │   ├── AIService.cs
+│   │   ├── AuthService.cs
+│   │   └── RecommendationService.cs
+│   ├── DTOs/                    # Data Transfer Objects
+│   └── Mappers/              # AutoMapper profiles
+│
+├── Rased.Infrastructure/           # Data Access Layer
+│   ├── Data/                    # DbContext and configurations
+│   ├── Repositories/            # Repository implementations
+│   ├── Entities/                # Database entities
+│   ├── Migrations/              # EF Core migrations
+│   ├── Models/                  # System Entities
+│   ├── Helpers/                 # Helpers classes
+│   └── UnitOfWork/              # Unit Of Work Design Pattern
+│
+│
+└── Rased.sln                      # Solution file
 ```
 
-### Configuration
-Update your `appsettings.json` with appropriate connection string:
+## 🚦 Getting Started
+
+### Prerequisites
+- .NET 9.0 SDK or higher
+- SQL Server (LocalDB, Express, or Full)
+- Visual Studio 2022 or VS Code with C# extension
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/rased-backend.git
+   cd rased-backend
+   ```
+
+2. **Restore NuGet packages**
+   ```bash
+   dotnet restore
+   ```
+
+3. **Database Setup**
+   ```bash
+   # Update connection string in appsettings.json
+   # Run migrations
+   dotnet ef database update --project Rased.Infrastructure --startup-project Rased.Api
+   ```
+
+4. **Environment Setup**
+   Update `appsettings.json` and `appsettings.Development.json`:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RasedDB;Trusted_Connection=true;MultipleActiveResultSets=true"
+     },
+     "JwtSettings": {
+       "SecretKey": "your-super-secret-jwt-key-here",
+       "Issuer": "RasedApi",
+       "Audience": "RasedClient",
+       "ExpirationInMinutes": 60
+     },
+     "EmailSettings": {
+       "SmtpServer": "smtp.gmail.com",
+       "SmtpPort": 587,
+       "Username": "your-email@gmail.com",
+       "Password": "your-app-password"
+     },
+     "AISettings": {
+       "OcrEndpoint": "your-azure-cognitive-services-endpoint",
+       "OcrApiKey": "your-ocr-api-key"
+     }
+   }
+   ```
+
+5. **Start the application**
+   ```bash
+   # Development mode
+   dotnet run --project Rased.Api
+   
+   # Or using Visual Studio - Set Rased.Api as startup project
+   ```
+
+## 📚 API Documentation
+
+### Base URL
+```
+https://localhost:7001/api/v1
+```
+
+### Authentication Endpoints
+```http
+POST /api/v1/auth/register          # User registration
+POST /api/v1/auth/login             # User login
+POST /api/v1/auth/refresh-token     # Refresh JWT token
+POST /api/v1/auth/forgot-password   # Request password reset
+POST /api/v1/auth/reset-password    # Reset password
+POST /api/v1/auth/verify-2fa        # Verify 2FA code
+POST /api/v1/auth/logout            # User logout
+```
+
+### Wallet Endpoints
+```http
+GET    /api/v1/wallets              # Get user wallets
+POST   /api/v1/wallets              # Create new wallet
+GET    /api/v1/wallets/{id}         # Get wallet details
+PUT    /api/v1/wallets/{id}         # Update wallet
+DELETE /api/v1/wallets/{id}         # Delete wallet
+POST   /api/v1/wallets/{id}/invite  # Invite user to shared wallet
+```
+
+### AI Endpoints
+```http
+POST   /api/v1/ai/process-invoice   # OCR invoice processing
+GET    /api/v1/ai/recommendations   # Get financial recommendations
+POST   /api/v1/ai/analyze-spending  # Analyze spending patterns
+```
+
+For complete API documentation, visit: `http://rased-api.runasp.net/swagger/index.html`
+
+### Production Configuration
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RasedDB;Trusted_Connection=true;"
+    "DefaultConnection": "your-production-sql-connection-string"
+  },
+  "JwtSettings": {
+    "SecretKey": "your-production-jwt-secret-key",
+    "ExpirationInMinutes": 30
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
   }
 }
 ```
-- **Authentication**: Login, logout, token refresh, and session management
-- **Profile Management**: User profile CRUD operations with validation
-- **Friend Network**: User discovery, friend requests, and relationship management
-- **Security Operations**: Password change, email verification, and account recovery
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+Graduation Project 2025, FCI - KFSU
+
+## 👥 Team
+
+- **Mohamed Adel Elsayed** - FullStack Engineer
+- **Ayman Mohamed** - Backend Engineer
+- **Fawzy Shaker** - Backend Engineer
+- **Mohamed Elmahallawy** - CyberSecurity Engineer
+- **Basem Mohamed** - Frontend Engineer
+- **Basant Selima** - Product Designer
+
+## 📞 Support
+
+For support and questions:
+- 📧 Email: rased.fci@gmail.com
+- 📖 Documentation: [Swagger API Docs](http://rased-api.runasp.net/swagger/index.html)
+
+---
+
+**⭐ Star this repo if you find it helpful!**
